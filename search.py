@@ -5,11 +5,11 @@ search.py — Tìm ảnh giống nhất bằng SigLIP / SigLIP 2 (Hugging Face).
 Cách dùng trên terminal:
     pip install -r requirements.txt
 
-    # Cách 1 (khuyên dùng): ảnh query là tham số vị trí
-    python search.py anh_moi.jpg --gallery gallery_huy
+    # Cách 1 (khuyên dùng): ảnh query là tham số vị trí (gallery mặc định là data/)
+    python search.py anh_moi.jpg
 
-    # Cách 2: dùng flag --query
-    python search.py --query anh_moi.jpg --gallery gallery_huy --model google/siglip-base-patch16-224
+    # Cách 2: dùng flag --query, chỉ định gallery khác
+    python search.py --query anh_moi.jpg --gallery data --model google/siglip-base-patch16-224
 
     # Đổi sang SigLIP 2:
     python search.py anh_moi.jpg --model google/siglip2-base-patch16-224
@@ -20,8 +20,8 @@ Cách dùng trên terminal:
 Kết quả in ra đúng 1 dòng chính, ví dụ:
     Ảnh này giống ảnh danh_nhau_1.jpg nhất, độ khớp 89%.
 
-Thư mục gallery mặc định là `gallery_huy/` (chứa ~15 ảnh của bạn Huy).
-Bỏ 15 ảnh vào đó rồi chạy lệnh trên. Có thể trỏ sang thư mục khác bằng --gallery.
+Thư mục gallery mặc định là `data/` (chứa 15 ảnh của bạn Huy).
+Có thể trỏ sang thư mục khác bằng --gallery.
 """
 
 import argparse
@@ -39,7 +39,8 @@ except ImportError as e:
     raise SystemExit(2)
 
 DEFAULT_MODEL = "google/siglip-base-patch16-224"  # SigLIP. Muốn SigLIP 2: google/siglip2-base-patch16-224
-DEFAULT_GALLERY = "gallery_huy"
+DEFAULT_GALLERY = "data"  # 15 ảnh của bạn Huy nằm ở đây (theo commit mới nhất trên main)
+GALLERY_FALLBACK = "gallery_huy"
 IMG_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 
@@ -50,7 +51,7 @@ def parse_args(argv=None):
     p.add_argument("query_pos", nargs="?", default=None, help="Đường dẫn ảnh mới cần tra cứu.")
     p.add_argument("--query", "-q", default=None, help="Đường dẫn ảnh mới cần tra cứu (dạng flag).")
     p.add_argument(
-        "--gallery", "-g", default=DEFAULT_GALLERY,
+        "--gallery", "-g", default=None,
         help=f"Thư mục chứa ảnh gốc để so sánh (mặc định: {DEFAULT_GALLERY}).",
     )
     p.add_argument(
@@ -102,19 +103,24 @@ def main(argv=None):
 
     query_path = args.query or args.query_pos
     if not query_path:
-        print("Thiếu ảnh đầu vào. Ví dụ: python search.py anh_moi.jpg --gallery gallery_huy", file=sys.stderr)
+        print("Thiếu ảnh đầu vào. Ví dụ: python search.py anh_moi.jpg", file=sys.stderr)
         return 2
     query_path = Path(query_path)
     if not query_path.is_file():
         print(f"Không tìm thấy ảnh query: {query_path}", file=sys.stderr)
         return 2
 
-    gallery_dir = Path(args.gallery)
+    if args.gallery:
+        gallery_dir = Path(args.gallery)
+    elif Path(DEFAULT_GALLERY).is_dir():
+        gallery_dir = Path(DEFAULT_GALLERY)
+    else:
+        gallery_dir = Path(GALLERY_FALLBACK)
     if not gallery_dir.is_dir():
         print(
             f"Không tìm thấy thư mục gallery: {gallery_dir}\n"
-            f"Hãy tạo thư mục '{gallery_dir}' và bỏ ~15 ảnh của bạn Huy vào đó, "
-            f"rồi chạy lại. Ví dụ: python search.py {query_path} --gallery {gallery_dir}",
+            f"Thư mục mặc định '{DEFAULT_GALLERY}' chứa 15 ảnh của bạn Huy. "
+            f"Ví dụ: python search.py {query_path} --gallery {DEFAULT_GALLERY}",
             file=sys.stderr,
         )
         return 2
