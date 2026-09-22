@@ -1,0 +1,92 @@
+[
+  {
+    "id": "1",
+    "file": "danh_nhau_1.jpg",
+    "ten_su_kien": "Đánh nhau ở bãi xe",
+    "cach_xu_ly": "Báo bảo vệ cổng A và gọi cứu thương"
+  },
+  {
+    "id": "2",
+    "file": "danh_nhau_2.jpg",
+    "ten_su_kien": "Xô xát tại sảnh chính",
+    "cach_xu_ly": "Cử lực lượng an ninh can thiệp và trích xuất camera"
+  },
+  {
+    "id": "3",
+    "file": "danh_nhau_3.jpg",
+    "ten_su_kien": "Cãi vã và ẩu đả tại khu vực hàng quán",
+    "cach_xu_ly": "Báo công an phường và lập biên bản vụ việc"
+  },
+  {
+    "id": "4",
+    "file": "danh_nhau_4.jpg",
+    "ten_su_kien": "Tụ tập gây rối trật tự công cộng",
+    "cach_xu_ly": "Yêu cầu giải tán và liên hệ lực lượng dân phòng"
+  },
+  {
+    "id": "5",
+    "file": "danh_nhau_5.jpg",
+    "ten_su_kien": "Đánh nhau nguy hiểm có hung khí",
+    "cach_xu_ly": "Báo ngay cho 113 và phong tỏa khu vực xung quanh"
+  },
+  {
+    "id": "6",
+    "file": "duong_pho_1.jpg",
+    "ten_su_kien": "Ùn tắc giao thông giờ cao điểm",
+    "cach_xu_ly": "Cử đội điều khiển giao thông ra phân luồng"
+  },
+  {
+    "id": "7",
+    "file": "duong_pho_2.jpg",
+    "ten_su_kien": "Ngập nước cục bộ trên đường",
+    "cach_xu_ly": "Đặt biển cảnh báo nguy hiểm và thông báo đơn vị thoát nước"
+  },
+  {
+    "id": "8",
+    "file": "duong_pho_3.jpg",
+    "ten_su_kien": "Cây xanh đổ chắn ngang đường",
+    "cach_xu_ly": "Báo công ty cây xanh xử lý và tạm thời chặn đường"
+  },
+  {
+    "id": "9",
+    "file": "duong_pho_4.jpg",
+    "ten_su_kien": "Lấn chiếm lòng lề đường buôn bán",
+    "cach_xu_ly": "Phối hợp quản lý đô thị nhắc nhở và xử lý vi phạm"
+  },
+  {
+    "id": "10",
+    "file": "duong_pho_5.jpg",
+    "ten_su_kien": "Xả rác bừa bãi gây mất mỹ quan",
+    "cach_xu_ly": "Ghi nhận camera và liên hệ đội vệ sinh môi trường"
+  },
+  {
+    "id": "11",
+    "file": "tai_nan_xe_1.jpg",
+    "ten_su_kien": "Va chạm nhẹ giữa 2 xe máy",
+    "cach_xu_ly": "Hỗ trợ hai bên di dời xe vào sát vỉa hè"
+  },
+  {
+    "id": "12",
+    "file": "tai_nan_xe_2.jpg",
+    "ten_su_kien": "Ô tô va chạm xe đạp điện",
+    "cach_xu_ly": "Gọi cấp cứu 115 và bảo vệ hiện trường"
+  },
+  {
+    "id": "13",
+    "file": "tai_nan_xe_3.jpg",
+    "ten_su_kien": "Tai nạn giao thông nghiêm trọng",
+    "cach_xu_ly": "Báo CSGT, gọi cấp cứu và đặt cọc tiêu cảnh báo"
+  },
+  {
+    "id": "14",
+    "file": "tai_nan_xe_4.jpg",
+    "ten_su_kien": "Xe tải gặp sự cố lật đường",
+    "cach_xu_ly": "Điều xe cứu hộ chuyên dụng và phân luồng xe khác"
+  },
+  {
+    "id": "15",
+    "file": "tai_nan_xe_5.jpg",
+    "ten_su_kien": "Xe máy tự ngã do đường trơn trượt",
+    "cach_xu_ly": "Sơ cứu người bị thương và rào chắn khu vực nguy hiểm"
+  }
+]
