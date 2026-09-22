@@ -1,0 +1,6 @@
+torch
+transformers
+Pillow
+hf_xet
+sentencepiece
+protobuf
