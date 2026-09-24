@@ -1,27 +1,31 @@
 # -*- coding: utf-8 -*-
 """
-search.py — Tìm ảnh giống nhất bằng SigLIP / SigLIP 2 (Hugging Face).
+search.py — Tìm ảnh giống nhất bằng SigLIP 2 (Hugging Face).
 
-Cách dùng trên terminal:
+Contract nhóm (README): ``search(image_path)`` -> ``(file, score)``
+tên ảnh khớp nhất + độ khớp 0..100. Ví dụ::
+
+    from search import search
+
+    file, score = search("anh_moi.jpg")
+    print(f"Ảnh này giống ảnh {file} nhất, độ khớp {score}%.")
+    # Ảnh này giống ảnh danh_nhau_1.jpg nhất, độ khớp 89%.
+
+Gọi kèm tùy chọn (vẫn tương thích contract)::
+
+    search("anh_moi.jpg", gallery_dir="data")   # thư mục ảnh gốc
+    search("anh_moi.jpg", topk=3)               # -> [(file, score), ...]
+
+Chạy trên terminal::
+
     pip install -r requirements.txt
-
-    # Cách 1 (khuyên dùng): ảnh query là tham số vị trí (gallery mặc định là data/)
-    python search.py anh_moi.jpg
-
-    # Cách 2: dùng flag --query, chỉ định gallery khác
-    python search.py --query anh_moi.jpg --gallery data --model google/siglip-base-patch16-224
-
-    # Đổi sang SigLIP 2:
-    python search.py anh_moi.jpg --model google/siglip2-base-patch16-224
-
-    # Xem thêm top-k kết quả:
+    python search.py anh_moi.jpg                       # gallery mặc định: data/
     python search.py anh_moi.jpg --topk 3
+    python search.py --query anh_moi.jpg --gallery data --model google/siglip2-base-patch16-384
 
-Kết quả in ra đúng 1 dòng chính, ví dụ:
-    Ảnh này giống ảnh danh_nhau_1.jpg nhất, độ khớp 89%.
-
-Thư mục gallery mặc định là `data/` (chứa 15 ảnh của bạn Huy).
-Có thể trỏ sang thư mục khác bằng --gallery.
+Thư mục gallery mặc định là ``data/`` (15 ảnh của bạn Huy).
+Model mặc định là SigLIP 2 theo chốt của nhóm; máy yếu đổi sang
+``google/siglip2-small-patch16-256`` (xem README).
 """
 
 import argparse
@@ -38,32 +42,16 @@ except ImportError as e:
     print(f"Thiếu thư viện: {e}. Hãy chạy: pip install -r requirements.txt", file=sys.stderr)
     raise SystemExit(2)
 
-DEFAULT_MODEL = "google/siglip-base-patch16-224"  # SigLIP. Muốn SigLIP 2: google/siglip2-base-patch16-224
-DEFAULT_GALLERY = "data"  # 15 ảnh của bạn Huy nằm ở đây (theo commit mới nhất trên main)
+__all__ = ["search", "load_model", "format_result", "main", "DEFAULT_MODEL", "DEFAULT_GALLERY"]
+
+DEFAULT_MODEL = "google/siglip2-base-patch16-384"  # SigLIP 2 (nhóm chốt). Máy yếu: google/siglip2-small-patch16-256
+DEFAULT_GALLERY = "data"  # 15 ảnh của bạn Huy
 GALLERY_FALLBACK = "gallery_huy"
 IMG_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
-
-def parse_args(argv=None):
-    p = argparse.ArgumentParser(
-        description="So 1 ảnh mới với thư viện ảnh (mặc định 15 ảnh của Huy) bằng SigLIP/SigLIP2."
-    )
-    p.add_argument("query_pos", nargs="?", default=None, help="Đường dẫn ảnh mới cần tra cứu.")
-    p.add_argument("--query", "-q", default=None, help="Đường dẫn ảnh mới cần tra cứu (dạng flag).")
-    p.add_argument(
-        "--gallery", "-g", default=None,
-        help=f"Thư mục chứa ảnh gốc để so sánh (mặc định: {DEFAULT_GALLERY}).",
-    )
-    p.add_argument(
-        "--model", "-m", default=DEFAULT_MODEL,
-        help=(
-            "Model Hugging Face. Ví dụ SigLIP: google/siglip-base-patch16-224 | "
-            "SigLIP 2: google/siglip2-base-patch16-224"
-        ),
-    )
-    p.add_argument("--topk", "-k", type=int, default=1, help="Số kết quả giống nhất muốn xem (mặc định: 1).")
-    p.add_argument("--device", default=None, help="cpu / cuda / cuda:0 ... (mặc định tự chọn).")
-    return p.parse_args(argv)
+# Cache model theo (model_name, device) để gọi search() nhiều lần
+# trong cùng 1 process (ví dụ main.py) không phải tải lại model.
+_MODEL_CACHE: dict = {}
 
 
 def pick_device(name=None):
@@ -72,9 +60,50 @@ def pick_device(name=None):
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
+def _resolve_device(device):
+    if device is None:
+        return pick_device(None)
+    return device if isinstance(device, torch.device) else torch.device(device)
+
+
+def resolve_gallery(gallery_dir=None) -> Path:
+    """Trả về Path thư mục gallery. Raise FileNotFoundError nếu không có."""
+    if gallery_dir:
+        gallery = Path(gallery_dir)
+    elif Path(DEFAULT_GALLERY).is_dir():
+        gallery = Path(DEFAULT_GALLERY)
+    else:
+        gallery = Path(GALLERY_FALLBACK)
+    if not gallery.is_dir():
+        raise FileNotFoundError(
+            f"Không tìm thấy thư mục gallery: {gallery}. "
+            f"Thư mục mặc định '{DEFAULT_GALLERY}' chứa 15 ảnh của bạn Huy."
+        )
+    return gallery
+
+
 def list_images(folder: Path):
     files = [p for p in sorted(folder.iterdir()) if p.is_file() and p.suffix.lower() in IMG_EXTS]
     return files
+
+
+def load_model(model_name=None, device=None):
+    """Tải (có cache) processor + model SigLIP 2. Trả về (processor, model, device)."""
+    model_name = model_name or DEFAULT_MODEL
+    device = _resolve_device(device)
+    key = (model_name, str(device))
+    if key not in _MODEL_CACHE:
+        try:
+            processor = AutoProcessor.from_pretrained(model_name)
+            model = AutoModel.from_pretrained(model_name).to(device)
+        except Exception as e:
+            raise RuntimeError(
+                f"Không tải được model '{model_name}': {e}. Gợi ý: kiểm tra mạng / tên model. "
+                f"SigLIP 2: google/siglip2-base-patch16-384 (máy yếu: google/siglip2-small-patch16-256)."
+            ) from e
+        model.eval()
+        _MODEL_CACHE[key] = (processor, model, device)
+    return _MODEL_CACHE[key]
 
 
 @torch.no_grad()
@@ -98,6 +127,86 @@ def embed_images(paths, processor, model, device, batch_size=8):
     return torch.cat(feats, dim=0)
 
 
+def _rank(query_path, gallery_files, processor, model, device, topk=1):
+    """Chấm cosine query vs gallery, trả về [(tên_file, độ_khớp_0_100), ...] giảm dần."""
+    gallery_embs = embed_images(gallery_files, processor, model, device)  # (N, D)
+    query_emb = embed_images([query_path], processor, model, device)      # (1, D)
+    sims = (query_emb @ gallery_embs.T).squeeze(0)  # cosine vì đã normalize, range [-1, 1]
+    k = max(1, min(topk, len(gallery_files)))
+    top_vals, top_idx = torch.topk(sims, k=k)
+    results = []
+    for rank in range(k):
+        name = gallery_files[int(top_idx[rank])].name
+        pct = int(round(float(torch.clamp(top_vals[rank], 0.0, 1.0)) * 100))
+        results.append((name, pct))
+    return results
+
+
+def search(image_path, gallery_dir=None, model_name=None, device=None, topk=1):
+    """Tìm ảnh giống nhất — đúng contract nhóm.
+
+    Args:
+        image_path: đường dẫn ảnh mới cần tra cứu.
+        gallery_dir: thư mục ảnh gốc (mặc định ``data/``).
+        model_name: model Hugging Face (mặc định SigLIP 2).
+        device: ``cpu`` / ``cuda`` ... (mặc định tự chọn).
+        topk: số kết quả muốn lấy. ``topk=1`` (mặc định) trả về
+            tuple ``(file, score)`` đúng contract; ``topk>1`` trả về
+            list ``[(file, score), ...]`` giảm dần.
+
+    Returns:
+        ``(file, score)`` — tên ảnh khớp nhất + độ khớp 0..100.
+
+    Raises:
+        FileNotFoundError: ảnh query / thư mục gallery không tồn tại.
+        ValueError: gallery không có ảnh nào.
+        RuntimeError: không tải được model.
+    """
+    query_path = Path(image_path)
+    if not query_path.is_file():
+        raise FileNotFoundError(f"Không tìm thấy ảnh query: {query_path}")
+
+    gallery = resolve_gallery(gallery_dir)
+    gallery_files = list_images(gallery)
+    if not gallery_files:
+        raise ValueError(f"Thư mục gallery '{gallery}' chưa có ảnh nào (hỗ trợ: {sorted(IMG_EXTS)}).")
+
+    processor, model, device = load_model(model_name, device)
+    results = _rank(query_path, gallery_files, processor, model, device, topk=topk)
+    if topk == 1:
+        return results[0]
+    return results
+
+
+def format_result(best_file, best_score=None) -> str:
+    """Dựng câu kết quả tiếng Việt. Nhận tuple (file, score) hoặc 2 tham số rời."""
+    if best_score is None:
+        best_file, best_score = best_file
+    return f"Ảnh này giống ảnh {best_file} nhất, độ khớp {best_score}%."
+
+
+def parse_args(argv=None):
+    p = argparse.ArgumentParser(
+        description="So 1 ảnh mới với thư viện ảnh (mặc định 15 ảnh của Huy) bằng SigLIP 2."
+    )
+    p.add_argument("query_pos", nargs="?", default=None, help="Đường dẫn ảnh mới cần tra cứu.")
+    p.add_argument("--query", "-q", default=None, help="Đường dẫn ảnh mới cần tra cứu (dạng flag).")
+    p.add_argument(
+        "--gallery", "-g", default=None,
+        help=f"Thư mục chứa ảnh gốc để so sánh (mặc định: {DEFAULT_GALLERY}).",
+    )
+    p.add_argument(
+        "--model", "-m", default=DEFAULT_MODEL,
+        help=(
+            "Model Hugging Face. Mặc định SigLIP 2: google/siglip2-base-patch16-384 | "
+            "máy yếu: google/siglip2-small-patch16-256"
+        ),
+    )
+    p.add_argument("--topk", "-k", type=int, default=1, help="Số kết quả giống nhất muốn xem (mặc định: 1).")
+    p.add_argument("--device", default=None, help="cpu / cuda / cuda:0 ... (mặc định tự chọn).")
+    return p.parse_args(argv)
+
+
 def main(argv=None):
     args = parse_args(argv)
 
@@ -105,59 +214,27 @@ def main(argv=None):
     if not query_path:
         print("Thiếu ảnh đầu vào. Ví dụ: python search.py anh_moi.jpg", file=sys.stderr)
         return 2
-    query_path = Path(query_path)
-    if not query_path.is_file():
-        print(f"Không tìm thấy ảnh query: {query_path}", file=sys.stderr)
-        return 2
 
-    if args.gallery:
-        gallery_dir = Path(args.gallery)
-    elif Path(DEFAULT_GALLERY).is_dir():
-        gallery_dir = Path(DEFAULT_GALLERY)
-    else:
-        gallery_dir = Path(GALLERY_FALLBACK)
-    if not gallery_dir.is_dir():
-        print(
-            f"Không tìm thấy thư mục gallery: {gallery_dir}\n"
-            f"Thư mục mặc định '{DEFAULT_GALLERY}' chứa 15 ảnh của bạn Huy. "
-            f"Ví dụ: python search.py {query_path} --gallery {DEFAULT_GALLERY}",
-            file=sys.stderr,
-        )
-        return 2
-
-    gallery_files = list_images(gallery_dir)
-    if not gallery_files:
-        print(f"Thư mục gallery '{gallery_dir}' chưa có ảnh nào (hỗ trợ: {sorted(IMG_EXTS)}).", file=sys.stderr)
-        return 2
-
-    device = pick_device(args.device)
     try:
-        processor = AutoProcessor.from_pretrained(args.model)
-        model = AutoModel.from_pretrained(args.model).to(device)
-    except Exception as e:
-        print(f"Không tải được model '{args.model}': {e}", file=sys.stderr)
-        print("Gợi ý: kiểm tra mạng / tên model. SigLIP: google/siglip-base-patch16-224, "
-              "SigLIP 2: google/siglip2-base-patch16-224", file=sys.stderr)
+        results = search(
+            query_path,
+            gallery_dir=args.gallery,
+            model_name=args.model,
+            device=args.device,
+            topk=args.topk,
+        )
+    except (FileNotFoundError, ValueError, RuntimeError) as e:
+        print(e, file=sys.stderr)
         return 2
 
-    gallery_embs = embed_images(gallery_files, processor, model, device)  # (N, D)
-    query_emb = embed_images([query_path], processor, model, device)      # (1, D)
-
-    sims = (query_emb @ gallery_embs.T).squeeze(0)  # cosine vì đã normalize, range [-1, 1]
-    k = max(1, min(args.topk, len(gallery_files)))
-    top_vals, top_idx = torch.topk(sims, k=k)
-
-    best_file = gallery_files[int(top_idx[0])].name
-    best_pct = int(round(float(torch.clamp(top_vals[0], 0.0, 1.0)) * 100))
-
-    # Dòng kết quả chính — đúng format yêu cầu:
-    print(f"Ảnh này giống ảnh {best_file} nhất, độ khớp {best_pct}%.")
-
-    if k > 1:
-        for rank in range(1, k):
-            name = gallery_files[int(top_idx[rank])].name
-            pct = int(round(float(torch.clamp(top_vals[rank], 0.0, 1.0)) * 100))
-            print(f"Top {rank + 1}: {name} — độ khớp {pct}%.")
+    if args.topk == 1:
+        # Dòng kết quả chính — đúng format yêu cầu:
+        print(format_result(results))
+    else:
+        best_file, best_pct = results[0]
+        print(format_result(best_file, best_pct))
+        for rank, (name, pct) in enumerate(results[1:], start=2):
+            print(f"Top {rank}: {name} — độ khớp {pct}%.")
 
     return 0
 
