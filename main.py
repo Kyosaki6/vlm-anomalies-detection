@@ -10,9 +10,6 @@ Cách chạy:
     python main.py                       # mặc định thử với data/danh_nhau_1.jpg
     python main.py data/tai_nan_xe_1.jpg
     python main.py <ảnh bất kỳ.jpg>
-
-Lưu ý: nếu search.py chưa có hàm search() (đang chờ Phước thêm), script in thông
-báo rõ ràng thay vì crash — phần còn lại của pipeline vẫn chạy thử được.
 """
 import argparse
 import json
@@ -20,6 +17,7 @@ import os
 import sys
 
 import graph
+from search import search
 
 # Windows console: cho phép in tiếng Việt đúng chuẩn
 try:
@@ -50,22 +48,12 @@ def run(image_path: str) -> None:
         print(f"[main.py] Lỗi: không thấy ảnh '{image_path}'.")
         sys.exit(1)
 
-    # 1) tìm ảnh giống nhất trong bộ sưu tập — hàm search() do Phước thêm vào search.py
+    # 1) tìm ảnh giống nhất trong bộ sưu tập — hàm search() của Phước (search.py)
     try:
-        from search import search
-    except (ImportError, AttributeError):
-        print("=" * 60)
-        print("[main.py] search.py chưa có hàm search() — nhờ Phước thêm đoạn này:")
-        print()
-        print("    def search(image_path):")
-        print("        best_file, score = <logic hiện tại của search.py>")
-        print("        return best_file, score")
-        print()
-        print("Khi có hàm đó, chạy lại: python main.py <ảnh>")
-        print("=" * 60)
+        best_file, score = search(image_path)
+    except (FileNotFoundError, ValueError, RuntimeError) as e:
+        print(f"[main.py] Lỗi khi tìm ảnh: {e}")
         sys.exit(1)
-
-    best_file, score = search(image_path)
 
     # 2) map tên file → event id (dữ liệu của Huy)
     file_to_id = load_file_to_id()
