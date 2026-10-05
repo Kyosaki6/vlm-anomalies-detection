@@ -18,7 +18,7 @@ Khi có một ảnh mới từ camera, hệ thống tìm **sự kiện cũ giố
 pip install -r requirements.txt
 ```
 
-> Lần đầu chạy sẽ **tải model ~400 MB** (`google/siglip2-base-patch16-384`) từ HuggingFace về máy.
+> Lần đầu chạy sẽ **tải model ~1.5 GB** (1,432 MiB — `google/siglip2-base-patch16-384`) từ HuggingFace về máy.
 > Máy yếu: đổi trong `search.py` thành `google/siglip2-small-patch16-256`.
 
 ## Chạy
@@ -36,9 +36,9 @@ python main.py data/danh_nhau_1.jpg      # pipeline đầy đủ: ảnh → sự
 
 | File | Hàm | Trả về |
 |------|-----|--------|
-| `search.py` | `search(image_path)` *(cần thêm — hiện là CLI)* | `(file, score)` — tên ảnh khớp nhất + độ khớp 0..100 |
+| `search.py` | `search(image_path, gallery_dir=None, model_name=None, device=None, topk=1)` *(đã có trên `main`)* | `topk=1`: `(file, score)` — ảnh khớp nhất + độ khớp 0..100 · `topk>1`: `[(file, score), ...]` |
 | `graph.py` | `get_action(event_id)` | `str` — cách xử lý của sự kiện (hoặc `None` nếu không có) |
-| `graph.py` | `get_event(event_id)` | `dict` — thông tin sự kiện (hoặc `None`) |
+| `graph.py` | `get_event(event_id)` | `str \| None` — **tên** sự kiện (`ten_su_kien`), không phải dict (hoặc `None` nếu không có) |
 | `main.py` | `python main.py <ảnh>` | ảnh → file khớp → `events.json` → sự kiện + cách xử lý |
 
 ## Dữ liệu
