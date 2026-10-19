@@ -17,7 +17,8 @@ import os
 import sys
 
 import graph
-from search import search
+from decision import DEFAULT_ANOMALY_THRESHOLD, decide_abnormal
+from search import search, anomaly_score
 
 # Windows console: cho phép in tiếng Việt đúng chuẩn
 try:
@@ -42,7 +43,7 @@ def load_file_to_id(path: str = EVENTS_FILE) -> dict:
     return {ev["file"]: str(ev["id"]) for ev in events}
 
 
-def run(image_path: str) -> None:
+def run(image_path: str, threshold: float = DEFAULT_ANOMALY_THRESHOLD) -> None:
     # 0) kiểm tra ảnh đầu vào
     if not os.path.exists(image_path):
         print(f"[main.py] Lỗi: không thấy ảnh '{image_path}'.")
@@ -55,7 +56,17 @@ def run(image_path: str) -> None:
         print(f"[main.py] Lỗi khi tìm ảnh: {e}")
         sys.exit(1)
 
-    # 2) map tên file → event id (dữ liệu của Huy)
+    # 2) điểm bất thường: 1 - độ giống ảnh BÌNH THƯỜNG gần nhất.
+    #    Không dùng "độ khớp %" làm xác suất: gallery có cả ảnh bất thường,
+    #    nên vụ tai nạn vẫn "khớp" cao với vụ tai nạn khác (xem decision.py).
+    try:
+        normal_sim, a_score = anomaly_score(image_path)
+    except (FileNotFoundError, ValueError, RuntimeError) as e:
+        print(f"[main.py] Lỗi khi tính điểm bất thường: {e}")
+        sys.exit(1)
+    is_abnormal = decide_abnormal(a_score, threshold)
+
+    # 3) map tên file → event id (dữ liệu của Huy)
     file_to_id = load_file_to_id()
     event_id = file_to_id.get(best_file)
     if event_id is None:
@@ -63,22 +74,28 @@ def run(image_path: str) -> None:
         print("           Kiểm tra khớp tên file giữa data/ và events.json (nhờ Huy).")
         sys.exit(1)
 
-    # 3) tra tên sự kiện + cách xử lý từ đồ thị (Thịnh)
+    # 4) tra tên sự kiện + cách xử lý từ đồ thị (Thịnh)
     event_name = graph.get_event(event_id)
     action = graph.get_action(event_id)
     if action is None or event_name is None:
         print(f"[main.py] Cảnh báo: sự kiện id={event_id} không có trong graph. Kiểm tra events.json/graph.py.")
         sys.exit(1)
 
-    # 4) in kết quả
+    # 5) in kết quả
+    title = ("PHÁT HIỆN SỰ KIỆN BẤT THƯỜNG" if is_abnormal
+             else "KHÔNG PHÁT HIỆN BẤT THƯỜNG")
+    verdict = "BẤT THƯỜNG" if is_abnormal else "BÌNH THƯỜNG"
     print("=" * 60)
-    print("  PHÁT HIỆN SỰ KIỆN BẤT THƯỜNG — VLM ANOMALIES DETECTION")
+    print(f"  {title} — VLM ANOMALIES DETECTION")
     print("=" * 60)
-    print(f"  Ảnh đầu vào   : {image_path}")
-    print(f"  Giống sự kiện : #{event_id} — {event_name}")
-    print(f"  Độ khớp       : {score}%")
+    print(f"  Ảnh đầu vào       : {image_path}")
+    print(f"  Kết luận          : {verdict} (điểm bất thường {a_score:.3f} "
+          f"{'>=' if is_abnormal else '<'} ngưỡng {threshold:.3f})")
+    print(f"  Giống bình thường : {normal_sim * 100:.0f}% (cosine)")
+    print(f"  Sự kiện gần nhất  : #{event_id} — {event_name}")
+    print(f"  Độ khớp           : {score}%")
     print("-" * 60)
-    print(f"  CÁCH XỬ LÝ    : {action}")
+    print(f"  CÁCH XỬ LÝ        : {action}")
     print("=" * 60)
 
 
@@ -92,5 +109,10 @@ if __name__ == "__main__":
         default="data/danh_nhau_1.jpg",
         help="đường dẫn ảnh cần kiểm tra (mặc định: data/danh_nhau_1.jpg)",
     )
+    parser.add_argument(
+        "--threshold", type=float, default=DEFAULT_ANOMALY_THRESHOLD,
+        help=(f"ngưỡng điểm bất thường (mặc định {DEFAULT_ANOMALY_THRESHOLD}). "
+              "Điểm >= ngưỡng => bất thường. Ngưỡng minh hoạ, chọn trên 15 ảnh."),
+    )
     args = parser.parse_args()
-    run(args.image)
+    run(args.image, threshold=args.threshold)

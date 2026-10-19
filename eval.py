@@ -37,6 +37,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import search  # contract nhóm: search(image_path, gallery_dir, model_name, device, topk)
+import decision  # quy tắc quyết định + chỉ số (ngưỡng, AUC, F1, confusion matrix)
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
@@ -61,6 +62,19 @@ class Hit:
 
 
 @dataclass(frozen=True)
+class AnomalyHit:
+    """Kết quả chấm 'bất thường' của MỘT ảnh.
+
+    score = 1 - max cosine tới gallery ảnh bình thường (duong_pho).
+    """
+    query: str
+    similarity: float      # độ giống ảnh bình thường gần nhất (0..1)
+    score: float           # điểm bất thường = 1 - similarity (0..1)
+    label_abnormal: bool   # nhãn thật: nhóm khác duong_pho => bất thường
+    seconds: float
+
+
+@dataclass(frozen=True)
 class Report:
     """Kết quả đo được của cả một lần chạy eval.py."""
     model: str
@@ -70,6 +84,7 @@ class Report:
     machine: str
     max_id_sharing: int   # số ảnh nhiều nhất dùng chung một id sự kiện (1 = mỗi id một ảnh)
     hits: tuple           # tuple[Hit, ...]
+    anomaly: tuple        # tuple[AnomalyHit, ...]
     r1_id: int
     r3_id: int
     r1_cat: int
@@ -90,10 +105,8 @@ def load_truth() -> dict:
 
 
 def category_of(filename: str) -> str:
-    """'danh_nhau_3.jpg' -> 'danh_nhau' (phần trước số thứ tự cuối cùng)."""
-    stem = Path(filename).stem
-    head, sep, _ = stem.rpartition("_")
-    return head if sep else stem
+    """'danh_nhau_3.jpg' -> 'danh_nhau' (dùng chung với main.py qua decision.py)."""
+    return decision.category_of(filename)
 
 
 def leave_one_out_gallery(images: list, excluded: Path) -> Path:
@@ -135,7 +148,29 @@ def evaluate(files: list, truth: dict, args) -> tuple:
     return tuple(hits)
 
 
-def build_report(hits: tuple, args, gallery: Path) -> Report:
+def evaluate_anomaly(files: list, args) -> tuple:
+    """Chấm điểm bất thường cho từng ảnh (so với gallery ảnh BÌNH THƯỜNG).
+
+    Lưu ý: đây là phép đo khác với ``search()``. ``search()`` tìm sự kiện gần
+    nhất trong cả 15 ảnh; còn ``anomaly_score()`` chỉ so với 5 ảnh duong_pho.
+    """
+    device = search.pick_device(args.device)
+    rows = []
+    for img in files:
+        t0 = time.time()
+        sim, score = search.anomaly_score(str(img), gallery_dir=args.gallery,
+                                          model_name=args.model, device=device)
+        rows.append(AnomalyHit(
+            query=img.name,
+            similarity=sim,
+            score=score,
+            label_abnormal=(category_of(img.name) != decision.NORMAL_PREFIX),
+            seconds=time.time() - t0,
+        ))
+    return tuple(rows)
+
+
+def build_report(hits: tuple, anomaly: tuple, args, gallery: Path) -> Report:
     """Gộp kết quả từng ảnh thành số liệu tổng + thông tin lần chạy."""
     return Report(
         model=args.model,
@@ -145,6 +180,7 @@ def build_report(hits: tuple, args, gallery: Path) -> Report:
         machine=os.environ.get("COMPUTERNAME", "?"),
         max_id_sharing=max(Counter(load_truth().values()).values()),
         hits=hits,
+        anomaly=anomaly,
         r1_id=sum(h.hit1_id for h in hits),
         r3_id=sum(h.hit3_id for h in hits),
         r1_cat=sum(h.hit1_cat for h in hits),
@@ -175,6 +211,36 @@ def print_table(report: Report) -> None:
     print(f"  recall@3 (event-id) = {report.r3_id}/{report.total} = {report.r3_id / report.total:.3f}")
     print(f"  recall@1 (category) = {report.r1_cat}/{report.total} = {report.r1_cat / report.total:.3f}")
     print(f"  TB {report.avg_seconds:.1f}s/ảnh")
+    print("=" * 78)
+
+
+def print_anomaly(report: Report) -> None:
+    """In phần đánh giá nhị phân: bình thường vs bất thường."""
+    rows = report.anomaly
+    scores = [r.score for r in rows]
+    labels = [r.label_abnormal for r in rows]
+    auc = decision.roc_auc(scores, labels)
+    t = decision.DEFAULT_ANOMALY_THRESHOLD
+    m = decision.binary_metrics(labels, [s >= t for s in scores])
+    best = decision.best_f1(scores, labels)
+    loo = decision.loo_threshold_eval(scores, labels)
+    lm = loo["metrics"]
+
+    print("ĐÁNH GIÁ BẤT THƯỜNG (bình thường = 5 ảnh duong_pho)")
+    print(f"  Điểm bất thường = 1 - max cosine tới ảnh bình thường")
+    print(f"  AUC = {auc:.3f}")
+    print(f"  Ngưỡng mặc định {t:.3f}: TP={m['tp']} FP={m['fp']} TN={m['tn']} FN={m['fn']} "
+          f"| P={m['precision']:.3f} R={m['recall']:.3f} F1={m['f1']:.3f} FPR={m['fpr']:.3f}")
+    print(f"  Ngưỡng tốt nhất theo F1 = {best['threshold']:.3f} "
+          f"(F1={best['f1']:.3f}, FPR={best['fpr']:.3f})")
+    print(f"  Leave-one-out chọn ngưỡng: F1={lm['f1']:.3f} acc={lm['accuracy']:.3f} "
+          f"FPR={lm['fpr']:.3f} (ngưỡng TB {loo['mean_threshold']:.3f})")
+    print("  Từng ảnh (nhãn | giống bình thường | điểm | dự đoán):")
+    for r in rows:
+        pred = "BẤT THƯỜNG" if r.score >= t else "bình thường"
+        truth = "bất thường" if r.label_abnormal else "bình thường"
+        print(f"    {r.query:<19} {truth:<11} {r.similarity * 100:5.1f}%  "
+              f"{r.score:.3f}  -> {pred}")
     print("=" * 78)
 
 
@@ -240,6 +306,86 @@ def write_notes(path: Path, report: Report) -> None:
         f.write(f"- {n - report.r1_id}/{n} ảnh không khớp id ở top-1 — xem bảng mục 3 để biết ảnh nào bị "
                 "nhận nhầm sang ảnh nào.\n")
 
+        # ---------------- 6. Đánh giá bất thường (bình thường vs bất thường) ----------------
+        rows = report.anomaly
+        scores = [r.score for r in rows]
+        labels = [r.label_abnormal for r in rows]
+        auc = decision.roc_auc(scores, labels)
+        t = decision.DEFAULT_ANOMALY_THRESHOLD
+        m = decision.binary_metrics(labels, [s >= t for s in scores])
+        best = decision.best_f1(scores, labels)
+        loo = decision.loo_threshold_eval(scores, labels)
+        lm = loo["metrics"]
+        n_abn = sum(labels)
+        n_norm = n - n_abn
+
+        f.write("\n## 6. Đánh giá bất thường (bình thường vs bất thường)\n\n")
+        f.write("**Điểm bất thường** = `1 - max cosine similarity` tới gallery **chỉ gồm ảnh "
+                "bình thường** (`duong_pho_*`). Càng xa ảnh bình thường thì điểm càng cao. "
+                "Đây là phép đo khác với mục 3: mục 3 hỏi *ảnh giống sự kiện nào*, mục 6 hỏi "
+                "*ảnh có bất thường không*.\n\n")
+        f.write(f"- Nhãn: **{n_norm} bình thường** (`duong_pho`) · **{n_abn} bất thường** "
+                "(`danh_nhau` + `tai_nan_xe`).\n")
+        f.write(f"- **AUC = {auc:.3f}** (điểm càng cao càng tách tốt; 0,5 = đoán mò).\n")
+        f.write("- Ngưỡng mặc định: **{:.3f}** — chọn tròn giữa phân bố bình thường và bất "
+                "thường, **không phải** ngưỡng tổng quát cho camera thật. Mục 6.2 cho thấy "
+                "ngưỡng rất nhạy khi chỉ có 5 ảnh bình thường.\n\n".format(t))
+
+        f.write("### 6.1. Kết quả tại ngưỡng mặc định\n\n")
+        f.write("| TP | FP | TN | FN | Precision | Recall | F1 | FPR | Accuracy |\n")
+        f.write("|---|---|---|---|---|---|---|---|---|\n")
+        f.write(f"| {m['tp']} | {m['fp']} | {m['tn']} | {m['fn']} | {m['precision']:.3f} | "
+                f"{m['recall']:.3f} | {m['f1']:.3f} | {m['fpr']:.3f} | {m['accuracy']:.3f} |\n\n")
+
+        f.write("### 6.2. Ngưỡng tốt nhất và kiểm chứng leave-one-out\n\n")
+        f.write("| Cách chọn ngưỡng | Ngưỡng | F1 | FPR | Accuracy |\n")
+        f.write("|---|---|---|---|---|\n")
+        f.write(f"| Tốt nhất trên toàn bộ 15 ảnh (lạc quan) | {best['threshold']:.3f} | "
+                f"{best['f1']:.3f} | {best['fpr']:.3f} | {best['accuracy']:.3f} |\n")
+        f.write(f"| Leave-one-out (trung thực hơn) | TB {loo['mean_threshold']:.3f} | "
+                f"{lm['f1']:.3f} | {lm['fpr']:.3f} | {lm['accuracy']:.3f} |\n\n")
+        f.write("**Vì sao cần LOO:** nếu chọn ngưỡng trên cùng 15 ảnh rồi báo kết quả trên "
+                "chính 15 ảnh đó, con số bị lạc quan. LOO chọn ngưỡng trên 14 ảnh rồi mới "
+                "dự đoán ảnh còn lại.\n\n")
+
+        f.write("### 6.3. Từng ảnh\n\n")
+        f.write("| Ảnh | Nhãn | Giống bình thường | Điểm bất thường | Dự đoán |\n")
+        f.write("|---|---|---|---|---|\n")
+        for r in rows:
+            pred = "bất thường" if r.score >= t else "bình thường"
+            truth = "bất thường" if r.label_abnormal else "bình thường"
+            f.write(f"| {r.query} | {truth} | {r.similarity * 100:.1f}% | {r.score:.3f} | {pred} |\n")
+
+        f.write("\n### 6.4. Baseline (để biết model hơn đoán mò bao nhiêu)\n\n")
+        f.write("| Baseline | Accuracy | Ghi chú |\n|---|---|---|\n")
+        f.write(f"| Luôn đoán 'bất thường' | {n_abn}/{n} = {n_abn / n:.3f} | "
+                "Recall = 1 nhưng FPR = 1 (báo động mọi ảnh bình thường) |\n")
+        f.write(f"| Luôn đoán 'bình thường' | {n_norm}/{n} = {n_norm / n:.3f} | "
+                "Bỏ sót toàn bộ bất thường |\n")
+        f.write("| Ngẫu nhiên 3 nhóm | ~1/3 = 0.333 | Kỳ vọng đoán đúng nhóm |\n\n")
+
+        # ---------------- 7. Confusion matrix 3 nhóm ----------------
+        true_cats = [category_of(h.query) for h in report.hits]
+        pred_cats = [category_of(h.top[0][0]) for h in report.hits]
+        cat_labels = sorted(set(true_cats) | set(pred_cats))
+        cm = decision.confusion_matrix(true_cats, pred_cats, cat_labels)
+        f.write("## 7. Ma trận nhầm lẫn 3 nhóm (top-1)\n\n")
+        f.write("| Thật \\ Dự đoán | " + " | ".join(cat_labels) + " |\n")
+        f.write("|---" * (len(cat_labels) + 1) + "|\n")
+        for tcat in cat_labels:
+            f.write(f"| **{tcat}** | " + " | ".join(str(cm[tcat][p]) for p in cat_labels) + " |\n")
+        f.write("\n")
+
+        # ---------------- 8. Giới hạn ----------------
+        f.write("## 8. Giới hạn của phép đo\n\n")
+        f.write("- n = 15 ảnh; **±1 ảnh = ±6,7%**. Không có khoảng tin cậy.\n")
+        f.write("- 5 ảnh 'bình thường' là ảnh đường phố tự thu thập, không phải CCTV; "
+                "nhãn bình thường/bất thường do nhóm quy ước.\n")
+        f.write("- Ngưỡng chọn trên chính bộ dữ liệu này; camera thật cần hiệu chỉnh lại.\n")
+        f.write("- Không đo được event-level vì mỗi sự kiện chỉ có 1 ảnh (xem mục 5).\n")
+        f.write("- Điểm bất thường dựa trên embedding toàn ảnh; không có local/patch feature "
+                "nên không phát hiện được vật thể nhỏ.\n")
+
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(
@@ -274,8 +420,11 @@ def main(argv=None) -> int:
     print("=" * 78)
 
     hits = evaluate(files, truth, args)
-    report = build_report(hits, args, gallery)
+    print("\n  Đang chấm điểm bất thường (so với 5 ảnh bình thường)...")
+    anomaly = evaluate_anomaly(files, args)
+    report = build_report(hits, anomaly, args, gallery)
     print_table(report)
+    print_anomaly(report)
 
     wrong_id = [h for h in hits if not h.hit1_id]
     if wrong_id:

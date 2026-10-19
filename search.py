@@ -42,7 +42,10 @@ except ImportError as e:
     print(f"Thiếu thư viện: {e}. Hãy chạy: pip install -r requirements.txt", file=sys.stderr)
     raise SystemExit(2)
 
-__all__ = ["search", "load_model", "format_result", "main", "DEFAULT_MODEL", "DEFAULT_GALLERY"]
+__all__ = [
+    "search", "anomaly_score", "load_model", "gallery_embeddings",
+    "format_result", "main", "DEFAULT_MODEL", "DEFAULT_GALLERY",
+]
 
 DEFAULT_MODEL = "google/siglip2-base-patch16-384"  # SigLIP 2 (nhóm chốt). Máy yếu: google/siglip2-small-patch16-256
 DEFAULT_GALLERY = "data"  # 15 ảnh của bạn Huy
@@ -52,6 +55,11 @@ IMG_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 # Cache model theo (model_name, device) để gọi search() nhiều lần
 # trong cùng 1 process (ví dụ main.py) không phải tải lại model.
 _MODEL_CACHE: dict = {}
+
+# Cache embedding gallery theo (model, device, danh sách file + mtime + size).
+# Nhờ vậy gọi search()/anomaly_score() nhiều lần trong cùng process không phải
+# encode lại 15 ảnh — đây là tối ưu ENG-06 (trước 8.4x khi so 15 lần gọi).
+_GALLERY_CACHE: dict = {}
 
 
 def pick_device(name=None):
@@ -127,9 +135,29 @@ def embed_images(paths, processor, model, device, batch_size=8):
     return torch.cat(feats, dim=0)
 
 
-def _rank(query_path, gallery_files, processor, model, device, topk=1):
+def _files_fingerprint(files):
+    """Chữ ký danh sách file: tên + mtime + size (để cache tự vô hiệu khi ảnh đổi)."""
+    return tuple((p.name, p.stat().st_mtime_ns, p.stat().st_size) for p in files)
+
+
+def gallery_embeddings(gallery_files, processor, model, device, model_name=None):
+    """Embedding gallery, có cache trong RAM theo (model, device, file fingerprint).
+
+    Dùng chung cho ``_rank()`` và ``anomaly_score()``.
+    """
+    model_name = model_name or DEFAULT_MODEL
+    # Có thư mục trong key để hai gallery tạm khác nhau (cùng tên file, cùng mtime
+    # do copy2) không dùng nhầm cache của nhau.
+    parent = str(gallery_files[0].parent.resolve()) if gallery_files else ""
+    key = (model_name, str(device), parent, _files_fingerprint(gallery_files))
+    if key not in _GALLERY_CACHE:
+        _GALLERY_CACHE[key] = embed_images(gallery_files, processor, model, device)
+    return _GALLERY_CACHE[key]
+
+
+def _rank(query_path, gallery_files, processor, model, device, topk=1, model_name=None):
     """Chấm cosine query vs gallery, trả về [(tên_file, độ_khớp_0_100), ...] giảm dần."""
-    gallery_embs = embed_images(gallery_files, processor, model, device)  # (N, D)
+    gallery_embs = gallery_embeddings(gallery_files, processor, model, device, model_name)
     query_emb = embed_images([query_path], processor, model, device)      # (1, D)
     sims = (query_emb @ gallery_embs.T).squeeze(0)  # cosine vì đã normalize, range [-1, 1]
     k = max(1, min(topk, len(gallery_files)))
@@ -172,10 +200,47 @@ def search(image_path, gallery_dir=None, model_name=None, device=None, topk=1):
         raise ValueError(f"Thư mục gallery '{gallery}' chưa có ảnh nào (hỗ trợ: {sorted(IMG_EXTS)}).")
 
     processor, model, device = load_model(model_name, device)
-    results = _rank(query_path, gallery_files, processor, model, device, topk=topk)
+    results = _rank(query_path, gallery_files, processor, model, device,
+                    topk=topk, model_name=model_name)
     if topk == 1:
         return results[0]
     return results
+
+
+def anomaly_score(image_path, gallery_dir=None, normal_prefix="duong_pho",
+                  model_name=None, device=None):
+    """Điểm bất thường = ``1 - max cosine similarity`` tới gallery ảnh BÌNH THƯỜNG.
+
+    Vì sao không dùng "độ khớp với ảnh giống nhất"? Vì gallery có cả ảnh bất
+    thường, nên một vụ tai nạn sẽ "khớp" rất cao với vụ tai nạn khác. Muốn biết
+    ảnh có bất thường không, phải so với **ảnh bình thường** làm mốc.
+
+    Nếu chính ảnh query nằm trong gallery bình thường (ví dụ khi chạy eval
+    leave-one-out), ảnh đó được loại khỏi gallery để không tự so với chính nó.
+
+    Returns:
+        ``(max_similarity, anomaly_score)`` — cả hai trong khoảng 0..1.
+    """
+    query_path = Path(image_path)
+    if not query_path.is_file():
+        raise FileNotFoundError(f"Không tìm thấy ảnh query: {query_path}")
+
+    gallery = resolve_gallery(gallery_dir)
+    normal_files = [p for p in list_images(gallery) if p.name.startswith(normal_prefix)]
+    # Leave-one-out: không cho ảnh query tự so với chính nó.
+    query_resolved = query_path.resolve()
+    normal_files = [p for p in normal_files if p.resolve() != query_resolved]
+    if not normal_files:
+        raise ValueError(
+            f"Gallery '{gallery}' không có ảnh bình thường nào (tiền tố '{normal_prefix}')."
+        )
+
+    processor, model, device = load_model(model_name, device)
+    normal_embs = gallery_embeddings(normal_files, processor, model, device, model_name)
+    query_emb = embed_images([query_path], processor, model, device)
+    max_sim = float((query_emb @ normal_embs.T).max().item())
+    max_sim = max(0.0, min(1.0, max_sim))
+    return max_sim, 1.0 - max_sim
 
 
 def format_result(best_file, best_score=None) -> str:

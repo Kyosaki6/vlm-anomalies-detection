@@ -2,36 +2,50 @@
 """
 tests/test_graph.py — pytest cho graph.py
 
-Kiểm tra:
-  - Cả 15 id trong events.json: get_action() trả str khác rỗng,
-    get_event() trả tên sự kiện khác rỗng.
-  - Id không tồn tại ("99") -> get_action() và get_event() trả None.
+Khác bản cũ: không chỉ kiểm tra "trả về chuỗi khác rỗng" mà kiểm tra
+**đúng nội dung** lấy từ events.json. Một hàm trả về "abc" cũng qua được
+bản test cũ — bản này thì không.
 """
 
+import json
+from pathlib import Path
+
 import pytest
-from graph import get_action, get_event
 
-# 15 id lấy từ events.json (id dạng str)
-ALL_IDS = [str(i) for i in range(1, 16)]
+import graph
 
-
-@pytest.mark.parametrize("event_id", ALL_IDS)
-def test_get_action_returns_nonempty_string(event_id):
-    result = get_action(event_id)
-    assert isinstance(result, str), f"get_action({event_id!r}) phải là str, nhận {type(result)}"
-    assert result.strip() != "", f"get_action({event_id!r}) không được rỗng"
+EVENTS_FILE = Path(__file__).resolve().parent.parent / "events.json"
 
 
-@pytest.mark.parametrize("event_id", ALL_IDS)
-def test_get_event_returns_nonempty_string(event_id):
-    result = get_event(event_id)
-    assert isinstance(result, str), f"get_event({event_id!r}) phải là str, nhận {type(result)}"
-    assert result.strip() != "", f"get_event({event_id!r}) không được rỗng"
+def load_events():
+    with open(EVENTS_FILE, encoding="utf-8-sig") as f:
+        return json.load(f)
 
 
-def test_get_action_invalid_id_returns_none():
-    assert get_action("99") is None
+EVENTS = load_events()
+IDS = [str(ev["id"]) for ev in EVENTS]
 
 
-def test_get_event_invalid_id_returns_none():
-    assert get_event("99") is None
+@pytest.mark.parametrize("event_id", IDS)
+def test_get_action_returns_exact_value(event_id):
+    expected = next(ev["cach_xu_ly"] for ev in EVENTS if str(ev["id"]) == event_id)
+    assert graph.get_action(event_id) == expected
+
+
+@pytest.mark.parametrize("event_id", IDS)
+def test_get_event_returns_exact_value(event_id):
+    expected = next(ev["ten_su_kien"] for ev in EVENTS if str(ev["id"]) == event_id)
+    assert graph.get_event(event_id) == expected
+
+
+@pytest.mark.parametrize("event_id", ["99", "0", "-1", "abc", ""])
+def test_unknown_id_returns_none(event_id):
+    assert graph.get_action(event_id) is None
+    assert graph.get_event(event_id) is None
+
+
+@pytest.mark.parametrize("event_id", IDS)
+def test_graph_has_edge_event_to_action(event_id):
+    event = graph.get_event(event_id)
+    action = graph.get_action(event_id)
+    assert graph.GRAPH.has_edge(event, action)
