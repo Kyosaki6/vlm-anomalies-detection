@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "<string>", line 1, in <module>
-    import graph, pathlib; graph.load_events(pathlib.Path('/tmp/nonexistent.json'))
-                           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/thinh/D/College/3-HK1/Do an TNKHMT/vlm-anomalies-detection/graph.py", line 29, in load_events
-    with open(path, encoding="utf-8-sig") as f:
-         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/tmp/nonexistent.json'

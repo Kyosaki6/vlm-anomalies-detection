@@ -29,3 +29,6 @@ models/
 *.swp
 .DS_Store
 Thumbs.db
+
+# --- Agent / Local tooling ---
+.omo/
