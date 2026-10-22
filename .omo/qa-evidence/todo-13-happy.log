@@ -1,0 +1,4 @@
+CI workflow file exists
+valid YAML; triggers: ['pull_request', 'push']
+matrix: {'os': ['ubuntu-latest', 'windows-latest'], 'python-version': ['3.10', '3.11']}
+steps: ['actions/checkout@v4', 'actions/setup-python@v5', 'Install CPU PyTorch (Linux)', 'Install dependencies', 'Run model-free tests']
