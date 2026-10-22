@@ -46,7 +46,7 @@ except ImportError as e:
 __all__ = [
     "search", "anomaly_score", "load_model", "gallery_embeddings",
     "format_result", "main", "DEFAULT_MODEL", "DEFAULT_GALLERY",
-    "embed_texts", "text_anomaly_score", "text_abnormal_probability", "fused_anomaly_score",
+    "embed_texts", "text_anomaly_score", "text_abnormal_probability", "fused_anomaly_score", "combine_scores",
     "NORMAL_PROMPT", "ABNORMAL_PROMPTS",
 ]
 
@@ -342,6 +342,15 @@ def text_abnormal_probability(normal_sim: float, abnormal_sim: float, scale: flo
     return e / (1.0 + e)
 
 
+def combine_scores(image_score: float, text_score: float, alpha: float = 0.5,
+                   threshold: float = 0.30) -> float:
+    """``alpha * min(1, image_score / (2 * threshold)) + (1 - alpha) * text_score``."""
+    if not 0.0 <= alpha <= 1.0:
+        raise ValueError(f"alpha phải trong [0, 1], nhận {alpha}.")
+    image_component = min(1.0, image_score / (2.0 * threshold)) if threshold > 0 else image_score
+    return alpha * image_component + (1.0 - alpha) * text_score
+
+
 def fused_anomaly_score(image_path, alpha=0.5, gallery_dir=None, normal_prefix="duong_pho",
                         model_name=None, device=None, threshold=0.30):
     """Kết hợp điểm ảnh (so gallery bình thường) và điểm văn bản (zero-shot).
@@ -365,14 +374,13 @@ def fused_anomaly_score(image_path, alpha=0.5, gallery_dir=None, normal_prefix="
     query_emb = embed_images([path], processor, model, dev)
     n_sim, a_sim = text_anomaly_score(query_emb, processor, model, dev, model_name=model_name)
     text_score = text_abnormal_probability(n_sim, a_sim, _logit_scale(model))
-    image_component = min(1.0, img_score / (2.0 * threshold)) if threshold > 0 else img_score
     return {
         "image_score": img_score,
         "image_similarity": sim,
         "text_normal_sim": n_sim,
         "text_abnormal_sim": a_sim,
         "text_score": text_score,
-        "fused_score": alpha * image_component + (1.0 - alpha) * text_score,
+        "fused_score": combine_scores(img_score, text_score, alpha, threshold),
         "alpha": alpha,
     }
 

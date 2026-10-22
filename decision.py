@@ -23,6 +23,8 @@ Vì sao không dùng "độ khớp %" làm xác suất bất thường? Vì gall
 Điểm bất thường đúng phải so với **ảnh bình thường**, không phải ảnh giống nhất.
 """
 
+import math
+import random
 from pathlib import Path
 
 __all__ = [
@@ -37,6 +39,8 @@ __all__ = [
     "best_f1",
     "loo_threshold_eval",
     "confusion_matrix",
+    "bootstrap_ci",
+    "action_recall",
 ]
 
 NORMAL_PREFIX = "duong_pho"
@@ -192,3 +196,73 @@ def confusion_matrix(y_true_cat, y_pred_cat, labels=None) -> dict:
         matrix.setdefault(t, {x: 0 for x in labels})
         matrix[t][p] = matrix[t].get(p, 0) + 1
     return matrix
+
+
+def action_recall(y_true_actions, y_pred_actions) -> float:
+    """Tỉ lệ ảnh mà hành động xử lý dự đoán TRÙNG hành động đúng.
+
+    Khác recall theo event-id: hai sự kiện khác id nhưng cùng cách xử lý
+    (ví dụ mọi vụ tai nạn cao tốc) vẫn tính là đúng về mặt vận hành.
+    Rỗng -> 0.0, độ dài lệch nhau -> ValueError.
+    """
+    y_true_actions = list(y_true_actions)
+    y_pred_actions = list(y_pred_actions)
+    if len(y_true_actions) != len(y_pred_actions):
+        raise ValueError(
+            f"Độ dài lệch nhau: {len(y_true_actions)} nhãn vs {len(y_pred_actions)} dự đoán.")
+    if not y_true_actions:
+        return 0.0
+    hits = sum(1 for t, p in zip(y_true_actions, y_pred_actions) if t == p)
+    return hits / len(y_true_actions)
+
+
+def _percentile(sorted_values, q: float) -> float:
+    """Percentile nội suy tuyến tính trên list đã sắp xếp, q trong 0..1."""
+    if len(sorted_values) == 1:
+        return sorted_values[0]
+    pos = q * (len(sorted_values) - 1)
+    lo = int(math.floor(pos))
+    hi = int(math.ceil(pos))
+    return sorted_values[lo] + (sorted_values[hi] - sorted_values[lo]) * (pos - lo)
+
+
+def bootstrap_ci(metric_fn, y_true, y_pred_or_scores, n_bootstraps=1000, ci=0.95, seed=42):
+    """Khoảng tin cậy bootstrap (percentile) cho ``metric_fn(y_true, y_pred_or_scores)``.
+
+    Lấy mẫu lại có hoàn lại các CẶP (nhãn, dự đoán/điểm). Lần lấy mẫu mà metric
+    không xác định (NaN, ví dụ AUC khi mẫu chỉ có một lớp) bị bỏ qua; nếu mọi
+    lần đều NaN trả ``(nan, nan)``. ``seed`` cố định -> kết quả lặp lại được.
+
+    Với n = 15 khoảng tin cậy rất rộng; đó là thông tin trung thực, không phải lỗi.
+
+    Raises:
+        ValueError: dữ liệu rỗng, độ dài lệch, ``metric_fn`` không gọi được,
+            ``n_bootstraps < 1`` hoặc ``ci`` ngoài (0, 1).
+    """
+    y_true = list(y_true)
+    y_pred_or_scores = list(y_pred_or_scores)
+    if not y_true or not y_pred_or_scores:
+        raise ValueError("bootstrap_ci cần dữ liệu không rỗng.")
+    if len(y_true) != len(y_pred_or_scores):
+        raise ValueError(
+            f"Độ dài lệch nhau: {len(y_true)} nhãn vs {len(y_pred_or_scores)} dự đoán.")
+    if not callable(metric_fn):
+        raise ValueError("metric_fn phải là hàm gọi được.")
+    if n_bootstraps < 1:
+        raise ValueError("n_bootstraps phải >= 1.")
+    if not 0.0 < ci < 1.0:
+        raise ValueError("ci phải nằm trong khoảng (0, 1).")
+
+    rng = random.Random(seed)
+    n = len(y_true)
+    values = []
+    for _ in range(n_bootstraps):
+        idx = [rng.randrange(n) for _ in range(n)]
+        value = metric_fn([y_true[i] for i in idx], [y_pred_or_scores[i] for i in idx])
+        if not math.isnan(value):
+            values.append(value)
+    if not values:
+        return float("nan"), float("nan")
+    values.sort()
+    tail = (1.0 - ci) / 2.0
+    return _percentile(values, tail), _percentile(values, 1.0 - tail)

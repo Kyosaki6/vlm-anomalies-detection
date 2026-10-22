@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import decision; decision.bootstrap_ci(None, [], [])
+                     ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/home/thinh/D/College/3-HK1/Do an TNKHMT/vlm-anomalies-detection/decision.py", line 245, in bootstrap_ci
+    raise ValueError("bootstrap_ci cần dữ liệu không rỗng.")
+ValueError: bootstrap_ci cần dữ liệu không rỗng.

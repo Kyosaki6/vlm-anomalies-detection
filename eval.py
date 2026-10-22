@@ -34,7 +34,8 @@ import sys
 import tempfile
 import time
 from collections import Counter
-from dataclasses import dataclass
+import math
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import torch
@@ -75,6 +76,8 @@ class AnomalyHit:
     score: float           # điểm bất thường = 1 - similarity (0..1)
     label_abnormal: bool   # nhãn thật: nhóm khác duong_pho => bất thường
     seconds: float
+    text_score: float = float("nan")    # xác suất bất thường từ prompt văn bản (zero-shot)
+    fused_score: float = float("nan")   # kết hợp ảnh + văn bản (search.combine_scores)
 
 
 @dataclass(frozen=True)
@@ -235,6 +238,62 @@ def evaluate_anomaly(files: list, args, embs=None) -> tuple:
     return tuple(rows)
 
 
+def load_actions() -> dict:
+    """events.json -> {tên_file: cách xử lý}."""
+    with open(EVENTS_FILE, encoding="utf-8-sig") as f:
+        return {ev["file"]: ev["cach_xu_ly"] for ev in json.load(f)}
+
+
+def add_text_scores(rows: tuple, embs, files: list, args, alpha: float = 0.5) -> tuple:
+    """Gắn điểm văn bản + điểm kết hợp vào từng AnomalyHit, dùng lại embedding ảnh đã có."""
+    if not rows or embs is None:
+        return rows
+    device = search.pick_device(getattr(args, "device", None))
+    processor, model, device = search.load_model(getattr(args, "model", None), device)
+    scale = search._logit_scale(model)
+    out = []
+    for i, row in enumerate(rows):
+        n_sim, a_sim = search.text_anomaly_score(
+            embs[i], processor, model, device, model_name=getattr(args, "model", None))
+        text = search.text_abnormal_probability(n_sim, a_sim, scale)
+        out.append(replace(row, text_score=text,
+                           fused_score=search.combine_scores(
+                               row.score, text, alpha, decision.DEFAULT_ANOMALY_THRESHOLD)))
+    return tuple(out)
+
+
+def action_level(hits: tuple) -> dict:
+    """Recall theo CÁCH XỬ LÝ: top-1 có đưa ra đúng hành động của query không."""
+    actions = load_actions()
+    y_true = [actions.get(h.query, "?") for h in hits]
+    y_pred = [actions.get(h.top[0][0], "?") for h in hits]
+    ci = decision.bootstrap_ci(lambda t, p: decision.action_recall(t, p), y_true, y_pred) if hits else (float("nan"),) * 2
+    return {"recall": decision.action_recall(y_true, y_pred), "ci": ci,
+            "hits": sum(1 for t, p in zip(y_true, y_pred) if t == p), "n": len(hits)}
+
+
+def score_comparison(rows: tuple) -> list:
+    """Bảng so sánh image-only / text-only / fused: AUC và F1 kèm khoảng tin cậy 95% bootstrap."""
+    labels = [r.label_abnormal for r in rows]
+    t_img = decision.DEFAULT_ANOMALY_THRESHOLD
+    specs = [("ảnh (image-only)", [r.score for r in rows], t_img),
+             ("văn bản (text-only)", [r.text_score for r in rows], 0.5),
+             ("kết hợp (fused)", [r.fused_score for r in rows], 0.5)]
+    out = []
+    for name, scores, thr in specs:
+        if not rows or any(math.isnan(x) for x in scores):
+            continue
+        auc = decision.roc_auc(scores, labels)
+        auc_ci = decision.bootstrap_ci(lambda yt, ys: decision.roc_auc(ys, yt), labels, scores)
+        f1 = decision.binary_metrics(labels, [x >= thr for x in scores])["f1"]
+        f1_ci = decision.bootstrap_ci(
+            lambda yt, ys, thr=thr: decision.binary_metrics(yt, [x >= thr for x in ys])["f1"],
+            labels, scores)
+        out.append({"name": name, "threshold": thr, "auc": auc, "auc_ci": auc_ci,
+                    "f1": f1, "f1_ci": f1_ci})
+    return out
+
+
 def build_report(hits: tuple, anomaly: tuple, args, gallery: Path) -> Report:
     """Gộp kết quả từng ảnh thành số liệu tổng + thông tin lần chạy."""
     return Report(
@@ -300,6 +359,17 @@ def print_anomaly(report: Report) -> None:
           f"(F1={best['f1']:.3f}, FPR={best['fpr']:.3f})")
     print(f"  Leave-one-out chọn ngưỡng: F1={lm['f1']:.3f} acc={lm['accuracy']:.3f} "
           f"FPR={lm['fpr']:.3f} (ngưỡng TB {loo['mean_threshold']:.3f})")
+    auc_ci = decision.bootstrap_ci(lambda yt, ys: decision.roc_auc(ys, yt), labels, scores)
+    print(f"  AUC 95% CI (bootstrap) = [{auc_ci[0]:.3f}, {auc_ci[1]:.3f}]")
+    act = action_level(report.hits)
+    print(f"  Recall theo cách xử lý (action-level) = {act['hits']}/{act['n']} = {act['recall']:.3f} "
+          f"(95% CI [{act['ci'][0]:.3f}, {act['ci'][1]:.3f}])")
+    comp = score_comparison(rows)
+    if comp:
+        print("  So sánh nguồn điểm (AUC / F1, 95% CI bootstrap):")
+        for c in comp:
+            print(f"    {c['name']:<22} AUC {c['auc']:.3f} [{c['auc_ci'][0]:.3f}, {c['auc_ci'][1]:.3f}]  "
+                  f"F1 {c['f1']:.3f} [{c['f1_ci'][0]:.3f}, {c['f1_ci'][1]:.3f}] (ngưỡng {c['threshold']:.2f})")
     print("  Từng ảnh (nhãn | giống bình thường | điểm | dự đoán):")
     for r in rows:
         pred = "BẤT THƯỜNG" if r.score >= t else "bình thường"
@@ -429,6 +499,28 @@ def write_notes(path: Path, report: Report) -> None:
                 "Bỏ sót toàn bộ bất thường |\n")
         f.write("| Ngẫu nhiên 3 nhóm | ~1/3 = 0.333 | Kỳ vọng đoán đúng nhóm |\n\n")
 
+        f.write("### 6.5. Khoảng tin cậy và so sánh nguồn điểm\n\n")
+        auc_ci = decision.bootstrap_ci(lambda yt, ys: decision.roc_auc(ys, yt), labels, scores)
+        f.write(f"Bootstrap 1000 lần (seed 42, lấy mẫu lại cặp nhãn/điểm), khoảng tin cậy 95%. "
+                f"AUC ảnh = **{auc:.3f}** [{auc_ci[0]:.3f}, {auc_ci[1]:.3f}]. "
+                "Khoảng rộng vì n = 15; đừng đọc các số này như kết luận chắc chắn.\n\n")
+        comp = score_comparison(rows)
+        if comp:
+            f.write("| Nguồn điểm | Ngưỡng | AUC | AUC 95% CI | F1 | F1 95% CI |\n|---|---|---|---|---|---|\n")
+            for c in comp:
+                f.write(f"| {c['name']} | {c['threshold']:.2f} | {c['auc']:.3f} | "
+                        f"[{c['auc_ci'][0]:.3f}, {c['auc_ci'][1]:.3f}] | {c['f1']:.3f} | "
+                        f"[{c['f1_ci'][0]:.3f}, {c['f1_ci'][1]:.3f}] |\n")
+            f.write("\nĐiểm văn bản = xác suất 'bất thường' từ cosine ảnh–prompt (zero-shot, "
+                    "không dùng gallery). Điểm kết hợp = 0,5·ảnh + 0,5·văn bản. "
+                    "Hai prompt bất thường gọi đúng tên hai nhóm trong bộ dữ liệu (đánh nhau, tai nạn), nên AUC văn bản = 1,0 gần với rò rỉ nhãn: chỉ chứng minh nhánh văn bản hoạt động, chưa chứng minh tổng quát hoá sang loại bất thường khác.\n\n")
+        act = action_level(report.hits)
+        f.write("### 6.6. Recall theo cách xử lý (action-level)\n\n")
+        f.write(f"Top-1 đưa ra đúng **cách xử lý** của query ở **{act['hits']}/{act['n']}** ảnh "
+                f"= **{act['recall']:.3f}** (95% CI [{act['ci'][0]:.3f}, {act['ci'][1]:.3f}]). "
+                "Khác recall@1 event-id (0/15 theo cấu trúc): hai sự kiện khác id nhưng cùng cách "
+                "xử lý vẫn tính là đúng về mặt vận hành.\n\n")
+
         # ---------------- 7. Confusion matrix 3 nhóm ----------------
         true_cats = [category_of(h.query) for h in report.hits]
         pred_cats = [category_of(h.top[0][0]) for h in report.hits]
@@ -443,7 +535,7 @@ def write_notes(path: Path, report: Report) -> None:
 
         # ---------------- 8. Giới hạn ----------------
         f.write("## 8. Giới hạn của phép đo\n\n")
-        f.write("- n = 15 ảnh; **±1 ảnh = ±6,7%**. Không có khoảng tin cậy.\n")
+        f.write("- n = 15 ảnh; **±1 ảnh = ±6,7%**. Khoảng tin cậy bootstrap ở mục 6.5 rất rộng.\n")
         f.write("- 5 ảnh 'bình thường' là ảnh đường phố tự thu thập, không phải CCTV; "
                 "nhãn bình thường/bất thường do nhóm quy ước.\n")
         f.write("- Ngưỡng chọn trên chính bộ dữ liệu này; camera thật cần hiệu chỉnh lại.\n")
@@ -495,6 +587,7 @@ def main(argv=None) -> int:
     hits = evaluate(files, truth, args, embs=embs)
     print("\n  Đang chấm điểm bất thường (so với 5 ảnh bình thường)...")
     anomaly = evaluate_anomaly(files, args, embs=embs)
+    anomaly = add_text_scores(anomaly, embs, files, args)
     report = build_report(hits, anomaly, args, gallery)
     print_table(report)
     print_anomaly(report)
