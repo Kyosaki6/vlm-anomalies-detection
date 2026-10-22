@@ -1,0 +1,80 @@
+$ python main.py data/duong_pho_1.jpg
+============================================================
+  KHÔNG PHÁT HIỆN BẤT THƯỜNG — VLM ANOMALIES DETECTION
+============================================================
+  Ảnh đầu vào       : data/duong_pho_1.jpg
+  Kết luận          : BÌNH THƯỜNG (điểm bất thường 0.234 < ngưỡng 0.300)
+  Giống bình thường : 77% (cosine)
+  Sự kiện gần nhất  : #6 — Phố đêm có hàng quán, người đi bộ, vài xe máy
+  Độ khớp           : 100%
+------------------------------------------------------------
+  CÁCH XỬ LÝ        : Không cần xử lí, chỉ quan sát và ghi nhận
+============================================================
+[exit 0]
+
+$ python main.py data/danh_nhau_1.jpg
+============================================================
+  PHÁT HIỆN SỰ KIỆN BẤT THƯỜNG — VLM ANOMALIES DETECTION
+============================================================
+  Ảnh đầu vào       : data/danh_nhau_1.jpg
+  Kết luận          : BẤT THƯỜNG (điểm bất thường 0.317 >= ngưỡng 0.300)
+  Giống bình thường : 68% (cosine)
+  Sự kiện gần nhất  : #1 — 2 người ghì/đánh nhau bên cạnh ô tô trên lòng đường (ban ngày)
+  Độ khớp           : 100%
+------------------------------------------------------------
+  CÁCH XỬ LÝ        : Báo công an phường và lập biên bản vụ việc
+============================================================
+[exit 0]
+
+$ python main.py data/tai_nan_xe_1.jpg --threshold 0.25
+============================================================
+  PHÁT HIỆN SỰ KIỆN BẤT THƯỜNG — VLM ANOMALIES DETECTION
+============================================================
+  Ảnh đầu vào       : data/tai_nan_xe_1.jpg
+  Kết luận          : BẤT THƯỜNG (điểm bất thường 0.315 >= ngưỡng 0.250)
+  Giống bình thường : 69% (cosine)
+  Sự kiện gần nhất  : #11 — Cao tốc: xe tải + xe máy nát, nhiều mảnh vỡ, cọc giao thông
+  Độ khớp           : 100%
+------------------------------------------------------------
+  CÁCH XỬ LÝ        : Báo CSGT, gọi cấp cứu và đặt cọc tiêu cảnh báo
+============================================================
+[exit 0]
+
+$ python main.py demo-queries/query_danh_nhau.jpg
+============================================================
+  PHÁT HIỆN SỰ KIỆN BẤT THƯỜNG — VLM ANOMALIES DETECTION
+============================================================
+  Ảnh đầu vào       : demo-queries/query_danh_nhau.jpg
+  Kết luận          : BẤT THƯỜNG (điểm bất thường 0.373 >= ngưỡng 0.300)
+  Giống bình thường : 63% (cosine)
+  Sự kiện gần nhất  : #5 — 2 người đánh nhau, 1 người tung cú đá
+  Độ khớp           : 77%
+------------------------------------------------------------
+  CÁCH XỬ LÝ        : Báo ngay cho 113 và phong tỏa khu vực xung quanh
+============================================================
+[exit 0]
+
+$ python /home/thinh/D/College/3-HK1/Do an TNKHMT/vlm-anomalies-detection/graph.py 1
+Báo công an phường và lập biên bản vụ việc
+[exit 0]
+
+$ python /home/thinh/D/College/3-HK1/Do an TNKHMT/vlm-anomalies-detection/main.py /home/thinh/D/College/3-HK1/Do an TNKHMT/vlm-anomalies-detection/data/duong_pho_3.jpg
+============================================================
+  KHÔNG PHÁT HIỆN BẤT THƯỜNG — VLM ANOMALIES DETECTION
+============================================================
+  Ảnh đầu vào       : /home/thinh/D/College/3-HK1/Do an TNKHMT/vlm-anomalies-detection/data/duong_pho_3.jpg
+  Kết luận          : BÌNH THƯỜNG (điểm bất thường 0.261 < ngưỡng 0.300)
+  Giống bình thường : 74% (cosine)
+  Sự kiện gần nhất  : #8 — Đường có cây khô đứng giữa dải phân cách
+  Độ khớp           : 100%
+------------------------------------------------------------
+  CÁCH XỬ LÝ        : Không cần xử lí, chỉ quan sát và ghi nhận
+============================================================
+[exit 0]
+
+$ python /home/thinh/D/College/3-HK1/Do an TNKHMT/vlm-anomalies-detection/main.py /nonexistent.jpg
+[main.py] Lỗi: không thấy ảnh '/nonexistent.jpg'.
+[exit 1]
+
+IS-1 consistent: normal->non-emergency, abnormal->emergency OK
+149 passed in 12.20s

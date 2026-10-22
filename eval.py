@@ -104,7 +104,7 @@ class Report:
 def load_truth() -> dict:
     """events.json → {tên_file: id_sự_kiện}. File do Huy giữ (ENG-09)."""
     if not EVENTS_FILE.exists() or EVENTS_FILE.stat().st_size == 0:
-        sys.exit(f"[eval.py] Không tìm thấy {EVENTS_FILE} — nhờ Huy đẩy lên (ENG-09).")
+        raise FileNotFoundError(f"Không tìm thấy {EVENTS_FILE} — nhờ Huy đẩy lên (ENG-09).")
     with open(EVENTS_FILE, encoding="utf-8-sig") as f:
         events = json.load(f)
     return {ev["file"]: str(ev["id"]) for ev in events}
@@ -181,7 +181,7 @@ def evaluate_legacy(files: list, truth: dict, args) -> tuple:
         seconds = time.time() - t0
 
         if not isinstance(top, list) or not top:
-            sys.exit(f"[eval.py] search(topk={TOPK}) trả về {top!r} — sai contract.")
+            raise RuntimeError(f"search(topk={TOPK}) trả về {top!r} — sai contract.")
         hits.append(_make_hit(img, top, truth, seconds))
     return tuple(hits)
 
@@ -566,7 +566,10 @@ def main(argv=None) -> int:
     if not files:
         sys.exit(f"[eval.py] Gallery '{gallery}' không có ảnh nào.")
 
-    truth = load_truth()
+    try:
+        truth = load_truth()
+    except FileNotFoundError as e:
+        sys.exit(f"[eval.py] {e}")
     missing = [f.name for f in files if f.name not in truth]
     if missing:
         print(f"[eval.py] ⚠️ {len(missing)} ảnh không có trong events.json: {missing}")
