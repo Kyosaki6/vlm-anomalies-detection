@@ -49,7 +49,16 @@ def build_graph(events: list[dict]) -> tuple[nx.DiGraph, dict[str, str], dict[st
         id_to_event[event_id] = event
         id_to_action[event_id] = action
 
-        graph.add_node(event, kind="su_kien", id=event_id)
+        graph.add_node(
+            event,
+            kind="su_kien",
+            id=event_id,
+            category=item.get("category", ""),
+            is_normal=item.get("is_normal", False),
+            severity=item.get("severity", ""),
+            responder=item.get("responder", []),
+            file=item.get("file", ""),
+        )
         graph.add_node(action, kind="cach_xu_ly")
         # Nối: [Sự kiện] -> [Cách xử lý]
         graph.add_edge(event, action, id=event_id, file=item.get("file", ""))
@@ -89,13 +98,67 @@ def get_event(event_id: str | int) -> str | None:
     return ID_TO_EVENT.get(str(event_id).strip())
 
 
+def get_event_by_id(event_id: str | int) -> dict | None:
+    """Trả về dict thông tin chi tiết sự kiện theo ID từ đồ thị.
+
+    Bao gồm: id, file, ten_su_kien, cach_xu_ly, category, is_normal, severity, responder.
+    Trả về None nếu id không tồn tại.
+    """
+    eid = str(event_id).strip()
+    event_name = ID_TO_EVENT.get(eid)
+    if event_name is None or event_name not in GRAPH.nodes:
+        return None
+    node = GRAPH.nodes[event_name]
+    action = get_action(eid)
+    return {
+        "id": eid,
+        "file": node.get("file", ""),
+        "ten_su_kien": event_name,
+        "cach_xu_ly": action,
+        "category": node.get("category", ""),
+        "is_normal": node.get("is_normal", False),
+        "severity": node.get("severity", ""),
+        "responder": node.get("responder", []),
+    }
+
+
+def get_events_by_category(category: str) -> list[dict]:
+    """Trả về danh sách dict sự kiện thuộc category (ví dụ: danh_nhau, duong_pho, tai_nan_xe)."""
+    cat = str(category).strip()
+    results = []
+    for eid in ID_TO_EVENT:
+        ev = get_event_by_id(eid)
+        if ev and ev.get("category") == cat:
+            results.append(ev)
+    return results
+
+
+def get_action_details(event_id: str | int) -> dict | None:
+    """Trả về dict chi tiết hành động xử lý cho event_id.
+
+    Bao gồm: event_id, action, severity, responder, category.
+    Trả về None nếu event_id không tồn tại.
+    """
+    eid = str(event_id).strip()
+    ev = get_event_by_id(eid)
+    if ev is None:
+        return None
+    return {
+        "event_id": eid,
+        "action": ev.get("cach_xu_ly"),
+        "severity": ev.get("severity", ""),
+        "responder": ev.get("responder", []),
+        "category": ev.get("category", ""),
+    }
+
+
 def parse_args(argv=None):
     p = argparse.ArgumentParser(
         description="Tra cứu cách xử lý sự kiện từ đồ thị NetworkX [Sự kiện] -> [Cách xử lý]."
     )
     p.add_argument("event_id", nargs="?", default=None, help="ID sự kiện, ví dụ: 1")
     p.add_argument("--id", dest="id_opt", default=None, help="ID sự kiện (dạng flag).")
-    p.add_argument("--list", action="store_true", help="Liệt kê tất cả sự kiện.")
+    p.add_argument("--list", action="store_true", help="Liệt kê tất cả sự kiện kèm category và severity.")
     p.add_argument("--events-file", default=str(EVENTS_FILE), help="Đường dẫn events.json.")
     return p.parse_args(argv)
 
@@ -106,7 +169,9 @@ def main(argv=None) -> int:
     if args.list:
         events = load_events(Path(args.events_file))
         for item in events:
-            print(f'{item["id"]}: {item["ten_su_kien"]} -> {item["cach_xu_ly"]}')
+            cat = item.get("category", "-")
+            sev = item.get("severity", "-")
+            print(f'{item["id"]}: [{cat} | {sev}] {item["ten_su_kien"]} -> {item["cach_xu_ly"]}')
         return 0
 
     event_id = args.id_opt if args.id_opt is not None else args.event_id
