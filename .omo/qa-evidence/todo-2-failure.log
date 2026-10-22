@@ -1,0 +1,24 @@
+Traceback (most recent call last):
+  File "/home/thinh/D/College/3-HK1/Do an TNKHMT/vlm-anomalies-detection/search.py", line 37, in <module>
+    import torch
+  File "<string>", line 1, in <lambda>
+    import sys, builtins; orig_import = builtins.__import__; builtins.__import__ = lambda name, *a, **kw: (_ for _ in ()).throw(ImportError('torch missing')) if name == 'torch' else orig_import(name, *a, **kw); import search
+                                                                                                          ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 1, in <genexpr>
+    import sys, builtins; orig_import = builtins.__import__; builtins.__import__ = lambda name, *a, **kw: (_ for _ in ()).throw(ImportError('torch missing')) if name == 'torch' else orig_import(name, *a, **kw); import search
+ImportError: torch missing
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys, builtins; orig_import = builtins.__import__; builtins.__import__ = lambda name, *a, **kw: (_ for _ in ()).throw(ImportError('torch missing')) if name == 'torch' else orig_import(name, *a, **kw); import search
+                                                                                                                                                                                                                   ^^^^^^^^^^^^^
+  File "<string>", line 1, in <lambda>
+    import sys, builtins; orig_import = builtins.__import__; builtins.__import__ = lambda name, *a, **kw: (_ for _ in ()).throw(ImportError('torch missing')) if name == 'torch' else orig_import(name, *a, **kw); import search
+                                                                                                                                                                                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/home/thinh/D/College/3-HK1/Do an TNKHMT/vlm-anomalies-detection/search.py", line 42, in <module>
+    raise ImportError(
+        f"Thiếu thư viện: {e}. Hãy chạy: pip install -r requirements.txt"
+    ) from e
+ImportError: Thiếu thư viện: torch missing. Hãy chạy: pip install -r requirements.txt

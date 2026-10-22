@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import main; main.run('/nonexistent/image.jpg', raise_on_error=True)
+                 ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thinh/D/College/3-HK1/Do an TNKHMT/vlm-anomalies-detection/main.py", line 80, in run
+    raise FileNotFoundError(f"Không thấy ảnh '{image_path}'.")
+FileNotFoundError: Không thấy ảnh '/nonexistent/image.jpg'.
