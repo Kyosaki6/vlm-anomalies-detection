@@ -37,6 +37,8 @@ from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
+import torch
+
 import search  # contract nhóm: search(image_path, gallery_dir, model_name, device, topk)
 import decision  # quy tắc quyết định + chỉ số (ngưỡng, AUC, F1, confusion matrix)
 
@@ -119,12 +121,53 @@ def leave_one_out_gallery(images: list, excluded: Path) -> Path:
     return tmp
 
 
-def evaluate(files: list, truth: dict, args) -> tuple:
-    """Chạy leave-one-out từng ảnh → tuple[Hit, ...]."""
+def embed_gallery(files: list, args):
+    """Encode mỗi ảnh gallery đúng 1 lần -> tensor (N, D) đã L2-normalize."""
+    device = search.pick_device(getattr(args, "device", None))
+    processor, model, device = search.load_model(getattr(args, "model", None), device)
+    return search.embed_images(list(files), processor, model, device)
+
+
+def _make_hit(img: Path, top: list, truth: dict, seconds: float) -> Hit:
+    expected = truth.get(img.name, "?")
+    names = [name for name, _ in top]
+    return Hit(
+        query=img.name,
+        top=tuple(top),
+        expected_id=expected,
+        hit1_id=expected != "?" and truth.get(names[0], "?") == expected,
+        hit3_id=expected != "?" and any(truth.get(n, "?") == expected for n in names),
+        hit1_cat=category_of(names[0]) == category_of(img.name),
+        seconds=seconds,
+    )
+
+
+def evaluate_vectorized(files: list, truth: dict, args, embs=None) -> tuple:
+    """Leave-one-out bằng cắt tensor trong RAM: không copy file, không encode lại."""
+    if not files:
+        return ()
+    if embs is None:
+        embs = embed_gallery(files, args)
+    names = [f.name for f in files]
+    hits = []
+    for i, img in enumerate(files):
+        t0 = time.time()
+        rest = torch.cat([embs[:i], embs[i + 1:]])
+        rest_names = names[:i] + names[i + 1:]
+        sims = (embs[i:i + 1] @ rest.T).squeeze(0)
+        k = max(1, min(TOPK, len(rest_names)))
+        vals, idx = torch.topk(sims, k=k)
+        top = [(rest_names[int(idx[r])],
+                int(round(float(torch.clamp(vals[r], 0.0, 1.0)) * 100))) for r in range(k)]
+        hits.append(_make_hit(img, top, truth, time.time() - t0))
+    return tuple(hits)
+
+
+def evaluate_legacy(files: list, truth: dict, args) -> tuple:
+    """Cách cũ (chậm): copy 14 ảnh vào thư mục tạm cho mỗi query. Giữ để đối chứng."""
     device = search.pick_device(args.device)
     hits = []
     for img in files:
-        expected = truth.get(img.name, "?")
         tmp = leave_one_out_gallery(files, img)
         t0 = time.time()
         try:
@@ -136,35 +179,56 @@ def evaluate(files: list, truth: dict, args) -> tuple:
 
         if not isinstance(top, list) or not top:
             sys.exit(f"[eval.py] search(topk={TOPK}) trả về {top!r} — sai contract.")
-        names = [name for name, _ in top]
-        hits.append(Hit(
-            query=img.name,
-            top=tuple(top),
-            expected_id=expected,
-            hit1_id=expected != "?" and truth.get(names[0], "?") == expected,
-            hit3_id=expected != "?" and any(truth.get(n, "?") == expected for n in names),
-            hit1_cat=category_of(names[0]) == category_of(img.name),
-            seconds=seconds,
-        ))
+        hits.append(_make_hit(img, top, truth, seconds))
     return tuple(hits)
 
 
-def evaluate_anomaly(files: list, args) -> tuple:
+def evaluate(files: list, truth: dict, args, embs=None) -> tuple:
+    """Chạy leave-one-out từng ảnh -> tuple[Hit, ...]. Mặc định vector hoá."""
+    if not files:
+        return ()
+    if getattr(args, "legacy_tempdir", False):
+        return evaluate_legacy(files, truth, args)
+    return evaluate_vectorized(files, truth, args, embs=embs)
+
+
+def evaluate_anomaly(files: list, args, embs=None) -> tuple:
     """Chấm điểm bất thường cho từng ảnh (so với gallery ảnh BÌNH THƯỜNG).
 
     Lưu ý: đây là phép đo khác với ``search()``. ``search()`` tìm sự kiện gần
     nhất trong cả 15 ảnh; còn ``anomaly_score()`` chỉ so với 5 ảnh duong_pho.
+    Ảnh bình thường được loại khỏi chính gallery bình thường của nó (leave-one-out).
     """
-    device = search.pick_device(args.device)
+    if not files:
+        return ()
+    if getattr(args, "legacy_tempdir", False):
+        device = search.pick_device(args.device)
+        rows = []
+        for img in files:
+            t0 = time.time()
+            sim, score = search.anomaly_score(str(img), gallery_dir=args.gallery,
+                                              model_name=args.model, device=device)
+            rows.append(AnomalyHit(
+                query=img.name, similarity=sim, score=score,
+                label_abnormal=(category_of(img.name) != decision.NORMAL_PREFIX),
+                seconds=time.time() - t0,
+            ))
+        return tuple(rows)
+
+    if embs is None:
+        embs = embed_gallery(files, args)
+    normal_idx = [i for i, f in enumerate(files) if f.name.startswith(decision.NORMAL_PREFIX)]
     rows = []
-    for img in files:
+    for i, img in enumerate(files):
         t0 = time.time()
-        sim, score = search.anomaly_score(str(img), gallery_dir=args.gallery,
-                                          model_name=args.model, device=device)
+        use = [j for j in normal_idx if j != i]
+        if not use:
+            raise ValueError(
+                f"Gallery không có ảnh bình thường nào (tiền tố '{decision.NORMAL_PREFIX}').")
+        sim = float((embs[i:i + 1] @ embs[use].T).max().item())
+        sim = max(0.0, min(1.0, sim))
         rows.append(AnomalyHit(
-            query=img.name,
-            similarity=sim,
-            score=score,
+            query=img.name, similarity=sim, score=1.0 - sim,
             label_abnormal=(category_of(img.name) != decision.NORMAL_PREFIX),
             seconds=time.time() - t0,
         ))
@@ -397,6 +461,8 @@ def main(argv=None) -> int:
     p.add_argument("--model", default=search.DEFAULT_MODEL,
                    help="model HF (default: SigLIP 2). So sánh model thì đổi bản small (ENG-11).")
     p.add_argument("--device", default=None, help="cpu / cuda ... (mặc định tự chọn).")
+    p.add_argument("--legacy-tempdir", action="store_true",
+                   help="dùng cách cũ: copy ảnh vào thư mục tạm cho mỗi query (chậm, để đối chứng).")
     p.add_argument("--out", default=None,
                    help="ghi báo cáo markdown ra file (vd ../notes/2026-10-05-eval-topk.md)")
     args = p.parse_args(argv)
@@ -420,9 +486,15 @@ def main(argv=None) -> int:
     print(f"  Gallery: {gallery} ({len(files)} ảnh) · thiết bị: {device}")
     print("=" * 78)
 
-    hits = evaluate(files, truth, args)
+    embs = None
+    if not args.legacy_tempdir:
+        t0 = time.time()
+        embs = embed_gallery(files, args)
+        print(f"  Encode {len(files)} ảnh một lần: {time.time() - t0:.1f}s")
+
+    hits = evaluate(files, truth, args, embs=embs)
     print("\n  Đang chấm điểm bất thường (so với 5 ảnh bình thường)...")
-    anomaly = evaluate_anomaly(files, args)
+    anomaly = evaluate_anomaly(files, args, embs=embs)
     report = build_report(hits, anomaly, args, gallery)
     print_table(report)
     print_anomaly(report)

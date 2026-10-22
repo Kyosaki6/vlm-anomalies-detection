@@ -1,0 +1,8 @@
+Fast LOO eval functions available
+--- parity/timing run (CPU): vectorized vs --legacy-tempdir ---
+embed gallery once: 60.8s
+vectorized LOO+anomaly after cache: 0.035s total, 0.0023s/img
+legacy LOO retrieval: 645.0s total, 43.00s/img
+hits identical: True
+anomaly max diff: 1.19e-07
+end-to-end: ~61s vs ~645s = ~10.6x (speedup excluding one-time embed is not meaningful)
