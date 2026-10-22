@@ -47,9 +47,10 @@ __all__ = [
     "format_result", "main", "DEFAULT_MODEL", "DEFAULT_GALLERY",
 ]
 
+ROOT = Path(__file__).resolve().parent
 DEFAULT_MODEL = "google/siglip2-base-patch16-384"  # SigLIP 2 (nhóm chốt). Máy yếu: google/siglip2-small-patch16-256
-DEFAULT_GALLERY = "data"  # 15 ảnh của bạn Huy
-GALLERY_FALLBACK = "gallery_huy"
+DEFAULT_GALLERY = str(ROOT / "data")  # 15 ảnh của bạn Huy
+GALLERY_FALLBACK = str(ROOT / "gallery_huy")
 IMG_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 # Cache model theo (model_name, device) để gọi search() nhiều lần
@@ -78,6 +79,10 @@ def resolve_gallery(gallery_dir=None) -> Path:
     """Trả về Path thư mục gallery. Raise FileNotFoundError nếu không có."""
     if gallery_dir:
         gallery = Path(gallery_dir)
+        if not gallery.is_dir() and not gallery.is_absolute():
+            candidate = ROOT / gallery
+            if candidate.is_dir():
+                gallery = candidate
     elif Path(DEFAULT_GALLERY).is_dir():
         gallery = Path(DEFAULT_GALLERY)
     else:

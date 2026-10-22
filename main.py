@@ -45,6 +45,11 @@ def load_file_to_id(path: str = EVENTS_FILE) -> dict:
 
 def run(image_path: str, threshold: float = DEFAULT_ANOMALY_THRESHOLD) -> None:
     # 0) kiểm tra ảnh đầu vào
+    if not os.path.exists(image_path) and not os.path.isabs(image_path):
+        candidate = os.path.join(ROOT, image_path)
+        if os.path.exists(candidate):
+            image_path = candidate
+
     if not os.path.exists(image_path):
         print(f"[main.py] Lỗi: không thấy ảnh '{image_path}'.")
         sys.exit(1)
@@ -106,7 +111,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "image",
         nargs="?",
-        default="data/danh_nhau_1.jpg",
+        default=os.path.join(ROOT, "data", "danh_nhau_1.jpg"),
         help="đường dẫn ảnh cần kiểm tra (mặc định: data/danh_nhau_1.jpg)",
     )
     parser.add_argument(

@@ -25,8 +25,8 @@ EVENTS_FILE = Path(__file__).resolve().parent / "events.json"
 
 
 def load_events(path: Path = EVENTS_FILE) -> list[dict]:
-    """Đọc file events.json (UTF-8) và trả về danh sách dict sự kiện."""
-    with open(path, encoding="utf-8") as f:
+    """Đọc file events.json (UTF-8-SIG) và trả về danh sách dict sự kiện."""
+    with open(path, encoding="utf-8-sig") as f:
         return json.load(f)
 
 
