@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<string>", line 2, in <module>
+    with open('README.md', encoding='utf-8') as f: content = f.read(); assert 'NON_EXISTENT_SECTION_xyz' in content
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
