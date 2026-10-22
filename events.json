@@ -3,90 +3,150 @@
     "id": "1",
     "file": "danh_nhau_1.jpg",
     "ten_su_kien": "2 người ghì/đánh nhau bên cạnh ô tô trên lòng đường (ban ngày)",
-    "cach_xu_ly": "Báo công an phường và lập biên bản vụ việc"
+    "cach_xu_ly": "Báo công an phường và lập biên bản vụ việc",
+    "category": "danh_nhau",
+    "is_normal": false,
+    "severity": "cao",
+    "responder": ["cong_an"]
   },
   {
     "id": "2",
     "file": "danh_nhau_2.jpg",
     "ten_su_kien": "Nhóm thanh niên xô xát ngoài trời",
-    "cach_xu_ly": "Cử lực lượng an ninh can thiệp và trích xuất camera"
+    "cach_xu_ly": "Cử lực lượng an ninh can thiệp và trích xuất camera",
+    "category": "danh_nhau",
+    "is_normal": false,
+    "severity": "trung_binh",
+    "responder": ["an_ninh"]
   },
   {
     "id": "3",
     "file": "danh_nhau_3.jpg",
     "ten_su_kien": "Cãi vã và ẩu đả tại khu vực hàng quán",
-    "cach_xu_ly": "Báo công an phường và lập biên bản vụ việc"
+    "cach_xu_ly": "Báo công an phường và lập biên bản vụ việc",
+    "category": "danh_nhau",
+    "is_normal": false,
+    "severity": "trung_binh",
+    "responder": ["cong_an"]
   },
   {
     "id": "4",
     "file": "danh_nhau_4.jpg",
     "ten_su_kien": "Tụ tập gây rối trật tự công cộng",
-    "cach_xu_ly": "Yêu cầu giải tán và liên hệ lực lượng dân phòng"
+    "cach_xu_ly": "Yêu cầu giải tán và liên hệ lực lượng dân phòng",
+    "category": "danh_nhau",
+    "is_normal": false,
+    "severity": "trung_binh",
+    "responder": ["dan_phong"]
   },
   {
     "id": "5",
     "file": "danh_nhau_5.jpg",
     "ten_su_kien": "2 người đánh nhau, 1 người tung cú đá",
-    "cach_xu_ly": "Báo ngay cho 113 và phong tỏa khu vực xung quanh"
+    "cach_xu_ly": "Báo ngay cho 113 và phong tỏa khu vực xung quanh",
+    "category": "danh_nhau",
+    "is_normal": false,
+    "severity": "cao",
+    "responder": ["cong_an_113"]
   },
   {
     "id": "6",
     "file": "duong_pho_1.jpg",
     "ten_su_kien": "Phố đêm có hàng quán, người đi bộ, vài xe máy",
-    "cach_xu_ly": "Không cần xử lí, chỉ quan sát và ghi nhận"
+    "cach_xu_ly": "Không cần xử lí, chỉ quan sát và ghi nhận",
+    "category": "duong_pho",
+    "is_normal": true,
+    "severity": "thap",
+    "responder": []
   },
   {
     "id": "7",
     "file": "duong_pho_2.jpg",
     "ten_su_kien": "Kẹt xe ban tối dưới đường sắt trên cao",
-    "cach_xu_ly": "Điều tiết giao thông và liên hệ CSGT hỗ trợ phân luồng"
+    "cach_xu_ly": "Điều tiết giao thông và liên hệ CSGT hỗ trợ phân luồng",
+    "category": "duong_pho",
+    "is_normal": true,
+    "severity": "thap",
+    "responder": ["csgt"]
   },
   {
     "id": "8",
     "file": "duong_pho_3.jpg",
     "ten_su_kien": "Đường có cây khô đứng giữa dải phân cách",
-    "cach_xu_ly": "Không cần xử lí, chỉ quan sát và ghi nhận"
+    "cach_xu_ly": "Không cần xử lí, chỉ quan sát và ghi nhận",
+    "category": "duong_pho",
+    "is_normal": true,
+    "severity": "thap",
+    "responder": []
   },
   {
     "id": "9",
     "file": "duong_pho_4.jpg",
     "ten_su_kien": "Đại lộ rợp cây, xe cộ, băng-rôn SEA Games",
-    "cach_xu_ly": "Không cần xử lí, chỉ quan sát và ghi nhận"
+    "cach_xu_ly": "Không cần xử lí, chỉ quan sát và ghi nhận",
+    "category": "duong_pho",
+    "is_normal": true,
+    "severity": "thap",
+    "responder": []
   },
   {
     "id": "10",
     "file": "duong_pho_5.jpg",
     "ten_su_kien": "Đường phố lưu thông bình thường",
-    "cach_xu_ly": "Không cần xử lí, chỉ quan sát và ghi nhận"
+    "cach_xu_ly": "Không cần xử lí, chỉ quan sát và ghi nhận",
+    "category": "duong_pho",
+    "is_normal": true,
+    "severity": "thap",
+    "responder": []
   },
   {
     "id": "11",
     "file": "tai_nan_xe_1.jpg",
     "ten_su_kien": "Cao tốc: xe tải + xe máy nát, nhiều mảnh vỡ, cọc giao thông",
-    "cach_xu_ly": "Báo CSGT, gọi cấp cứu và đặt cọc tiêu cảnh báo"
+    "cach_xu_ly": "Báo CSGT, gọi cấp cứu và đặt cọc tiêu cảnh báo",
+    "category": "tai_nan_xe",
+    "is_normal": false,
+    "severity": "cao",
+    "responder": ["csgt", "cap_cuu"]
   },
   {
     "id": "12",
     "file": "tai_nan_xe_2.jpg",
     "ten_su_kien": "Van + ô tô đâm nát trên cao tốc",
-    "cach_xu_ly": "Báo CSGT, gọi cấp cứu và đặt cọc tiêu cảnh báo"
+    "cach_xu_ly": "Báo CSGT, gọi cấp cứu và đặt cọc tiêu cảnh báo",
+    "category": "tai_nan_xe",
+    "is_normal": false,
+    "severity": "cao",
+    "responder": ["csgt", "cap_cuu"]
   },
   {
     "id": "13",
     "file": "tai_nan_xe_3.jpg",
     "ten_su_kien": "Tai nạn giao thông nghiêm trọng",
-    "cach_xu_ly": "Báo CSGT, gọi cấp cứu và đặt cọc tiêu cảnh báo"
+    "cach_xu_ly": "Báo CSGT, gọi cấp cứu và đặt cọc tiêu cảnh báo",
+    "category": "tai_nan_xe",
+    "is_normal": false,
+    "severity": "cao",
+    "responder": ["csgt", "cap_cuu"]
   },
   {
     "id": "14",
     "file": "tai_nan_xe_4.jpg",
     "ten_su_kien": "Xe tải gặp sự cố lật đường",
-    "cach_xu_ly": "Điều xe cứu hộ chuyên dụng và phân luồng xe khác"
+    "cach_xu_ly": "Điều xe cứu hộ chuyên dụng và phân luồng xe khác",
+    "category": "tai_nan_xe",
+    "is_normal": false,
+    "severity": "trung_binh",
+    "responder": ["cuu_ho", "csgt"]
   },
   {
     "id": "15",
     "file": "tai_nan_xe_5.jpg",
     "ten_su_kien": "Xe buýt gặp tai nạn giao thông",
-    "cach_xu_ly": "Báo CSGT, gọi cấp cứu và đặt cọc tiêu cảnh báo"
+    "cach_xu_ly": "Báo CSGT, gọi cấp cứu và đặt cọc tiêu cảnh báo",
+    "category": "tai_nan_xe",
+    "is_normal": false,
+    "severity": "cao",
+    "responder": ["csgt", "cap_cuu"]
   }
 ]

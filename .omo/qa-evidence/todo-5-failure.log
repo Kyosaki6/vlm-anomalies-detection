@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json; evs = json.load(open('events.json', encoding='utf-8-sig')); assert all(e['category'] == 'invalid' for e in evs)
+                                                                                    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
