@@ -28,6 +28,7 @@ Thuộc tính đo được:
 import argparse
 import json
 import os
+import platform
 import shutil
 import sys
 import tempfile
@@ -177,14 +178,14 @@ def build_report(hits: tuple, anomaly: tuple, args, gallery: Path) -> Report:
         device=str(search.pick_device(args.device)),
         gallery=str(gallery),
         ran_at=time.strftime("%Y-%m-%d %H:%M"),
-        machine=os.environ.get("COMPUTERNAME", "?"),
+        machine=platform.node() or os.environ.get("COMPUTERNAME") or os.environ.get("HOSTNAME") or "?",
         max_id_sharing=max(Counter(load_truth().values()).values()),
         hits=hits,
         anomaly=anomaly,
         r1_id=sum(h.hit1_id for h in hits),
         r3_id=sum(h.hit3_id for h in hits),
         r1_cat=sum(h.hit1_cat for h in hits),
-        avg_seconds=sum(h.seconds for h in hits) / len(hits),
+        avg_seconds=sum(h.seconds for h in hits) / len(hits) if hits else 0.0,
     )
 
 

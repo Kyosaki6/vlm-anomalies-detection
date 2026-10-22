@@ -39,8 +39,9 @@ try:
     from PIL import Image
     from transformers import AutoModel, AutoProcessor
 except ImportError as e:
-    print(f"Thiếu thư viện: {e}. Hãy chạy: pip install -r requirements.txt", file=sys.stderr)
-    raise SystemExit(2)
+    raise ImportError(
+        f"Thiếu thư viện: {e}. Hãy chạy: pip install -r requirements.txt"
+    ) from e
 
 __all__ = [
     "search", "anomaly_score", "load_model", "gallery_embeddings",
