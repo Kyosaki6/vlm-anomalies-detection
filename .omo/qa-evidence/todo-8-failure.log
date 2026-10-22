@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import search; search.text_anomaly_score('/nonexistent/image.jpg')
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thinh/D/College/3-HK1/Do an TNKHMT/vlm-anomalies-detection/search.py", line 321, in text_anomaly_score
+    raise FileNotFoundError(f"Không tìm thấy ảnh query: {path}")
+FileNotFoundError: Không tìm thấy ảnh query: /nonexistent/image.jpg

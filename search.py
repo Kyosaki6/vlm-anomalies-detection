@@ -46,6 +46,8 @@ except ImportError as e:
 __all__ = [
     "search", "anomaly_score", "load_model", "gallery_embeddings",
     "format_result", "main", "DEFAULT_MODEL", "DEFAULT_GALLERY",
+    "embed_texts", "text_anomaly_score", "text_abnormal_probability", "fused_anomaly_score",
+    "NORMAL_PROMPT", "ABNORMAL_PROMPTS",
 ]
 
 ROOT = Path(__file__).resolve().parent
@@ -247,6 +249,132 @@ def anomaly_score(image_path, gallery_dir=None, normal_prefix="duong_pho",
     max_sim = float((query_emb @ normal_embs.T).max().item())
     max_sim = max(0.0, min(1.0, max_sim))
     return max_sim, 1.0 - max_sim
+
+
+# ---------------------------------------------------------------------------
+# Nhánh văn bản (zero-shot) — dùng text encoder của SigLIP 2.
+# Ảnh và prompt cùng nằm trong một không gian embedding nên so cosine trực tiếp.
+# ---------------------------------------------------------------------------
+NORMAL_PROMPT = "A photo of normal street traffic and daily activities."
+ABNORMAL_PROMPTS = [
+    "A photo of people fighting or physical violence.",
+    "A photo of a car accident or vehicle collision on the road.",
+]
+TEXT_MAX_LENGTH = 64  # SigLIP 2 được huấn luyện với padding="max_length", 64 token
+_DEFAULT_LOGIT_SCALE = 100.0  # dùng khi model không có logit_scale
+_TEXT_CACHE: dict = {}
+
+
+@torch.no_grad()
+def embed_texts(texts, processor, model, device) -> "torch.Tensor":
+    """Trả về tensor (N, D) embedding văn bản đã L2-normalize."""
+    if isinstance(texts, str):
+        texts = [texts]
+    texts = list(texts)
+    if not texts:
+        return torch.empty(0, 0)
+    model.eval()
+    inputs = processor(text=texts, padding="max_length", max_length=TEXT_MAX_LENGTH,
+                       truncation=True, return_tensors="pt")
+    out = model.get_text_features(input_ids=inputs["input_ids"].to(device))
+    if not isinstance(out, torch.Tensor):
+        out = getattr(out, "text_embeds", getattr(out, "pooler_output", out))
+    return F.normalize(out, p=2, dim=-1).cpu()
+
+
+def _prompt_embeddings(processor, model, device, model_name, normal_prompt, abnormal_prompts):
+    """Embedding (có cache) của 1 prompt bình thường + các prompt bất thường."""
+    abnormal_prompts = list(abnormal_prompts)
+    key = (model_name or DEFAULT_MODEL, str(device), normal_prompt, tuple(abnormal_prompts))
+    if key not in _TEXT_CACHE:
+        embs = embed_texts([normal_prompt] + abnormal_prompts, processor, model, device)
+        _TEXT_CACHE[key] = (embs[:1], embs[1:])
+    return _TEXT_CACHE[key]
+
+
+def _logit_scale(model) -> float:
+    scale = getattr(model, "logit_scale", None)
+    try:
+        return float(scale.exp().item()) if scale is not None else _DEFAULT_LOGIT_SCALE
+    except Exception:
+        return _DEFAULT_LOGIT_SCALE
+
+
+def text_anomaly_score(image_path_or_emb, processor=None, model=None, device=None,
+                       model_name=None, normal_prompt=NORMAL_PROMPT,
+                       abnormal_prompts=ABNORMAL_PROMPTS):
+    """Chấm zero-shot: cosine của ảnh với prompt BÌNH THƯỜNG vs prompt BẤT THƯỜNG.
+
+    ``image_path_or_emb`` là đường dẫn ảnh hoặc embedding ảnh đã L2-normalize ``(D,)``/``(1, D)``.
+    Nếu truyền path, file được kiểm tra TRƯỚC khi tải model.
+
+    Returns:
+        ``(normal_sim, abnormal_sim)`` — cosine tới prompt bình thường, và cosine
+        lớn nhất tới các prompt bất thường. Điểm càng nghiêng về ``abnormal_sim``
+        thì ảnh càng "giống mô tả bất thường" (xem ``text_abnormal_probability``).
+    """
+    if isinstance(image_path_or_emb, torch.Tensor):
+        image_emb = image_path_or_emb.reshape(1, -1).cpu()
+    else:
+        path = Path(image_path_or_emb)
+        if not path.is_file():
+            raise FileNotFoundError(f"Không tìm thấy ảnh query: {path}")
+        if processor is None or model is None:
+            processor, model, device = load_model(model_name, device)
+        image_emb = embed_images([path], processor, model, device)
+    if processor is None or model is None:
+        processor, model, device = load_model(model_name, device)
+    device = _resolve_device(device)
+    normal_emb, abnormal_embs = _prompt_embeddings(
+        processor, model, device, model_name, normal_prompt, abnormal_prompts)
+    normal_sim = float((image_emb @ normal_emb.T).max().item())
+    abnormal_sim = float((image_emb @ abnormal_embs.T).max().item())
+    return normal_sim, abnormal_sim
+
+
+def text_abnormal_probability(normal_sim: float, abnormal_sim: float, scale: float = _DEFAULT_LOGIT_SCALE) -> float:
+    """softmax 2 lớp trên cosine (nhân ``scale``) -> xác suất 'bất thường' trong 0..1."""
+    import math
+    a = (abnormal_sim - normal_sim) * scale
+    if a >= 0:
+        return 1.0 / (1.0 + math.exp(-a))
+    e = math.exp(a)
+    return e / (1.0 + e)
+
+
+def fused_anomaly_score(image_path, alpha=0.5, gallery_dir=None, normal_prefix="duong_pho",
+                        model_name=None, device=None, threshold=0.30):
+    """Kết hợp điểm ảnh (so gallery bình thường) và điểm văn bản (zero-shot).
+
+    ``image_component = min(1, image_score / (2 * threshold))`` — đưa điểm ảnh về 0..1 sao cho
+    đúng ngưỡng mặc định thì bằng 0,5, cùng thang với xác suất văn bản.
+    ``fused = alpha * image_component + (1 - alpha) * text_score``.
+
+    Returns:
+        dict: ``image_score``, ``image_similarity``, ``text_normal_sim``, ``text_abnormal_sim``,
+        ``text_score`` (xác suất bất thường), ``fused_score``, ``alpha``.
+    """
+    if not 0.0 <= alpha <= 1.0:
+        raise ValueError(f"alpha phải trong [0, 1], nhận {alpha}.")
+    path = Path(image_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"Không tìm thấy ảnh query: {path}")
+    sim, img_score = anomaly_score(path, gallery_dir=gallery_dir, normal_prefix=normal_prefix,
+                                   model_name=model_name, device=device)
+    processor, model, dev = load_model(model_name, device)
+    query_emb = embed_images([path], processor, model, dev)
+    n_sim, a_sim = text_anomaly_score(query_emb, processor, model, dev, model_name=model_name)
+    text_score = text_abnormal_probability(n_sim, a_sim, _logit_scale(model))
+    image_component = min(1.0, img_score / (2.0 * threshold)) if threshold > 0 else img_score
+    return {
+        "image_score": img_score,
+        "image_similarity": sim,
+        "text_normal_sim": n_sim,
+        "text_abnormal_sim": a_sim,
+        "text_score": text_score,
+        "fused_score": alpha * image_component + (1.0 - alpha) * text_score,
+        "alpha": alpha,
+    }
 
 
 def format_result(best_file, best_score=None) -> str:
