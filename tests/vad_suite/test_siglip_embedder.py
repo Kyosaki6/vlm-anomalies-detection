@@ -240,3 +240,18 @@ def test_custom_model_id_is_kept():
     e = SigLIPEmbedder("google/siglip2-small-patch16-256", model=FakeModel(),
                        processor=FakeProcessor(), device="cpu")
     assert "small" in e.model_id
+
+# --- model-generic (B3): cùng class phục vụ SigLIP 2 và OpenAI CLIP B/32 --------------------
+
+def test_clip_uses_clip_text_contract_not_siglip_padding():
+    proc = FakeProcessor()
+    SigLIPEmbedder("openai/clip-vit-base-patch32", model=FakeModel(), processor=proc,
+                   device="cpu").embed_texts(["a", "b"])
+    call = proc.calls[0]
+    assert call["padding"] is True and call["max_length"] == 77 and call["truncation"] is True
+
+def test_siglip_family_detected_case_insensitively():
+    for mid in ("google/siglip2-base-patch16-384", "Google/SigLIP-base-patch16-224"):
+        assert SigLIPEmbedder(mid, model=FakeModel(), processor=FakeProcessor(), device="cpu").is_siglip
+    assert not SigLIPEmbedder("openai/clip-vit-base-patch32", model=FakeModel(),
+                              processor=FakeProcessor(), device="cpu").is_siglip

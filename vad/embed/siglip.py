@@ -28,6 +28,7 @@ import numpy as np
 
 DEFAULT_MODEL_ID = "google/siglip2-base-patch16-384"
 TEXT_MAX_LENGTH = 64          # SigLIP 2 huấn luyện với padding="max_length", đúng 64 token
+CLIP_TEXT_MAX_LENGTH = 77     # OpenAI CLIP: context length 77
 DEFAULT_BATCH_SIZE = 8        # GTX 1060: bs 8/16/32 đều ~13-14 img/s, bs=64 sụp còn 1.8 -> chừa VRAM
 
 
@@ -178,8 +179,7 @@ class SigLIPEmbedder:
             raise ValueError("embed_texts nhận danh sách rỗng")
 
         self._ensure_loaded()
-        inputs = self._processor(text=texts, padding="max_length", max_length=TEXT_MAX_LENGTH,
-                                 truncation=True, return_tensors="pt")
+        inputs = self._processor(text=texts, return_tensors="pt", **self._text_kwargs())
         with torch.inference_mode():
             kwargs = {"input_ids": inputs["input_ids"].to(self._resolve_device())}
             if "attention_mask" in inputs:  # transformers 5.x KHÔNG trả khoá này; bản khác có
@@ -191,6 +191,21 @@ class SigLIPEmbedder:
         return result
 
     # --- helpers ------------------------------------------------------------------
+
+    @property
+    def is_siglip(self) -> bool:
+        return "siglip" in self.model_id.lower()
+
+    def _text_kwargs(self) -> dict:
+        """Tham số tokenizer theo họ model (B3: cùng một class phục vụ SigLIP 2 và OpenAI CLIP B/32).
+
+        SigLIP/SigLIP 2: huấn luyện với padding="max_length" đúng 64 token -> bắt buộc, lệch là embedding text sai.
+        CLIP (và model khác): context 77 token, pad tới câu dài nhất trong lô + cắt ở 77. `attention_mask`
+        (nếu processor trả) vẫn được chuyển cho model ở `embed_texts`.
+        """
+        if self.is_siglip:
+            return {"padding": "max_length", "max_length": TEXT_MAX_LENGTH, "truncation": True}
+        return {"padding": True, "max_length": CLIP_TEXT_MAX_LENGTH, "truncation": True}
 
     @staticmethod
     def _to_pil(frame: Any, Image) -> Any:

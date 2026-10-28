@@ -21,13 +21,13 @@ Report + defense in Vietnamese, dashboard in English.
 vad/            types.py, interfaces.py (Protocols), fakes.py  — contracts shared by all tracks
   datasets/     ucf_crime.py (GT parser), sharding.py (SHA-256 shard split)
   io/           video.py (sequential-grab sampler)
-  embed/        cache.py (fp16 .npy, atomic), siglip.py (STUB)
+  embed/        cache.py (fp16 .npy, atomic), siglip.py (real, model-generic: SigLIP 2 + CLIP)
   score/        text.py (prompt + memory scores, numpy)
   temporal/     ops.py (normalize/EMA/median/top-k/candidate windows/frame alignment)
   verify/       vlm.py (JSON parser real; VLMVerifier STUB)
   graph/        policy.py (YAML -> NetworkX alert policy) ; configs/policy.yaml
   eval/         metrics.py (frame-level AUC, video-level bootstrap, FA/hour, latency)
-scripts/        precompute_embeddings.py (--shard i/N ; --dry-run works, real run is a STUB)
+scripts/        precompute_embeddings.py (--shard i/N ; repeat --model for one-decode multi-model; --dry-run works)
 app/            streamlit_app.py (replay mode, PLACEHOLDER data)
 configs/        policy.yaml, prompts.yaml
 tests/          legacy tests + tests/vad_suite/ (246 total)
