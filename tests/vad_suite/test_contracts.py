@@ -30,8 +30,14 @@ def test_fake_embedder_is_deterministic_unit_norm():
 
 
 def test_unimplemented_real_backends_fail_loudly():
-    with pytest.raises(NotImplementedError):
-        SigLIPEmbedder().embed_images([])
+    """Bản thật chưa nối model thì phải NỔ, không được trả rác.
+
+    SigLIPEmbedder giờ đã là bản thật: nó không còn NotImplementedError, nhưng input rỗng vẫn phải
+    raise (không được im lặng trả mảng (0,0) rồi để lỗi nổ ở chỗ khác khó hiểu hơn).
+    VLMVerifier vẫn là stub của T2 -> NotImplementedError.
+    """
+    with pytest.raises(ValueError, match="rỗng"):
+        SigLIPEmbedder(device="cpu").embed_images([])
     with pytest.raises(NotImplementedError):
         VLMVerifier("x").verify([], {})
 
@@ -74,13 +80,13 @@ def test_manifest_rejects_duplicate_ids(tmp_path):
         read_manifest(_manifest(tmp_path, ["a", "a"]))
 
 
-def test_precompute_dry_run_cli_and_real_run_refuses(tmp_path, capsys):
+def test_precompute_real_run_reports_missing_videos_without_loading_the_model(tmp_path, capsys):
+    """Chạy thật với video không tồn tại: phải báo lỗi từng video, exit 1, KHÔNG nạp model (CI)."""
     m = _manifest(tmp_path, ["a", "b", "c"])
-    assert precompute_main(["--manifest", str(m), "--shard", "1/1", "--dry-run",
-                            "--cache-dir", str(tmp_path / "c")]) == 0
-    assert "3 cần làm" in capsys.readouterr().out
-    with pytest.raises(NotImplementedError):
-        precompute_main(["--manifest", str(m), "--cache-dir", str(tmp_path / "c")])
+    rc = precompute_main(["--manifest", str(m), "--cache-dir", str(tmp_path / "c")])
+    out = capsys.readouterr().out
+    assert rc == 1
+    assert out.count("LỖI") == 3 and "lỗi:" in out
 
 
 def test_event_type_covers_all_policy_events():

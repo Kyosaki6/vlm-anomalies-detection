@@ -45,9 +45,9 @@ notes/          experiment logs + the plan
 | ROC-AUC with ties, bootstrap, threshold math | `decision.py` (reused by `vad/eval/metrics.py`) |
 
 ## STILL STUBS (raise `NotImplementedError` on purpose, never return fake output)
-`SigLIPEmbedder` (vad/embed/siglip.py), `VLMVerifier` (vad/verify/vlm.py), real run of
-`scripts/precompute_embeddings.py`. Not yet built: ShanghaiTech loader, `run_benchmark.py`, zero-shot event typer,
-dashboard reading real `results/`.
+`VLMVerifier` (vad/verify/vlm.py) only. `SigLIPEmbedder` and the real run of
+`scripts/precompute_embeddings.py` now work (branch `exp/siglip-embedder`). Not yet built: ShanghaiTech loader,
+`run_benchmark.py`, dashboard reading real `results/`.
 
 ## CONVENTIONS
 - Python 3.10 compatible (CI runs 3.10 + 3.11 on Ubuntu + Windows). No `StrEnum`; use `from __future__ import annotations`.

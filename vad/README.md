@@ -14,8 +14,9 @@ File này chỉ nói **cái gì đã chạy thật, cái gì còn là việc c�
 | `vad/io/video.py` | Thịnh (T1) | **xong + test** | Sampler tuần tự (grab), căn khớp `expand_to_frames`; test sinh video thật bằng OpenCV. Chưa thử trên video UCF-Crime thật. |
 | `vad/datasets/sharding.py` | Thịnh (T1) | **xong + test** | Chia shard bằng SHA-256, ổn định giữa các máy. |
 | `vad/embed/cache.py` | Thịnh (T1) | **xong + test** | `.npy` fp16, ghi nguyên tử, resumable. |
-| `vad/embed/siglip.py` | Thịnh (T1) | **STUB** (`NotImplementedError`) | Nối vào `search.py` cũ. 1060: dùng fp32. |
-| `scripts/precompute_embeddings.py` | Thịnh (T1) | **`--dry-run` chạy; chạy thật = STUB** | Sampler đã có; còn thiếu embedder thật. |
+| `vad/embed/siglip.py` | Thịnh (T1) | **xong + test (nhánh `exp/siglip-embedder`)** | Model thật, lazy load, fp32. Đo GTX 1060: **~14 ảnh/s**, VRAM 1.7–2.25 GB, dim 768, `logit_scale` thật **112.85**. Bẫy 5.x: `get_*_features` trả object → lấy `.pooler_output`; text không có `attention_mask`; bs=64 sụp còn 1.8 ảnh/s. |
+| `scripts/precompute_embeddings.py` | Thịnh (T1) | **chạy thật (nhánh `exp/siglip-embedder`)** | `process_video` stream theo lô, lỗi 1 video không làm sập shard, resume theo cache. Đã chạy end-to-end: video 10s → 20 khung → `.npy` (20, 768). Video hỏng báo lỗi, không nạp model. |
+| `scripts/sanity_embedder.py` | Nam (T4 hỗ trợ) | **mới + chạy được** | Ảnh trong `data/` → text score + hạng lớp. Bắt lỗi plumbing trong 1 phút, không cần dataset. KHÔNG phải số liệu báo cáo. |
 | `vad/score/text.py` | Thịnh (T1) | **xong + test** | Điểm text (ensemble prompt) + điểm memory, thuần numpy. |
 | `vad/temporal/ops.py` | Thịnh (T1) | **xong + test** | normalize / EMA / median / top-k pool / candidate windows / căn frame. |
 | `vad/eval/metrics.py` | Thịnh (T1) | **xong + test** | AUC frame-level micro + bootstrap CI theo **video**. Chưa có `run_benchmark.py`. |
@@ -30,7 +31,7 @@ File này chỉ nói **cái gì đã chạy thật, cái gì còn là việc c�
 ```bash
 pip install -r requirements-dev.txt            # test (CI cũng dùng)
 pip install -r requirements-app.txt            # thêm streamlit cho dashboard
-python -m pytest -q                            # 267 test, không cần GPU, không tải model
+python -m pytest -q                            # 280 test, không cần GPU, không tải model
 streamlit run app/streamlit_app.py             # dashboard demo (dữ liệu giả)
 python scripts/precompute_embeddings.py --manifest manifests/<file>.csv --shard 2/4 --dry-run
 ```
