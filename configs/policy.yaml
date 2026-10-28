@@ -1,0 +1,46 @@
+# configs/policy.yaml — nguồn sự thật cho Alert Policy Graph (track T4, Nam).
+# Nạp vào NetworkX khi khởi động (vad/graph/policy.py). Sửa file này, KHÔNG sửa code, để đổi chính sách.
+# Giá trị severity: low < medium < high < critical.
+
+severity_order: [low, medium, high, critical]
+
+# Sự kiện -> mức nghiêm trọng cơ bản + bên xử lý + giao thức
+events:
+  Abuse:         {severity: high,     responders: [police],                protocol: P-ABUSE}
+  Arrest:        {severity: low,      responders: [],                      protocol: P-LOG}
+  Arson:         {severity: critical, responders: [fire_dept, police],     protocol: P-FIRE}
+  Assault:       {severity: high,     responders: [police, security],      protocol: P-VIOLENCE}
+  Burglary:      {severity: high,     responders: [police],                protocol: P-THEFT}
+  Explosion:     {severity: critical, responders: [fire_dept, ambulance, police], protocol: P-BLAST}
+  Fighting:      {severity: medium,   responders: [security],              protocol: P-VIOLENCE}
+  RoadAccidents: {severity: high,     responders: [traffic_police, ambulance], protocol: P-ACCIDENT}
+  Robbery:       {severity: high,     responders: [police],                protocol: P-THEFT}
+  Shooting:      {severity: critical, responders: [police, ambulance],     protocol: P-SHOOT}
+  Shoplifting:   {severity: low,      responders: [security],              protocol: P-THEFT}
+  Stealing:      {severity: medium,   responders: [security, police],      protocol: P-THEFT}
+  Vandalism:     {severity: low,      responders: [security],              protocol: P-LOG}
+  Unknown:       {severity: medium,   responders: [security],              protocol: P-REVIEW}
+
+# Zone nâng/hạ severity (số bậc, có thể âm). Zone lạ -> 0.
+zones:
+  default:     {severity_shift: 0}
+  school_gate: {severity_shift: 1}
+  market:      {severity_shift: 0}
+  highway:     {severity_shift: 0}
+  parking_lot: {severity_shift: -1}
+
+# Khung giờ (giờ 24h, [start, end) ; có thể vắt qua nửa đêm)
+time_bands:
+  night: {start: 22, end: 6,  severity_shift: 1}
+  day:   {start: 6,  end: 22, severity_shift: 0}
+
+# Leo thang: nếu CẢ HAI sự kiện cùng xuất hiện trong cùng cửa sổ thời gian -> thêm bên xử lý, nâng severity
+escalations:
+  - {when: [RoadAccidents, Explosion], add_responders: [fire_dept], severity_shift: 1}
+  - {when: [Fighting, Shooting],       add_responders: [ambulance], severity_shift: 0}
+
+# Gộp cảnh báo
+hygiene:
+  merge_gap_s: 5.0        # hai cảnh báo cùng loại cách nhau < 5s -> gộp thành một sự cố
+  cooldown_s: 30.0        # cùng camera + loại: không báo lại trong 30s sau cảnh báo trước
+  min_confidence: 0.5     # dưới mức này không báo
