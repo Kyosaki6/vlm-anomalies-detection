@@ -1,4 +1,4 @@
-# PROJECT KNOWLEDGE BASE
+﻿# PROJECT KNOWLEDGE BASE
 
 **Updated:** 2026-10-28 · **Branch:** main · Plan: `notes/2026-10-28-plan-zero-shot-video-vad.md`
 
@@ -46,8 +46,9 @@ notes/          experiment logs + the plan
 | ROC-AUC with ties, bootstrap, threshold math | `decision.py` (reused by `vad/eval/metrics.py`) |
 
 ## STILL STUBS (raise `NotImplementedError` on purpose, never return fake output)
-`VLMVerifier` (vad/verify/vlm.py) only. `SigLIPEmbedder` and the real run of `scripts/precompute_embeddings.py`
-now work (PR #8). Not yet built: ShanghaiTech loader, `run_benchmark.py`, dashboard reading real `results/`.
+`VLMVerifier` (vad/verify/vlm.py) only. `SigLIPEmbedder` (model-generic: SigLIP2 + CLIP) and the real run of
+`scripts/precompute_embeddings.py` are merged and working. Not yet built: ShanghaiTech loader, `run_benchmark.py`,
+dashboard reading real `results/`.
 
 ## CONVENTIONS
 - Python 3.10 compatible (CI runs 3.10 + 3.11 on Ubuntu + Windows). No `StrEnum`; use `from __future__ import annotations`.
@@ -66,12 +67,20 @@ now work (PR #8). Not yet built: ShanghaiTech loader, `run_benchmark.py`, dashbo
 - DO NOT claim zero-shot for ShanghaiTech: label it "training-free + normal reference".
 - DO NOT pretend a stub works. A missing backend must raise, so the dashboard can never show fabricated results.
 - DO NOT use bare ignore patterns like `cache/`: they swallow `vad/embed/cache.py`. Anchor to root (`/cache/`).
+- DO NOT implement from `notes/2026-10-28-plan-*.md` alone. `notes/2026-10-29-day1-tasks.md` is newer and
+  carries requirements the older plan lacks (e.g. the embedder must be model-generic: SigLIP2 AND CLIP-B/32,
+  one decode pass). Read the newest task sheet before writing code, not after.
+- DO NOT test only the default option of a config. If a parameter claims to support N choices, one test must
+  use a non-default one. `padding="max_length", max_length=64` is SigLIP-only; CLIP breaks on it.
+  A test asserting the constant back to itself is decoration, not a test.
+- DO NOT validate only sane-but-wrong input. Also reject hostile input: NaN/Inf scores, `video_id` that is a
+  path (`../../x`), empty arrays. These produce corrupt or misplaced files, not exceptions.
 
 ## COMMANDS
 ```bash
 pip install -r requirements-dev.txt        # tests / CI
 pip install -r requirements-app.txt        # + streamlit
-python -m pytest -q                        # 246 tests, no GPU, no model download
+python -m pytest -q                        # 363 tests, no GPU, no model download
 streamlit run app/streamlit_app.py         # dashboard (placeholder data for now)
 python scripts/precompute_embeddings.py --manifest manifests/<f>.csv --shard 2/4 --dry-run
 
@@ -89,3 +98,4 @@ Thịnh no GPU (CPU + Colab T4). Heavy runs = embedding cache + tier-2 batch onl
   Naive per-frame prompting is near chance; the contribution is the pipeline (normalisation, temporal, memory, VLM).
 - Day-4 validity gate: reproduce ZS-CLIP ~53 AUC before trusting any other number.
 - UCF-Crime annotation segments assumed inclusive `[start, end]`, 0-indexed, 30 fps — UNVERIFIED against LAVAD/RTFM.
+
