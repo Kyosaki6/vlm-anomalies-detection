@@ -120,3 +120,32 @@ def test_feed_works_with_fake_verifier(policy):
     feed = build_alert_feed(det, policy, zone="school_gate", hour=23)
     assert len(feed) == 2
     assert all(a.event_type is EventType.FIGHTING and a.caption for a in feed)
+
+
+# --- camera đi xuyên suốt: to_alert -> gộp -> cooldown ----------------------------
+
+def test_feed_passes_camera_through_to_every_alert(policy):
+    feed = build_alert_feed([(win(0, 10), vr(EventType.FIGHTING))], policy, camera="gate_a")
+    assert feed[0].camera == "gate_a" and feed[0].path[0] == "camera:gate_a"
+
+
+def test_cooldown_is_per_camera_not_per_video(policy):
+    """Hai camera khác nhau cùng chỗ ghi hình: không được nuốt cảnh báo của nhau."""
+    det = [
+        (Window("site", 0, 5, 3.0), vr(EventType.FIGHTING)),
+        (Window("site", 10, 15, 3.0), vr(EventType.FIGHTING)),
+    ]
+    same = build_alert_feed(det, policy, camera="cam1")          # cùng camera -> còn 1
+    assert len(same) == 1
+    # khác camera: gọi riêng từng camera rồi gộp tay, cooldown phải giữ cả hai
+    a = policy.to_alert(det[0][0], det[0][1], camera="cam1")
+    b = policy.to_alert(det[1][0], det[1][1], camera="cam2")
+    assert len(apply_cooldown([a, b], cooldown_s=30.0)) == 2
+
+
+def test_cooldown_falls_back_to_video_when_camera_unknown(policy):
+    det = [
+        (Window("site", 0, 5, 3.0), vr(EventType.FIGHTING)),
+        (Window("site", 10, 15, 3.0), vr(EventType.FIGHTING)),
+    ]
+    assert len(build_alert_feed(det, policy)) == 1                # camera rỗng -> khoá theo video

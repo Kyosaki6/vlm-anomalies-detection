@@ -87,3 +87,4 @@ class Alert:
     path: tuple[str, ...]    # đường đi trong policy graph, để giải thích
     caption: str = ""
     confidence: float = 0.0
+    camera: str = ""         # camera nào ghi được sự kiện; "" = chưa biết (cooldown lùi về video_id)

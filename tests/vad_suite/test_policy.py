@@ -110,6 +110,27 @@ def test_coverage_gaps_empty_when_zone_declares_nothing(policy):
     assert GraphPolicy(p).coverage_gaps("bare") == {}
 
 
+# --- camera (bối cảnh thứ ba, ngoài zone và giờ) -----------------------------------
+
+def test_alert_carries_camera_and_puts_it_first_in_path(policy):
+    a = policy.to_alert(W, vr(EventType.FIGHTING), camera="gate_a", hour=23)
+    assert a.camera == "gate_a"
+    assert a.path[0] == "camera:gate_a"
+    assert a.path[1] == "event:Fighting" and a.path[-1] == "protocol:P-VIOLENCE"
+
+
+def test_no_camera_keeps_path_unchanged(policy):
+    a = policy.to_alert(W, vr(EventType.FIGHTING))
+    assert a.camera == "" and a.path[0] == "event:Fighting"
+
+
+def test_merge_alerts_keeps_camera():
+    a1 = Alert("v", 0, 5, EventType.FIGHTING, "medium", ("security",), "P", ("p",), camera="gate_a")
+    a2 = Alert("v", 7, 10, EventType.FIGHTING, "high", ("security",), "P", ("p",), camera="gate_a")
+    out = merge_alerts([a1, a2], merge_gap_s=5.0)
+    assert len(out) == 1 and out[0].camera == "gate_a"
+
+
 def test_policy_yaml_missing_key_is_rejected(tmp_path):
     f = tmp_path / "p.yaml"
     f.write_text("severity_order: [low]\n", encoding="utf-8")

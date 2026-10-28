@@ -19,6 +19,7 @@ Report + defense in Vietnamese, dashboard in English.
 ## STRUCTURE
 ```
 vad/            types.py, interfaces.py (Protocols), fakes.py  — contracts shared by all tracks
+  results.py    RunResult JSON schema -> results/<video_id>.json (this is what the dashboard reads)
   datasets/     ucf_crime.py (GT parser), sharding.py (SHA-256 shard split)
   io/           video.py (sequential-grab sampler)
   embed/        cache.py (fp16 .npy, atomic), siglip.py (real, model-generic: SigLIP 2 + CLIP)
@@ -45,9 +46,8 @@ notes/          experiment logs + the plan
 | ROC-AUC with ties, bootstrap, threshold math | `decision.py` (reused by `vad/eval/metrics.py`) |
 
 ## STILL STUBS (raise `NotImplementedError` on purpose, never return fake output)
-`VLMVerifier` (vad/verify/vlm.py) only. `SigLIPEmbedder` and the real run of
-`scripts/precompute_embeddings.py` now work (branch `exp/siglip-embedder`). Not yet built: ShanghaiTech loader,
-`run_benchmark.py`, dashboard reading real `results/`.
+`VLMVerifier` (vad/verify/vlm.py) only. `SigLIPEmbedder` and the real run of `scripts/precompute_embeddings.py`
+now work (PR #8). Not yet built: ShanghaiTech loader, `run_benchmark.py`, dashboard reading real `results/`.
 
 ## CONVENTIONS
 - Python 3.10 compatible (CI runs 3.10 + 3.11 on Ubuntu + Windows). No `StrEnum`; use `from __future__ import annotations`.

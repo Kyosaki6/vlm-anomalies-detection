@@ -25,13 +25,11 @@ def _overlap(a: Window, b: Window) -> bool:
 
 
 def apply_cooldown(alerts: Sequence[Alert], cooldown_s: float) -> list[Alert]:
-    """Bỏ cảnh báo lặp: cùng video (=cùng camera) + cùng loại, bắt đầu < cooldown_s sau cảnh báo đã giữ.
+    """Bỏ cảnh báo lặp: cùng CAMERA + cùng loại, bắt đầu < cooldown_s sau cảnh báo đã giữ.
 
-    Mốc tính từ `end_s` của cảnh báo đã giữ ("nguội" sau khi sự cố kết thúc). Cảnh báo bị bỏ KHÔNG
-    làm mới cooldown — nếu không, một sự cố kéo dài sẽ tự chặn mình mãi mãi.
-
-    Ghi chú: `Alert` chưa có trường camera, nên tạm dùng video_id làm khoá camera. Khi nào type.Alert
-    có camera thật thì đổi khoá ở đây (báo nhóm vì types.py là hợp đồng chung).
+    Camera lấy từ `Alert.camera`; cảnh báo chưa biết camera (chuỗi rỗng) thì lùi về `video_id`
+    — một video coi như một camera. Mốc tính từ `end_s` của cảnh báo đã giữ ("nguội" sau khi sự cố
+    kết thúc). Cảnh báo bị bỏ KHÔNG làm mới cooldown — nếu không, một sự cố kéo dài sẽ tự chặn mình mãi mãi.
     """
     if cooldown_s < 0:
         raise ValueError(f"cooldown_s phải >= 0, nhận {cooldown_s}")
@@ -39,7 +37,7 @@ def apply_cooldown(alerts: Sequence[Alert], cooldown_s: float) -> list[Alert]:
     kept: list[Alert] = []
     last_kept: dict[tuple[str, str], Alert] = {}
     for a in sorted(alerts, key=lambda x: (x.video_id, x.start_s)):
-        key = (a.video_id, a.event_type.value)
+        key = (a.camera or a.video_id, a.event_type.value)
         prev = last_kept.get(key)
         if prev is not None and a.start_s - prev.end_s < cooldown_s:
             continue
@@ -49,11 +47,12 @@ def apply_cooldown(alerts: Sequence[Alert], cooldown_s: float) -> list[Alert]:
 
 
 def build_alert_feed(detections: Sequence[tuple[Window, VerifyResult]], policy: GraphPolicy,
-                     zone: str | None = None, hour: int | None = None) -> list[Alert]:
+                     zone: str | None = None, hour: int | None = None,
+                     camera: str | None = None) -> list[Alert]:
     """[(Window, VerifyResult)] -> danh sách Alert đã leo thang ngữ cảnh, gộp, cooldown.
 
-    `zone`/`hour` áp cho cả video (một camera một zone một khung giờ). Video nhiều zone thì gọi
-    hàm này từng đoạn — không đoán zone từng cửa sổ.
+    `zone`/`hour`/`camera` áp cho cả video (một camera một zone một khung giờ). Video nhiều camera
+    hoặc nhiều zone thì gọi hàm này từng đoạn — không đoán từng cửa sổ.
     """
     anomalous = [(i, w, r) for i, (w, r) in enumerate(detections)
                  if r.is_anomaly and r.event_type is not EventType.NORMAL]
@@ -62,7 +61,7 @@ def build_alert_feed(detections: Sequence[tuple[Window, VerifyResult]], policy: 
     for i, w, r in anomalous:
         # Sự kiện khác chồng lấn thời gian -> ứng viên leo thang
         co = tuple({r2.event_type for j, w2, r2 in anomalous if j != i and _overlap(w, w2)})
-        alert = policy.to_alert(w, r, zone=zone, hour=hour, co_events=co)
+        alert = policy.to_alert(w, r, camera=camera, zone=zone, hour=hour, co_events=co)
         if alert is not None:
             alerts.append(alert)
 
