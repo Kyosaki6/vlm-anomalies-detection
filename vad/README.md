@@ -1,6 +1,8 @@
 # vad/ — Zero-Shot Video Anomaly & Surveillance Alerting
 
-Kế hoạch đầy đủ: `.omo/plans/zero-shot-video-vad.md`. File này chỉ nói **cái gì đã chạy thật, cái gì còn là việc của bạn**.
+Kế hoạch đầy đủ: `notes/2026-10-28-plan-zero-shot-video-vad.md`; phân công: `notes/2026-10-29-task-assignment.md`.
+**Deadline: nộp trước 04/11/2026** (hạn chót cuối ngày 03/11 23:59); freeze tính năng tối 02/11. Nhóm 4 người (Phước, Huy, Nam, Thịnh).
+File này chỉ nói **cái gì đã chạy thật, cái gì còn là việc của bạn**.
 
 ## Trạng thái từng module
 
@@ -19,7 +21,7 @@ Kế hoạch đầy đủ: `.omo/plans/zero-shot-video-vad.md`. File này chỉ 
 | `vad/eval/metrics.py` | Thịnh (T1) | **xong + test** | AUC frame-level micro + bootstrap CI theo **video**. Chưa có `run_benchmark.py`. |
 | `vad/verify/vlm.py` | Phước (T2) | **parser JSON xong; `VLMVerifier` = STUB** | **Chưa chọn model.** Phải đo VRAM thật, không đoán. |
 | `vad/graph/policy.py` + `configs/policy.yaml` | Nam (T4) | **chạy được + test** | Zone/giờ/leo thang/gộp cảnh báo + đường đi giải thích. Chưa có event typer zero-shot, chưa có coverage query thật (`responders_in` là placeholder). |
-| `app/streamlit_app.py` | Thành (T5) | **skeleton chạy trên DỮ LIỆU GIẢ** | Cần đọc kết quả thật từ `results/`. |
+| `app/streamlit_app.py` | Thịnh (T5) | **skeleton chạy trên DỮ LIỆU GIẢ** | Cần đọc kết quả thật từ `results/`. |
 
 ## Chạy
 
@@ -38,7 +40,7 @@ python scripts/precompute_embeddings.py --manifest manifests/<file>.csv --shard 
 | Phước | RTX 3050 6 GB | float16 | VLM (T2) + 1-2 shard embedding |
 | Huy | RTX 3050 4 GB | float16 | 1 shard embedding. VLM không chắc vừa 4 GB, không nằm trên đường găng. |
 | Nam | GTX 1060 3 GB | **float32** (Pascal fp16 rất chậm) | 1 shard embedding. Kiểm `torch.cuda.get_arch_list()` có `sm_61`. |
-| Thịnh, Thành | không có | — | CPU + Colab T4 làm dự phòng |
+| Thịnh | không có | — | CPU + Colab T4 làm dự phòng |
 
 ## Luật chung
 

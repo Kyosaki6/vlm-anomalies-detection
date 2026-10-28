@@ -12,7 +12,9 @@ Two codebases live in one repo:
 2. **Legacy 15-image pipeline** (`main.py`, `search.py`, `graph.py`, `decision.py`, `eval.py`, `events.json`, `data/`)
    — kept as a smoke fixture and for `decision.py` metrics. It is NOT evidence for the new system.
 
-Deadline: submit before **2026-11-12** (feature freeze 2026-11-09). Report + defense in Vietnamese, dashboard in English.
+Deadline: submit before **2026-11-04** (hard cutoff: end of 2026-11-03 23:59; feature freeze 2026-11-02 evening, 11-03 = report + packaging).
+Team = 4 (Phước, Huy, Nam, Thịnh). Dashboard owner: Thịnh (whole Streamlit dashboard). Scope cuts: `notes/2026-10-29-task-assignment.md` §6.
+Report + defense in Vietnamese, dashboard in English.
 
 ## STRUCTURE
 ```
@@ -80,7 +82,7 @@ python eval.py --gallery data --device cpu
 
 ## HARDWARE (shard planning)
 Phước RTX 3050 6 GB (fp16, also VLM) · Huy RTX 3050 4 GB (fp16) · Nam GTX 1060 3 GB (fp32; check `sm_61` in torch) ·
-Thịnh, Thành no GPU (CPU + Colab T4). Heavy runs = embedding cache + tier-2 batch only; everything downstream is CPU.
+Thịnh no GPU (CPU + Colab T4). Heavy runs = embedding cache + tier-2 batch only; everything downstream is CPU.
 
 ## NOTES
 - Published zero-shot frame-level AUC on UCF-Crime (LAVAD, CVPR 2024): ZS-CLIP 53.2, LLaVA-1.5 72.8, LAVAD 80.3.

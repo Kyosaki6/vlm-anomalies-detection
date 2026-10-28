@@ -168,7 +168,9 @@ Schema `events.json` (mỗi phần tử là 1 sự kiện; bốn trường đầ
 - **Thịnh** — `graph.py` (NetworkX: sự kiện → cách xử lý)
 - **Huy** — `data/` + `events.json` ✅
 - **Nam** — `main.py`, repo, tích hợp, báo cáo
-- **Thành** — research: 3 bài báo AI phát hiện bất thường qua video
+
+> Giai đoạn video (`vad/`): deadline nộp **trước 04/11/2026** (hạn chót cuối ngày 03/11/2026 23:59), nhóm 4 người; Thịnh làm dashboard Streamlit.
+> Xem `notes/2026-10-29-task-assignment.md`.
 
 ## License
 
