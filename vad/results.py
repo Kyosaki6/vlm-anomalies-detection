@@ -17,6 +17,7 @@ Quy ước:
 from __future__ import annotations
 
 import json
+import math
 import os
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -34,19 +35,27 @@ SCORE_DECIMALS = 6          # đủ chính xác, tránh JSON phình vì 17 chữ
 
 # --- đường dẫn -------------------------------------------------------------------
 
+def _check_video_id(video_id: str) -> str:
+    """video_id đi thẳng vào tên file -> không cho phép ký tự đường dẫn (`../x`, `a/b`, rỗng)."""
+    if (not video_id or video_id in {".", ".."} or "/" in video_id or "\\" in video_id
+            or "\x00" in video_id):
+        raise ValueError(f"video_id không hợp lệ để làm tên file: {video_id!r}")
+    return video_id
+
+
 def result_path(video_id: str, root: str | Path = DEFAULT_RESULTS_DIR) -> Path:
-    return Path(root) / f"{video_id}.json"
+    return Path(root) / f"{_check_video_id(video_id)}.json"
 
 
 def windows_path(video_id: str, root: str | Path = DEFAULT_RESULTS_DIR) -> Path:
-    return Path(root) / "windows" / f"{video_id}.json"
+    return Path(root) / "windows" / f"{_check_video_id(video_id)}.json"
 
 
 def _write_json_atomic(path: Path, payload: dict[str, Any]) -> Path:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
     with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
+        json.dump(payload, f, ensure_ascii=False, indent=2, allow_nan=False)   # NaN/Inf không phải JSON hợp lệ
     os.replace(tmp, path)
     return path
 
@@ -136,8 +145,17 @@ class RunResult:
         if isinstance(self.anomaly_scores, np.ndarray):
             object.__setattr__(self, "anomaly_scores",
                                tuple(float(x) for x in np.asarray(self.anomaly_scores).ravel()))
-        if self.sample_fps <= 0:
-            raise ValueError(f"sample_fps phải > 0, nhận {self.sample_fps}")
+        if not (math.isfinite(self.sample_fps) and self.sample_fps > 0):
+            raise ValueError(f"sample_fps phải hữu hạn và > 0, nhận {self.sample_fps}")
+        bad = [i for i, x in enumerate(self.anomaly_scores) if not math.isfinite(x)]
+        if bad:
+            raise ValueError(
+                f"anomaly_scores có {len(bad)} giá trị NaN/Inf (đầu tiên ở khung {bad[0]}). "
+                "Không ghi ra JSON: lỗi chuẩn hoá ở tier-1 phải được sửa, không che đi."
+            )
+        for w in self.candidate_windows:
+            if not (math.isfinite(w.start_s) and math.isfinite(w.end_s) and 0 <= w.start_s <= w.end_s):
+                raise ValueError(f"Cửa sổ không hợp lệ (cần 0 <= start_s <= end_s): {w}")
         if self.verify_results and len(self.verify_results) != len(self.candidate_windows):
             raise ValueError(
                 "verify_results phải rỗng hoặc cùng độ dài với candidate_windows "

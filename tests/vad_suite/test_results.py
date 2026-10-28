@@ -189,3 +189,42 @@ def test_committed_sample_run_matches_current_schema():
     assert r.video_id == "sample_run"
     assert r.alerts and all(a.camera for a in r.alerts)
     assert "GIẢ" in r.metadata.get("note", "")           # file mẫu phải tự khai là dữ liệu giả
+
+# --- đầu vào xấu: chặn ở biên, không ghi file hỏng ----------------------------------
+
+@pytest.mark.parametrize("bad", ["../evil", "a/b", "a\\b", "", "..", "."])
+def test_video_id_with_path_chars_is_rejected(bad, tmp_path):
+    with pytest.raises(ValueError, match="video_id"):
+        result_path(bad, tmp_path)
+    with pytest.raises(ValueError, match="video_id"):
+        windows_path(bad, tmp_path)
+
+def test_traversal_video_id_writes_nothing_outside_root(tmp_path):
+    root = tmp_path / "results"
+    with pytest.raises(ValueError):
+        RunResult("../evil", 1.0, (0.1,)).to_json(root=root)
+    assert not (tmp_path / "evil.json").exists()
+
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), float("-inf")])
+def test_non_finite_scores_are_rejected(bad):
+    with pytest.raises(ValueError, match="NaN/Inf"):
+        RunResult("v1", 1.0, (0.1, bad, 0.3))
+
+def test_non_finite_scores_in_numpy_are_rejected():
+    with pytest.raises(ValueError, match="NaN/Inf"):
+        RunResult("v1", 1.0, np.array([0.1, np.nan]))
+
+def test_written_json_is_strict(tmp_path):
+    """File phải parse được bằng parser nghiêm ngặt (JS/jq): không NaN/Infinity."""
+    p = RunResult("v1", 1.0, (0.1, 0.2)).to_json(root=tmp_path)
+    json.loads(p.read_text(encoding="utf-8"),
+               parse_constant=lambda c: (_ for _ in ()).throw(ValueError(c)))
+
+@pytest.mark.parametrize("start,end", [(5.0, 2.0), (-1.0, 2.0), (0.0, float("inf"))])
+def test_invalid_windows_are_rejected(start, end):
+    with pytest.raises(ValueError, match="Cửa sổ"):
+        RunResult("v1", 1.0, (0.1,), (Window("v1", start, end, 0.9),))
+
+def test_sample_fps_nan_is_rejected():
+    with pytest.raises(ValueError, match="sample_fps"):
+        RunResult("v1", float("nan"), (0.1,))
