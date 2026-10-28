@@ -96,6 +96,8 @@ class GraphPolicy:
         spec = self.policy["events"][name]
         idx = self._order.index(spec["severity"])
         path = [f"event:{name}", f"severity:{spec['severity']}"]
+        if camera:
+            path.insert(0, f"camera:{camera}")
         responders = list(spec.get("responders", []))
 
         zone_name = zone if zone in self.policy["zones"] else "default"
@@ -125,7 +127,7 @@ class GraphPolicy:
             video_id=window.video_id, start_s=window.start_s, end_s=window.end_s,
             event_type=result.event_type, severity=self._clamp(idx),
             responders=tuple(responders), protocol=spec["protocol"], path=tuple(path),
-            caption=result.caption, confidence=result.confidence,
+            caption=result.caption, confidence=result.confidence, camera=camera or "",
         )
 
     def responders_in(self, zone: str) -> set[str]:
@@ -176,7 +178,7 @@ def merge_alerts(alerts: list[Alert], merge_gap_s: float) -> list[Alert]:
                                                           key=lambda s: _SEV_RANK.get(s, 0)),
                     responders=tuple(dict.fromkeys(p.responders + a.responders)),
                     protocol=p.protocol, path=p.path, caption=p.caption or a.caption,
-                    confidence=max(p.confidence, a.confidence))
+                    confidence=max(p.confidence, a.confidence), camera=p.camera or a.camera)
                 continue
         out.append(a)
     return sorted(out, key=lambda x: (x.video_id, x.start_s))

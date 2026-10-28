@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "video_id": "sample_run",
+  "sample_fps": 1.0,
+  "candidate_windows": [
+    {
+      "video_id": "sample_run",
+      "start_s": 20.0,
+      "end_s": 30.0,
+      "score": 0.8453223604173578
+    },
+    {
+      "video_id": "sample_run",
+      "start_s": 55.0,
+      "end_s": 65.0,
+      "score": 0.7520679448031756
+    },
+    {
+      "video_id": "sample_run",
+      "start_s": 95.0,
+      "end_s": 105.0,
+      "score": 0.9324049023761366
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Fighting",
+      "caption": "[fake] two people are fighting near a car",
+      "confidence": 0.88
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "RoadAccidents",
+      "caption": "a car hits a pedestrian at the crossing",
+      "confidence": 0.81
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Fighting",
+      "caption": "[fake] two people are fighting near a car",
+      "confidence": 0.88
+    }
+  ],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "sample",
+    "timestamp": "2026-10-28T17:59:42+00:00",
+    "schema_version": 1,
+    "note": "DỮ LIỆU GIẢ (FakeVerifier + điểm ngẫu nhiên có chủ đích). Không phải kết quả thật."
+  }
+}
