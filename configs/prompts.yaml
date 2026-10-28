@@ -1,0 +1,48 @@
+# configs/prompts.yaml — prompt cho tier-1 và tier-2.
+# LUẬT: prompt phát hiện (detection) phải GENERIC. Không đưa tên lớp (fighting, accident...) vào đây,
+# nếu không là rò nhãn (xem notes/ về lỗi của bản 15 ảnh cũ). Tên lớp chỉ được dùng ở `event_typing`.
+
+detection:
+  # Bản gốc LAVAD/ZS-CLIP để so sánh công bằng (A0/A1)
+  baseline:
+    normal: ["a standard scene"]
+    abnormal: ["a scene with suspicious or potentially criminal activities"]
+  # Ensemble paraphrase (A2)
+  ensemble:
+    normal:
+      - "a normal everyday scene"
+      - "people going about their ordinary daily activities"
+      - "a calm street or room with regular activity"
+      - "a surveillance camera view of a peaceful scene"
+    abnormal:
+      - "a scene with suspicious or potentially criminal activities"
+      - "a surveillance camera view of a dangerous or violent incident"
+      - "an emergency or unusual event happening in public"
+      - "people behaving aggressively or something being destroyed"
+
+# Chỉ dùng cho phân loại loại sự kiện SAU khi đã phát hiện bất thường (đo riêng, ghi rõ là zero-shot classification)
+event_typing:
+  template: "a surveillance video frame showing {label}"
+  labels:
+    Abuse: "someone being cruelly abused"
+    Arrest: "police arresting a person"
+    Arson: "a fire being deliberately set"
+    Assault: "a person being violently attacked"
+    Burglary: "someone breaking into a building"
+    Explosion: "an explosion"
+    Fighting: "people fighting"
+    RoadAccidents: "a road traffic accident"
+    Robbery: "a robbery by force or threat"
+    Shooting: "someone shooting a gun"
+    Shoplifting: "someone shoplifting in a store"
+    Stealing: "someone stealing property"
+    Vandalism: "someone vandalising property"
+
+# Tier-2 (VLM sinh ngôn ngữ). Yêu cầu trả JSON để parse được.
+verifier:
+  system: "You are a surveillance analyst. Answer strictly in JSON."
+  user: >
+    These frames come from one short surveillance clip. Does the clip show an abnormal or criminal event?
+    Reply with JSON only: {"is_anomaly": true|false, "event_type": "<one of: Abuse, Arrest, Arson, Assault,
+    Burglary, Explosion, Fighting, RoadAccidents, Robbery, Shooting, Shoplifting, Stealing, Vandalism, Normal>",
+    "caption": "<one factual sentence describing what happens>", "confidence": <0..1>}
