@@ -1,187 +1,189 @@
-# Phân công công việc: ai làm gì, cụ thể từng việc
+# Task assignment: who does what, exactly
 
-Tài liệu đi kèm với `notes/2026-10-28-plan-zero-shot-video-vad.md` (LÀM GÌ / TẠI SAO). File này là AI LÀM / KHI NÀO.
+Companion to `notes/2026-10-28-plan-zero-shot-video-vad.md` (the WHAT/WHY). This file is the WHO/WHEN.
 
-**TIMELINE & VAI TRÒ:**
-- Deadline: nộp TRƯỚC ngày 4/11 (hạn chót cứng: cuối ngày 3/11 23:59).
-- Nhóm: 4 người (Phước, Huy, Nam, Thịnh).
-- Thịnh phụ trách toàn bộ dashboard Streamlit.
-- Khung thời gian là 6 ngày (29/10 .. 3/11), nên phạm vi đã được cắt giảm ngay từ đầu (mục 6).
+**TIMELINE & ROLES:**
+- Deadline: submit BEFORE Nov 4 (hard cutoff: end of Nov 3 23:59).
+- Team: 4 people (Phước, Huy, Nam, Thịnh).
+- Thịnh owns the entire Streamlit dashboard.
+- Window is 6 days (Oct 29 .. Nov 3), so scope was cut up front (section 6).
 
-Khung thời gian: Ngày 1 = Thứ Năm 29/10/2026 ... Ngày 6 = Thứ Ba 03/11/2026. **Đóng băng tính năng (feature freeze): cuối D5 (tối 02/11).** D6 = báo cáo, slides, đóng gói, nộp bài (hạn chót 23:59). Không làm gì mới vào D6.
-Cách đánh số ngày: D1 29/10 (Thứ Năm), D2 30/10 (Thứ Sáu), D3 31/10 (Thứ Bảy), D4 01/11 (Chủ Nhật), D5 02/11 (Thứ Hai), D6 03/11 (Thứ Ba).
+Window: Day 1 = Thu 2026-10-29 ... Day 6 = Tue 2026-11-03. **Feature freeze: end of D5 (Nov 2 evening).** D6 = report, slides,
+packaging, submit (cutoff 23:59). Nothing new on D6.
+Day numbering: D1 Oct 29 (Thu), D2 Oct 30, D3 Oct 31 (Sat), D4 Nov 1 (Sun), D5 Nov 2 (Mon), D6 Nov 3 (Tue).
 
-Quy ước mã ID: các task là A1..A7, B1..B7, C1..C7, TH1..TH8 (Thịnh), E1..E7 (dashboard/clips). `D<n>` luôn có nghĩa là NGÀY n (Day n).
+ID scheme: tasks are A1..A7, B1..B7, C1..C7, TH1..TH8 (Thịnh), E1..E7 (dashboard/clips). `D<n>` always means DAY n.
 
-## 0. Giả định cần xác nhận vào D1 (thay đổi kế hoạch nếu có gì sai)
+## 0. Assumptions to confirm on D1 (change the plan if any is wrong)
 
-1. Thịnh = viết báo cáo + nhánh tier-1 + toàn bộ dashboard Streamlit. Xem mục 6 về các phần đã cắt giảm để đảm bảo tính khả thi.
-2. GPU: Phước RTX 3050 6 GB, Huy RTX 3050 4 GB, Nam GTX 1060 3 GB (fp32), Thịnh không có GPU. Colab/Kaggle T4 = dự phòng.
-3. Ước tính thời gian bên dưới là phỏng đoán, CHƯA ĐƯỢC ĐO THỰC TẾ. Phép đo đầu tiên (A1, B3) sẽ thay thế các ước tính này.
-4. Chưa ai được hỏi xem có đồng ý nhận các vai trò này hay không. Có thể hoán đổi bất cứ thứ gì; giữ nguyên các interface.
+1. Thịnh = report writer + tier-1 track + whole Streamlit dashboard. See section 6 for what was cut to make that achievable.
+2. GPUs: Phước RTX 3050 6 GB, Huy RTX 3050 4 GB, Nam GTX 1060 3 GB (fp32), Thịnh none. Colab/Kaggle T4 = spare.
+3. Time estimates below are guesses, NOT measured. The first measurement (A1, B3) replaces them.
+4. Nobody has been asked whether they accept these roles. Swap anything; keep the interfaces.
 
-## 1. Bảng tóm tắt
+## 1. Summary table
 
-| Người | Phần cứng | Nhánh chính | Làm thêm | Ngày nặng nhất |
+| Person | Hardware | Main track | Also | Heaviest days |
 |---|---|---|---|---|
-| Phước | 3050 6 GB | **A. Tier-2 VLM** (bắt buộc, rủi ro lớn nhất) | embedding shard 1 (40%) | D1-D3, D5 |
-| Huy | 3050 4 GB | **B. Dữ liệu + nối embedder** (đường găng / critical path) | embedding shard 2 (35%), tự quay clip (E3/E4) | D1-D2, D3-D5 |
-| Nam | 1060 3 GB | **C. Cảnh báo, schema kết quả, bộ phân loại sự kiện (event typer)** | embedding shard 3 (25%, fp32), build_results (C7) | D1-D5 |
-| Thịnh | không có | **D. Chấm điểm tier-1, benchmark, ablations** + **E. Dashboard** | Báo cáo tiếng Việt + slides | D1-D6 (không có ngày nghỉ) |
+| Phước | 3050 6 GB | **A. Tier-2 VLM** (mandatory, biggest risk) | embedding shard 1 (40%) | D1-D3, D5 |
+| Huy | 3050 4 GB | **B. Data + embedder wiring** (critical path) | embedding shard 2 (35%), own clips (E3/E4) | D1-D2, D3-D5 |
+| Nam | 1060 3 GB | **C. Alerts, results schema, event typer** | embedding shard 3 (25%, fp32), build_results (C7) | D1-D5 |
+| Thịnh | none | **D. Tier-1 scoring, benchmark, ablations** + **E. Dashboard** | Vietnamese report + slides | D1-D6 (no slack day) |
 
-Thịnh giữ số lượng task nhiều nhất; mục 6 cắt giảm phạm vi (ShanghaiTech là stretch, bỏ A7, ít clip hơn, UI chỉ ở chế độ replay) để khối lượng công việc trong tầm kiểm soát.
+Thịnh holds the highest task count; section 6 cuts scope (ShanghaiTech stretch, A7 dropped, fewer clips, replay-only UI) so it stays manageable.
 
-## 2. Các khoảng trống phát hiện trong skeleton đã commit (mỗi mục giờ là một task cụ thể)
+## 2. Gaps found in the committed skeleton (each is now an explicit task)
 
-| # | Khoảng trống | Task |
+| # | Gap | Task |
 |---|---|---|
-| G1 | `cooldown_s` có trong `policy.yaml` nhưng không có code nào đọc | C2 |
-| G2 | `co_events` không bao giờ được caller tính toán, nên việc leo thang cảnh báo (tai nạn + cháy nổ) không thể kích hoạt end-to-end | C2 |
-| G3 | `GraphPolicy.responders_in(zone)` bỏ qua `zone` và trả về toàn bộ đơn vị ứng phó: một placeholder nhìn như thật | C2 (triển khai hoặc xoá) |
-| G4 | Chưa có schema kết quả và chưa có module kết nối (glue) giữa tier-1, tier-2, cảnh báo và dashboard | C1, TH2, C5 |
-| G5 | ShanghaiTech lưu dạng các THƯ MỤC khung hình; sampler hiện chỉ đọc file video | B4 (chỉ làm dạng STRETCH) |
-| G6 | Baseline A0 cần OpenAI CLIP ViT-B/32 nhưng hiện chỉ có stub của SigLIP embedder | B3 (làm cho tổng quát với model) |
-| G7 | Dashboard hiện chỉ chạy trên dữ liệu giả (fake data) | E1, E2 |
-| G8 | Baseline A0 cần embedding CLIP B/32 của CÙNG 290 video: tốn một lượt trích xuất embedding thứ hai. Việc giải mã video 30 fps có thể là phần tốn kém nhất chứ không phải model, do đó nên trích xuất cả hai model trong MỘT lượt decode video | B3 |
+| G1 | `cooldown_s` is in `policy.yaml` but no code reads it | C2 |
+| G2 | `co_events` is never computed by any caller, so escalation (accident + explosion) cannot fire end to end | C2 |
+| G3 | `GraphPolicy.responders_in(zone)` ignores `zone` and returns every responder: a placeholder that looks real | C2 (implement or delete) |
+| G4 | No results schema and no glue module between tier-1, tier-2, alerts and the dashboard | C1, TH2, C5 |
+| G5 | ShanghaiTech ships as frame FOLDERS; the sampler only reads video files | B4 (STRETCH only) |
+| G6 | Baseline A0 needs OpenAI CLIP ViT-B/32 but only a SigLIP embedder is stubbed | B3 (make it model-generic) |
+| G7 | Dashboard runs on fake data only | E1, E2 |
+| G8 | Baseline A0 needs CLIP B/32 embeddings of the SAME 290 videos: a second embedding pass. Decoding 30 fps video is likely the expensive part, not the model, so embed both models from ONE decode pass | B3 |
 
-## 3. Danh sách task theo từng người
+## 3. Per-person task lists
 
-Định dạng: ID | Thời gian | Task | TIÊU CHÍ NGHIỆM THU (làm sao để biết đã xong).
+Format: ID | when | task | ACCEPTANCE (how we know it is done).
 
 ### A. Phước: tier-2 VLM (+ GPU)
 
-| ID | Thời gian | Task | Tiêu chí nghiệm thu |
+| ID | When | Task | Acceptance |
 |---|---|---|---|
-| A1 | D1 | Đo thực tế, không đoán mò: tải 2-3 VLM sinh ngôn ngữ ứng viên ở định dạng 4-bit (các ứng viên để kiểm chứng, ví dụ: Qwen2-VL-2B, Qwen2.5-VL-3B, SmolVLM2), ghi nhận mức VRAM đỉnh (peak VRAM) và số giây trên mỗi cửa sổ cho 4 khung hình. Viết `notes/vlm-selection.md` | Chọn được một model với peak VRAM đo được < 5.5 GB. Nếu không model nào vừa, quyết định dùng Colab T4 cho toàn bộ A5 ngay lúc này |
-| A2 | D1-D2 | Cài đặt `VLMVerifier.verify` trong `vad/verify/vlm.py`: frames + prompt từ `configs/prompts.yaml` -> `parse_verifier_json`; retry 1 lần nếu parse lỗi, sau đó raise ngoại lệ (không bao giờ tạo kết quả giả) | Unit test với model runner được mock; chạy thử (smoke run) trên 3 clip trả về `VerifyResult` thật |
-| A3 | D2-D3 | `scripts/run_verify.py`: đọc `results/windows/<video>.json`, chọn k khung hình cách đều nhau cho mỗi window, ghi MỘT file json cho mỗi window, hỗ trợ resume (chạy tiếp khi bị ngắt) | Kill giữa chừng, chạy lại, script bỏ qua các window đã xong |
-| A4 | D2 (chạy qua đêm) | Chạy embedding shard 1 ngay khi B3 xong (`--shard 1/4`, tuỳ chọn `2/4`) | Số lượng file `cache/embeddings/*.npy` khớp với kích thước shard |
-| A5 | D5 | Chạy tier 2 trên các candidate window (chấp nhận một TẬP CON có chi phí đo được, xem mục 6). Dùng Colab T4 nếu thời gian đo ở A1 cho thấy 3050 quá chậm. Bắt đầu ngay khi Thịnh bàn giao các window (cuối D4) | Log: tỉ lệ window leo thang (%), số giây/window, peak VRAM. Cung cấp số liệu cho dòng ablation A6 |
-| A6 | D5 | Kiểm tra thủ công 20 window; tinh chỉnh verifier prompt ĐÚNG MỘT LẦN; so sánh giữa chỉ có yes/no vs caption+type | Bản ghi chú ngắn kèm precision trước/sau trên 20 window đó |
-| A7 | D5-D6 | Tuỳ chọn: phân tích dương tính giả (false-positive) của VLM, 10 trường hợp có chú thích cho báo cáo. Chỉ làm nếu A5/A6 đã hoàn thành | 10 trường hợp có chú thích, hoặc tuyên bố bỏ qua rõ ràng |
+| A1 | D1 | Measure, do not assume: load 2-3 candidate generative VLMs in 4-bit (candidates to verify, e.g. Qwen2-VL-2B, Qwen2.5-VL-3B, SmolVLM2), record peak VRAM and seconds per window for 4 frames. Write `notes/vlm-selection.md` | One model chosen with measured peak VRAM < 5.5 GB. If none fits, decide Colab T4 for all of A5 right now |
+| A2 | D1-D2 | Implement `VLMVerifier.verify` in `vad/verify/vlm.py`: frames + prompt from `configs/prompts.yaml` -> `parse_verifier_json`; one retry on parse failure, then raise (never fabricate) | Unit test with a mocked model runner; smoke run on 3 clips returns real `VerifyResult` |
+| A3 | D2-D3 | `scripts/run_verify.py`: reads `results/windows/<video>.json`, picks k evenly spaced frames per window, writes ONE json per window, resumable | Kill it mid-run, rerun, it skips finished windows |
+| A4 | D2 (overnight) | Run embedding shard 1 once B3 lands (`--shard 1/4`, optionally `2/4`) | `cache/embeddings/*.npy` count matches shard size |
+| A5 | D5 | Run tier 2 on candidate windows (a SUBSET with measured cost is acceptable, see section 6). Colab T4 if A1 timing says the 3050 is too slow. Start the moment Thịnh hands over windows (D4 EOD) | Log: windows escalated (%), s/window, peak VRAM. Feeds the A6 ablation row |
+| A6 | D5 | Hand-check 20 windows; tune the verifier prompt ONCE; compare yes/no-only vs caption+type | Short note with before/after precision on the 20 |
+| A7 | D5-D6 | Optional: false-positive analysis of the VLM, 10 annotated cases for the report. Only if A5/A6 finished | 10 annotated cases, or explicitly dropped |
 
-Người chịu trách nhiệm rủi ro cho: VLM không vừa 6 GB VRAM. Quy tắc quyết định: kết quả A1 vào cuối D1 là quyết định cuối cùng; không để đến D5 mới phát hiện ra.
+Risk owner for: VLM does not fit 6 GB. Decision rule: A1 result on D1 EOD is final; do not discover this on D5.
 
-### B. Huy: data + kết nối embedder (đường găng) + clip tự quay
+### B. Huy: data + embedder wiring (critical path) + own clips
 
-| ID | Thời gian | Task | Tiêu chí nghiệm thu |
+| ID | When | Task | Acceptance |
 |---|---|---|---|
-| B3 | D1-D2 (**làm trước, mọi người chờ cái này**) | Nối embedder thật trong `vad/embed/siglip.py`, tái sử dụng `search.load_model`, `embed_images`, `embed_texts`. Làm cho model-generic (theo HF id) để CÙNG một class phục vụ được cả SigLIP 2 và OpenAI CLIP B/32 (cần cho A0). Cài đặt việc chạy thật trong `scripts/precompute_embeddings.py` (sampler -> batch -> `save_embeddings`, có thể resume) | 3 video được trích xuất embedding trên GPU của Huy; cosine giữa fp16 và fp32 > 0.999; ghi lại tốc độ ảnh/giây; chạy được với tham số `--shard`; nhận 2 model trong một lượt decode (SigLIP 2 + CLIP B/32). **Bắt buộc phải merge trước giữa trưa D2**, nếu không toàn bộ dây chuyền bị trễ |
-| B1 | D1 (tải dữ liệu trong lúc code B3) | Kiểm tra dung lượng ổ đĩa trước. Tải tập UCF-Crime test + file chú thích thời gian + ~60 video train-normal (dùng hiệu chuẩn). Tạo `manifests/ucf_test.csv`, `manifests/ucf_calib_normal.csv` dùng `probe_video` để lấy `n_frames`/`fps` | 290 dòng test (140 bất thường + 150 bình thường) và ~60 dòng calib; không trùng lặp ID; `precompute --dry-run` chạy tốt trên cả hai |
-| B2 | D2 | Đối chiếu quy ước nhãn với code của LAVAD / RTFM: `[start, end]` là lấy cận (inclusive) hay không, index từ 0 hay 1, 30 fps? Sửa `vad/datasets/ucf_crime.py` và test tương ứng nếu kết quả khác. Viết `notes/ucf-gt-convention.md` dẫn nguồn | Note dẫn chính xác các dòng code nguồn; toàn bộ 140 tên video có chú thích đều tồn tại trong manifest |
-| B5 | D2 (chạy qua đêm) | Embedding shard 2 (35%) | Hoàn thành shard, các file cache có mặt đầy đủ |
-| E3 | D2-D4 | Tự quay clip đường phố Việt Nam: **khoảng 5** clip dài 10-30 giây, ít nhất 2 clip bình thường; các clip "sự cố" phải là DÀN DỰNG với sự đồng thuận, không quay người thật khi chưa có phép. Gán nhãn thủ công giây bắt đầu/kết thúc. `manifests/own_demo.csv` + file nhãn. Chỉ dùng cho demo, KHÔNG dùng làm benchmark | Commit manifest + nhãn |
-| E4 | D5 | Chạy các clip tự quay qua pipeline trên GPU của Huy | JSON kết quả cho từng clip |
-| B7 | D5 | Năng lực dự phòng: hỗ trợ Phước chạy batch tier-2 (chia window theo hash, tương tự như chia shard) | n/a |
-| B4 | **STRETCH** | ShanghaiTech: chỉ làm nếu tier 1 đóng băng vào D4 mà vẫn còn thời gian. `vad/io/frames.py`, `vad/datasets/shanghaitech.py`. Nếu không thì bỏ qua | Xem mục 6 |
-| B6 | **STRETCH** | Trích xuất embedding ShanghaiTech + ngân hàng normal-memory. Phụ thuộc vào B4 | Xem mục 6 |
+| B3 | D1-D2 (**do first, others wait on it**) | Wire the real embedder in `vad/embed/siglip.py`, reusing `search.load_model`, `embed_images`, `embed_texts`. Make it model-generic (HF id) so the SAME class serves SigLIP 2 and OpenAI CLIP B/32 (needed for A0). Implement the real run in `scripts/precompute_embeddings.py` (sampler -> batches -> `save_embeddings`, resumable) | 3 videos embedded on his GPU; fp16 vs fp32 cosine > 0.999; img/s recorded; `--shard` run works; accepts 2 models in one decode pass (SigLIP 2 + CLIP B/32). **Must be merged by D2 midday** or the whole chain slips |
+| B1 | D1 (download runs while B3 is coded) | Check disk first. Download UCF-Crime test split + the temporal annotation file + ~60 train-normal videos (calibration). Build `manifests/ucf_test.csv`, `manifests/ucf_calib_normal.csv` using `probe_video` for `n_frames`/`fps` | 290 test rows (140 anomalous + 150 normal) and ~60 calib rows; no duplicate ids; `precompute --dry-run` works on both |
+| B2 | D2 | Verify the label convention against LAVAD / RTFM code: are `[start, end]` inclusive, 0-indexed, 30 fps? Fix `vad/datasets/ucf_crime.py` and its test if the answer differs. Write `notes/ucf-gt-convention.md` citing the source | Note cites the exact source lines; all 140 annotated video names exist in the manifest |
+| B5 | D2 (overnight) | Embedding shard 2 (35%) | Shard complete, cache files present |
+| E3 | D2-D4 | Own Vietnamese street clips: **about 5** clips of 10-30 s, at least 2 normal; any "incident" clips must be STAGED with consent, no real people without permission. Hand-label start/end seconds. `manifests/own_demo.csv` + labels file. Demo only, NOT benchmark | Manifest + labels committed |
+| E4 | D5 | Run the own clips through the pipeline on Huy's GPU | Results JSON per clip |
+| B7 | D5 | Spare capacity: help Phước with the tier-2 batch (split windows by hash, same as shards) | n/a |
+| B4 | **STRETCH** | ShanghaiTech: only if tier 1 is frozen on D4 with time left. `vad/io/frames.py`, `vad/datasets/shanghaitech.py`. Otherwise dropped | See section 6 |
+| B6 | **STRETCH** | ShanghaiTech embeddings + normal-memory banks. Depends on B4 | See section 6 |
 
-### C. Nam: cảnh báo, schema kết quả, bộ phân loại sự kiện (event typer)
+### C. Nam: alerts, results schema, event typer
 
-| ID | Thời gian | Task | Tiêu chí nghiệm thu |
+| ID | When | Task | Acceptance |
 |---|---|---|---|
-| C1 | D1 (**làm trước, mở đường cho dashboard**) | `vad/results.py`: dataclass có phiên bản (`schema_version`) + đọc/ghi JSON cho một lần chạy của video: sample_fps, mảng điểm, window, kết quả verify, cảnh báo, metadata (model, commit, timestamp). Cố định cấu trúc lưu trên ổ cứng trong thư mục `results/`. Commit một file JSON mẫu viết tay | Test chuyển đổi hai chiều (round-trip test); Thịnh xác nhận có thể code ứng dụng dựa trên schema đó. **Merge trước cuối D1** |
-| C2 | D2 | Xử lý nợ kỹ thuật của policy G1-G3: cài đặt `cooldown_s` theo từng (camera, event); viết hàm tính `co_events` từ các window chồng lấn thời gian; biến `responders_in(zone)` thành hàm chạy thật hoặc xoá nó đi | Test: cảnh báo thứ hai nằm trong thời gian cooldown bị chặn và được phép sau khi hết cooldown; hai window chồng lấn kích hoạt leo thang cảnh báo end-to-end |
-| C4 | D2 (chạy qua đêm) | Embedding shard 3 (25%) trên card 1060. Kiểm tra D1: `torch.cuda.get_arch_list()` có chứa `sm_61` không. Nếu không, ghim bản torch cũ hơn hoặc chuyển shard cho một lượt chạy trên Colab | Hoàn thành shard, hoặc bàn giao vào D1 |
-| C3 | D3 | Zero-shot event typer: lấy giá trị trung bình theo window của cached embeddings so với 13 prompt `event_typing` -> `EventType`. Đánh giá trên các đoạn UCF GT: độ chính xác top-1 trên 13 lớp | Độ chính xác so sánh với mức ngẫu nhiên 1/13; giữ TÁCH BIỆT với AUC phát hiện bất thường. Ma trận nhầm lẫn (confusion matrix) là tuỳ chọn |
-| C5 | D4 | `vad/alerting.py`: windows + kết quả verify + ngữ cảnh (zone, hour) -> cảnh báo đã hợp nhất (GraphPolicy + `merge_alerts` + cooldown) | Bảng kiểm thử kịch bản có ít nhất 10 ca, tất cả đều pass (xanh) |
-| C7 | D5 | `scripts/build_results.py`: cached embeddings + windows + đầu ra tier-2 -> cảnh báo -> `results/*.json` cho toàn bộ video | Dashboard đọc được kết quả thật |
-| C6 | **TUỲ CHỌN** | Một truy vấn độ phủ (coverage query) thực tế + xuất đồ thị con của policy sang DOT. Là mục đầu tiên cần cắt nếu thiếu thời gian | Xem mục 6 |
+| C1 | D1 (**do first, unblocks the dashboard**) | `vad/results.py`: versioned (`schema_version`) dataclass + JSON read/write for one video's run: sample_fps, score array, windows, verify results, alerts, meta (model, commit, timestamp). Pin the on-disk layout under `results/`. Commit a hand-written sample JSON | Round-trip test; Thịnh confirms he can build against it. **Merged by D1 EOD** |
+| C2 | D2 | Fix policy debts G1-G3: implement `cooldown_s` per (camera, event); a function that computes `co_events` from time-overlapping windows; make `responders_in(zone)` real or delete it | Tests: second alert inside cooldown suppressed and allowed after; two overlapping windows trigger escalation end to end |
+| C4 | D2 (overnight) | Embedding shard 3 (25%) on the 1060. D1 check: `torch.cuda.get_arch_list()` contains `sm_61`. If not, pin an older torch or hand the shard to a Colab run | Shard complete, or handed off on D1 |
+| C3 | D3 | Zero-shot event typer: window-mean of cached embeddings vs the 13 `event_typing` prompts -> `EventType`. Evaluate on UCF GT segments: 13-class top-1 accuracy | Accuracy next to the 1/13 chance level; kept SEPARATE from the detection AUC. Confusion matrix is optional |
+| C5 | D4 | `vad/alerting.py`: windows + verify results + context (zone, hour) -> merged alerts (GraphPolicy + `merge_alerts` + cooldown) | Scenario test table of at least 10 cases, all green |
+| C7 | D5 | `scripts/build_results.py`: cached embeddings + windows + tier-2 outputs -> alerts -> `results/*.json` for all videos | Dashboard loads real results |
+| C6 | **OPTIONAL** | One real coverage query + DOT export of the policy subgraph. First thing to cut | See section 6 |
 
-### D. Thịnh (mã task TH1-TH8, E1-E7): tier-1, benchmark, ablations + báo cáo + toàn bộ dashboard
+### D. Thịnh (task IDs TH1-TH8, E1-E7): tier-1, benchmark, ablations + report + whole dashboard
 
-| ID | Thời gian | Task | Tiêu chí nghiệm thu |
+| ID | When | Task | Acceptance |
 |---|---|---|---|
-| TH1 | D1 | Đọc kỹ giao thức của LAVAD (prompt, CLIP B/32, cách gộp AUC); chuẩn bị notebook Colab để chạy một shard; xác nhận CI vẫn xanh | Một trang ghi chú giao thức; notebook Colab chạy được `--dry-run` |
-| TH2 | D1-D2 | `vad/pipeline.py` (tier-1): cached embeddings -> điểm text -> memory tuỳ chọn -> phép biến đổi chuỗi thời gian (temporal ops) -> candidate windows, tất cả các công tắc ablation nằm trong một config dataclass | Test với `FakeEmbedder`; cùng một config phải tái lập được cùng số điểm |
-| TH3 | D2-D3 | `scripts/run_benchmark.py`: với mỗi video trong manifest: tải cache, chấm điểm, `expand_to_frames`, GT, micro AUC + bootstrap CI theo cấp video; ghi `results/ablation_*.json` | Chạy end-to-end thành công trên tập con 5 video trước |
-| TH4 | D3 (**gate**) | Tái lập baseline A0: CLIP B/32, 2 prompt baseline. Đồng thời kiểm tra chéo giữa các máy (cùng 1 video trích xuất trên 2 máy khác nhau, cosine > 0.999) | A0 nằm trong khoảng lệch 3 điểm so với mốc 53. Nếu không: DỪNG mọi việc khác, debug lại giao thức cùng B2 |
-| E1 | D2-D3 | Bộ nạp dữ liệu dashboard: `app/data.py` đọc `results/*.json`; giữ dữ liệu giả phía sau cờ `--demo` rõ ràng kèm biểu ngữ thông báo | Dashboard chạy được trên JSON `RunResult` mẫu của Nam |
-| E2 | D3-D5 | Toàn bộ ứng dụng Streamlit (`app/streamlit_app.py`): trình phát video, timeline điểm số kèm vạch ngưỡng, danh sách cảnh báo với chú thích VLM, mức độ nghiêm trọng/lực lượng phản ứng/quy trình xử lý, đường dẫn giải thích, chế độ replay. Giao diện tiếng Anh | Chạy được trên JSON mẫu vào D3, trên kết quả thật vào D5 |
-| TH5 | D4 | Ablations A1-A5 + hiệu chuẩn ngưỡng trên `calib_normal` tại một mức FPR mục tiêu | Bảng kết quả kèm CI, các ngưỡng được ghi lại đầy đủ |
-| TH6 | Cuối D4 | Đóng băng tier 1: `notes/tier1-results.md`; xuất `results/windows/*.json` cho A3/A5 | Phước có các window vào cuối D4 |
-| TH7 | D5 | Chỉ số A6 (hậu VLM) và các chỉ số vận hành TỐI THIỂU: FA/giờ (báo động giả mỗi giờ) và độ trễ tại ngưỡng đã hiệu chuẩn. AUC theo từng lớp chỉ làm nếu còn thời gian | Bảng số liệu; phân tích theo lớp là tuỳ chọn |
-| TH8 | D1-D6 | **Báo cáo (tiếng Việt)**: hoàn thành khung báo cáo vào D2 (nghiên cứu liên quan + phương pháp), cập nhật các chương kết quả khi có số liệu, bản v1 vào D5, slides + bản cuối vào D6 | Bản v1 được cả 4 người xem xét vào D5 |
-| E5 | **TUỲ CHỌN** | Khung nhìn đồ thị chính sách (render file DOT từ C6) trên dashboard | Đồ thị hiển thị trên UI |
-| E6 | D5 | Hình ảnh cho báo cáo: biểu đồ timeline điểm số cho 5 video dạng PNG trong `results/figures/`. Bộ sưu tập ca thất bại (failure-case gallery) là TUỲ CHỌN. Thêm `matplotlib` vào `requirements-app.txt` nếu dùng | 5 file PNG |
-| E7 | D6 | Video quay màn hình 2-3 phút làm phương án dự phòng khi không có GPU; hướng dẫn chạy dashboard trong `vad/README.md` | Video phát bình thường; các bước trong README chạy được trên bản clone sạch |
+| TH1 | D1 | Read the LAVAD protocol (prompts, CLIP B/32, how AUC is pooled); prepare a Colab notebook that runs one shard; confirm CI is still green | One-page protocol note; Colab notebook runs `--dry-run` |
+| TH2 | D1-D2 | `vad/pipeline.py` (tier-1): cached embeddings -> text score -> optional memory -> temporal ops -> candidate windows, all ablation switches in one config dataclass | Tests with `FakeEmbedder`; same config reproduces the same scores |
+| TH3 | D2-D3 | `scripts/run_benchmark.py`: for each manifest video: load cache, score, `expand_to_frames`, GT, micro AUC + video-level bootstrap CI; writes `results/ablation_*.json` | Runs end to end on a 5-video subset first |
+| TH4 | D3 (**gate**) | A0 reproduction: CLIP B/32, 2 baseline prompts. Also the cross-card check (same video embedded on two machines, cosine > 0.999) | A0 within about 3 points of 53. If not: STOP everything else, debug protocol with B2 |
+| E1 | D2-D3 | Dashboard loader: `app/data.py` loads `results/*.json`; keep fake data behind an explicit `--demo` flag with a banner | Dashboard runs on Nam's sample `RunResult` JSON |
+| E2 | D3-D5 | Whole Streamlit app (`app/streamlit_app.py`): video player, score timeline with threshold line, alert feed with VLM caption, severity/responders/protocol, explanation path, replay mode. English UI | Works on sample JSON on D3, on real results on D5 |
+| TH5 | D4 | Ablations A1-A5 + threshold calibration on `calib_normal` at a target FPR | Table with CIs, thresholds recorded |
+| TH6 | D4 EOD | Freeze tier 1: `notes/tier1-results.md`; export `results/windows/*.json` for A3/A5 | Phước has windows by D4 EOD |
+| TH7 | D5 | A6 (post-VLM) metrics and MINIMAL operational metrics: FA/hour and latency at the calibrated threshold. Per-class AUC only if time | Table; per-class is optional |
+| TH8 | D1-D6 | **Report (Vietnamese)**: skeleton by D2 (related work + method), results chapters as numbers land, v1 on D5, slides + final on D6 | Report v1 reviewed by all 4 on D5 |
+| E5 | **OPTIONAL** | Policy graph view (renders C6 DOT) in dashboard | Graph shown in UI |
+| E6 | D5 | Report figures: score timelines for 5 videos as PNG in `results/figures/`. Failure-case gallery is OPTIONAL. Add `matplotlib` to `requirements-app.txt` if used | 5 PNGs |
+| E7 | D6 | 2-3 minute screen recording as the GPU-free fallback; dashboard run instructions in `vad/README.md` | Video plays; README steps work on a clean clone |
 
-## 4. Đường găng (critical path) và các điểm bàn giao (handoffs)
+## 4. Critical path and handoffs
 
 ```
-B3 embedder (giữa trưa D2) ─┬─> shards A4/B5/C4 (qua đêm D2) ─> TH3 benchmark ─> TH4 GATE (A0 ~53, D3) ─> TH5 ablations (D4) ─> TH6 windows (cuối D4)
-B2 quy ước nhãn (D2) ──────┘                                                                                     │
-C1 schema (cuối D1) ───────────────> dashboard E1/E2 (Thịnh)                                                     v
-A1 đo đạc VLM (D1) ─> A2/A3 (D1-D3) ──────────────────────────────────────────> A5 tier-2 (D5) ─> C7 build_results (D5) ─> dashboard chạy thật (D5)
-                                                                                                                      └─> đóng băng cuối D5 ─> D6 báo cáo + nộp
+B3 embedder (D2 midday) ─┬─> shards A4/B5/C4 (D2 overnight) ─> TH3 benchmark ─> TH4 GATE (A0 ~53, D3) ─> TH5 ablations (D4) ─> TH6 windows (D4 EOD)
+B2 convention (D2) ──────┘                                                                                  │
+C1 schema (D1 EOD) ───────────────> dashboard E1/E2 (Thịnh)                                                 v
+A1 VLM measured (D1) ─> A2/A3 (D1-D3) ──────────────────────────────────────────> A5 tier-2 (D5) ─> C7 build_results (D5) ─> dashboard live (D5)
+                                                                                                                  └─> freeze D5 EOD ─> D6 report + submit
 ```
 
-Dây chuyền này chỉ có ĐÚNG 1 ngày dự phòng. Nếu B3 không được merge trước giữa trưa D2, hoặc TH4 thất bại vào D3, kích hoạt danh sách cắt giảm ngay lập tức.
+There is ONE day of slack on this chain. If B3 is not merged by D2 midday, or TH4 fails on D3, apply the cut list now.
 
-| Điểm bàn giao | Từ -> Đến | Điều kiện tiên quyết trước khi người tiếp theo bắt đầu |
+| Handoff | From -> To | Must be true before the next person starts |
 |---|---|---|
-| H1 | Huy B3 -> Phước A4, Nam C4, Huy B5 | Embedder thật + script precompute hỗ trợ resume đã merge vào `main` (giữa trưa D2) |
-| H2 | Huy B1/B2 -> Thịnh TH3/TH4 | Manifests đã commit, ghi chú quy ước nhãn đã viết xong |
-| H3 | Nam C1 -> Thịnh E1/E2 | `vad/results.py` đã merge, có JSON mẫu trong `results/` (cuối D1) |
-| H4 | Thịnh TH6 -> Phước A3/A5 | `results/windows/*.json` cho tất cả video benchmark (cuối D4) |
-| H5 | Phước A5 -> Nam C7 -> Thịnh E2 | Có file JSON tier-2 cho từng window |
+| H1 | Huy B3 -> Phước A4, Nam C4, Huy B5 | Real embedder + resumable precompute merged to `main` (D2 midday) |
+| H2 | Huy B1/B2 -> Thịnh TH3/TH4 | Manifests committed, convention note written |
+| H3 | Nam C1 -> Thịnh E1/E2 | `vad/results.py` merged, sample JSON in `results/` (D1 EOD) |
+| H4 | Thịnh TH6 -> Phước A3/A5 | `results/windows/*.json` for all benchmark videos (D4 EOD) |
+| H5 | Phước A5 -> Nam C7 -> Thịnh E2 | tier-2 JSON per window exists |
 
-## 5. Lịch làm việc (ai làm gì mỗi ngày)
+## 5. Calendar (who is doing what each day)
 
-| Ngày | Phước | Huy | Nam | Thịnh |
+| Day | Phước | Huy | Nam | Thịnh |
 |---|---|---|---|---|
-| D1 29/10 | A1 đo VLM, bắt đầu A2 | bắt đầu B3, B1 tải dữ liệu | **C1 schema (merge trước cuối ngày)**, C4 kiểm tra kiến trúc | TH1, bắt đầu TH2, khung báo cáo |
-| D2 30/10 | A2 xong, A3, A4 chạy qua đêm | **B3 merge trước giữa trưa**, B2, B5 chạy qua đêm, bắt đầu E3 | C2 xử lý nợ policy, C4 chạy qua đêm | TH2 xong, TH3, E1 loader dashboard |
-| D3 31/10 | A3 xong | E3 quay clip | C3 typer | **TH4 gate**, E2 giao diện dashboard |
-| D4 01/11 | chuẩn bị prompt, đợi windows | E3 xong, B4 chỉ làm nếu tier 1 đúng tiến độ | C5 alerting | TH5 ablations, **TH6 đóng băng cuối ngày**, E2 |
-| D5 02/11 | **A5, A6** | B7 hỗ trợ A5, E4 clip tự quay | **C7 build_results** | TH7, E2 chạy thật, E6 hình ảnh, **báo cáo v1**. **ĐÓNG BĂNG CUỐI NGÀY** |
-| D6 03/11 | A7 tuỳ chọn, đóng gói | đóng gói | đóng gói, README | báo cáo + slides bản cuối, E7 quay video, **nộp bài (hạn chót 23:59)** |
+| D1 Oct 29 | A1 VLM measure, A2 start | B3 start, B1 download | **C1 schema (merge by EOD)**, C4 arch check | TH1, TH2 start, report skeleton |
+| D2 Oct 30 | A2 finish, A3, A4 overnight | **B3 merge by midday**, B2, B5 overnight, E3 start | C2 policy debt, C4 overnight | TH2 finish, TH3, E1 dashboard loader |
+| D3 Oct 31 | A3 finish | E3 clips | C3 typer | **TH4 gate**, E2 dashboard UI |
+| D4 Nov 1 | prompt prep, wait for windows | E3 finish, B4 only if tier 1 is on track | C5 alerting | TH5 ablations, **TH6 freeze EOD**, E2 |
+| D5 Nov 2 | **A5, A6** | B7 helps A5, E4 own clips | **C7 build_results** | TH7, E2 live, E6 figures, **report v1**. **FREEZE EOD** |
+| D6 Nov 3 | A7 optional, packaging | packaging | packaging, README | report + slides final, E7 recording, **submit (cutoff 23:59)** |
 
-## 6. Cắt giảm phạm vi (quyết định ngay từ đầu vì dời deadline) và cân đối tải
+## 6. Cuts (decided now because the deadline moved) and load balance
 
-Quyết định dứt khoát ngay từ đầu, không phải "chờ trễ hạn mới tính":
-- **ShanghaiTech (B4, B6) là STRETCH.** UCF-Crime test là benchmark bắt buộc duy nhất. Chỉ bắt đầu B4 nếu tier 1 đóng băng vào D4 mà Huy rảnh. Nếu không, báo cáo sẽ ghi "nằm ngoài phạm vi do giới hạn thời gian" và bỏ phần thảo luận gán nhãn "training-free + normal reference".
-- **A7 ablation bản small-256 bị huỷ.** Các ablation bắt buộc là A0..A5 cộng với dòng A6 (sau VLM).
-- **Clip tự quay: khoảng 5 clip**, không phải 10-20.
-- **Phân tích theo từng lớp, ma trận nhầm lẫn, render đồ thị C6 (E5), bộ sưu tập ca thất bại: tuỳ chọn.** Chỉ làm sau khi mọi thứ khác đã hoàn tất.
-- **Tier 2 có thể chạy trên một tập con** của các candidate window, có báo cáo chi phí đo đạc cụ thể. Tuyệt đối không cắt bỏ hoàn toàn (ràng buộc đề tài VLM).
-- Báo cáo được viết liên tục từ D1, không để dồn đến cuối (TH8).
+Decided up front, not "if we slip":
+- **ShanghaiTech (B4, B6) is STRETCH.** UCF-Crime test is the only mandatory benchmark. Start B4 only if tier 1 is frozen on D4 with Huy free. Otherwise the report says "out of scope for time" and drops the "training-free + normal reference" labelling discussion.
+- **A7 small-256 ablation dropped.** Required ablations are A0..A5 plus the A6 (post-VLM) row.
+- **Own clips: about 5**, not 10-20.
+- **Per-class analysis, confusion matrix, C6 graph rendering (E5), failure gallery: optional.** Do them only after everything else is done.
+- **Tier 2 may run on a subset** of candidate windows, with measured cost reported. Never cut entirely (topic constraint).
+- Report is written continuously from D1, not at the end (TH8).
 
-Các rủi ro quá tải cụ thể:
-- Thịnh: TH1-TH8 cộng toàn bộ dashboard (E1, E2, E6, E7). Các cắt giảm trên giữ cho phần việc này tập trung vào tính năng cốt lõi. Chế độ replay giúp tránh phải viết pipeline inference thời gian thực.
-- Nam: pipeline backend C1-C7 và engine policy. Nếu gấp, cắt phần render đồ thị C6 và ma trận nhầm lẫn C3.
-- Phước: điểm nghẽn rủi ro duy nhất (single point of failure) cho VLM. Quy tắc: A1 vào D1 quyết định chạy local hay Colab. Huy (B7) là cặp dự phòng.
+Overload risks, named:
+- Thịnh: TH1-TH8 plus whole dashboard (E1, E2, E6, E7). The cuts above keep this focused on essential features. Replay mode avoids writing runtime inference pipelines.
+- Nam: C1-C7 backend pipeline and policy engine. If pressed, cut C6 graph rendering and C3 confusion matrix.
+- Phước: single point of failure for VLM. Rule: A1 on D1 decides local vs Colab. Huy (B7) is the backup pair.
 
-Thứ tự cắt giảm nếu trễ hạn tiếp (cắt từ trên xuống, không bao giờ đụng vào phần dưới cùng):
-1. Các mục tuỳ chọn kể trên (C6/E5, gallery ca thất bại, phân tích theo lớp, task A7)
-2. Cắt bỏ toàn bộ ShanghaiTech (vốn đã là stretch)
-3. Giảm clip tự quay xuống còn tối đa 3 clip
-4. Độ phủ của Tier-2 thu hẹp xuống ít video hơn (nhưng vẫn phải đo đạc và báo cáo trung thực)
-5. TUYỆT ĐỐI KHÔNG CẮT: Tier-2 (ràng buộc đề tài), gate A0 (TH4), bootstrap CI cấp video, video demo dự phòng (E7)
+Cut order if we slip further (cut from the top, never touch the bottom):
+1. Optional items above (C6/E5, failure gallery, per-class, A7 task)
+2. ShanghaiTech entirely (already stretch)
+3. Own clips beyond 3
+4. Tier-2 coverage shrinks to fewer videos (still measured and reported honestly)
+5. NEVER cut: tier 2 (topic constraint), the A0 gate (TH4), video-level CI, the fallback demo video (E7)
 
-## 7. Quy ước làm việc (working agreements)
+## 7. Working agreements
 
-- Mỗi task một branch: `feat/<tên>-<id>` (ví dụ `feat/huy-b3-embedder`). Merge vào `main` qua PR; CI bắt buộc phải xanh.
-  Với thời gian 6 ngày, PR được review trong ngày hoặc tác giả tự merge sau khi CI xanh và thông báo cho nhóm.
-- `vad/types.py` và `vad/interfaces.py` đóng băng sau cuối D1: muốn sửa đổi phải được sự đồng ý của tất cả người dùng.
-- Định dạng commit: `type(scope): message`, bằng tiếng Anh (khớp với lịch sử git của repo).
-- Họp standup 10 phút hàng ngày: hôm qua làm gì, hôm nay làm gì, có bị nghẽn gì không. Bị nghẽn (blocker) phải đăng báo ngay khi gặp, không chờ đến lúc họp standup.
-- Mỗi task chỉ được tính là "xong" khi tiêu chí nghiệm thu của nó thoả mãn VÀ `python -m pytest -q` xanh. Các hàm stub phải giữ nguyên dạng stub (`NotImplementedError`) cho đến khi làm thật; không ai được đưa ra kết quả giả mạo.
+- One branch per task: `feat/<owner>-<id>` (for example `feat/huy-b3-embedder`). Merge to `main` via PR; CI must be green.
+  With 6 days, PRs get reviewed the same day or the author merges after CI is green and tells the group.
+- `vad/types.py` and `vad/interfaces.py` are frozen after D1 EOD: changing them needs a yes from every consumer.
+- Commit style: `type(scope): message`, English (matches the repo log).
+- 10-minute standup daily: yesterday, today, blocked. Blockers are posted the moment they happen, not at standup.
+- Each task is "done" only when its acceptance line is true AND `python -m pytest -q` is green. Stubs stay stubs
+  (`NotImplementedError`) until real; nobody ships fake output.
 
-## 8. Checklist D1 (mọi người, 15 phút)
+## 8. Day-1 checklist (everyone, 15 minutes)
 
-| Ai | Lệnh chạy | Báo cáo |
+| Who | Run | Report |
 |---|---|---|
-| tất cả | `git pull`, `pip install -r requirements-dev.txt`, `python -m pytest -q` | 246 passed? |
-| Nam | `python -c "import torch; print(torch.cuda.get_arch_list())"` | có chứa `sm_61`? |
-| Huy, Phước, Nam | `nvidia-smi --query-gpu=name,memory.total --format=csv` và `df -h .` | dung lượng ổ đĩa trống trước khi tải |
-| Phước | Kiểm tra VRAM từ task A1 | chạy VLM local: tiếp tục / huỷ (go / no-go) |
-| Thịnh | CI xanh trên `main`; chuẩn bị notebook Colab | gửi link |
-| Nam + Thịnh | Thống nhất file JSON `RunResult` mẫu (C1 mở đường cho E1) | chấp thuận schema |
+| everyone | `git pull`, `pip install -r requirements-dev.txt`, `python -m pytest -q` | 246 passed? |
+| Nam | `python -c "import torch; print(torch.cuda.get_arch_list())"` | contains `sm_61`? |
+| Huy, Phước, Nam | `nvidia-smi --query-gpu=name,memory.total --format=csv` and `df -h .` | free disk before any download |
+| Phước | VRAM test from A1 | go / no-go on local VLM |
+| Thịnh | CI green on `main`; Colab notebook | link posted |
+| Nam + Thịnh | agree sample `RunResult` JSON (C1 unblocks E1) | schema accepted |
 
-## 9. Câu hỏi mở
+## 9. Open questions
 
-1. Mọi người có chấp nhận vai trò được phân công không? Có task nào muốn hoán đổi?
-2. Ai có tài khoản Colab/Kaggle còn hạn ngạch GPU? (chạy shard dự phòng, và phương án dự phòng cho tier-2)
-3. Giảng viên có yêu cầu mẫu báo cáo (template) hay quy định số trang không? (khung báo cáo đang chờ thông tin này)
-4. Dashboard khi báo cáo/bảo vệ có được phép tải kết quả lưu sẵn từ ổ đĩa không, hay bắt buộc phải chạy model trực tiếp (live)?
+1. Does everyone accept their track? Which tasks should swap?
+2. Who has a Colab/Kaggle account with GPU quota? (spare shard, and the tier-2 fallback)
+3. Does the lecturer require a report template or page count? (report skeleton waits on this)
+4. Is the dashboard allowed to load results from disk at the defense, or must it run models live?
