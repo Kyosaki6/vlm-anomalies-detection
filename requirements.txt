@@ -6,3 +6,5 @@ sentencepiece>=0.2.0
 protobuf>=4.25.0
 networkx>=3.0
 numpy>=1.24.0
+PyYAML>=6.0
+opencv-python-headless>=4.9.0

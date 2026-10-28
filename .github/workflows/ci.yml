@@ -32,4 +32,4 @@ jobs:
         run: pip install -r requirements-dev.txt
 
       - name: Run model-free tests
-        run: python -m pytest tests/test_graph.py tests/test_decision.py tests/test_main.py -q
+        run: python -m pytest tests/test_graph.py tests/test_decision.py tests/test_main.py tests/vad_suite -q
