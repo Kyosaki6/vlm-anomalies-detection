@@ -21,13 +21,13 @@ Report + defense in Vietnamese, dashboard in English.
 vad/            types.py, interfaces.py (Protocols), fakes.py  — contracts shared by all tracks
   datasets/     ucf_crime.py (GT parser), sharding.py (SHA-256 shard split)
   io/           video.py (sequential-grab sampler)
-  embed/        cache.py (fp16 .npy, atomic), siglip.py (STUB)
+  embed/        cache.py (fp16 .npy, atomic), siglip.py (real, model-generic: SigLIP 2 + CLIP)
   score/        text.py (prompt + memory scores, numpy)
   temporal/     ops.py (normalize/EMA/median/top-k/candidate windows/frame alignment)
   verify/       vlm.py (JSON parser real; VLMVerifier STUB)
   graph/        policy.py (YAML -> NetworkX alert policy) ; configs/policy.yaml
   eval/         metrics.py (frame-level AUC, video-level bootstrap, FA/hour, latency)
-scripts/        precompute_embeddings.py (--shard i/N ; --dry-run works, real run is a STUB)
+scripts/        precompute_embeddings.py (--shard i/N ; repeat --model for one-decode multi-model; --dry-run works)
 app/            streamlit_app.py (replay mode, PLACEHOLDER data)
 configs/        policy.yaml, prompts.yaml
 tests/          legacy tests + tests/vad_suite/ (246 total)
@@ -45,9 +45,9 @@ notes/          experiment logs + the plan
 | ROC-AUC with ties, bootstrap, threshold math | `decision.py` (reused by `vad/eval/metrics.py`) |
 
 ## STILL STUBS (raise `NotImplementedError` on purpose, never return fake output)
-`SigLIPEmbedder` (vad/embed/siglip.py), `VLMVerifier` (vad/verify/vlm.py), real run of
-`scripts/precompute_embeddings.py`. Not yet built: ShanghaiTech loader, `run_benchmark.py`, zero-shot event typer,
-dashboard reading real `results/`.
+`VLMVerifier` (vad/verify/vlm.py) only. `SigLIPEmbedder` and the real run of
+`scripts/precompute_embeddings.py` now work (branch `exp/siglip-embedder`). Not yet built: ShanghaiTech loader,
+`run_benchmark.py`, dashboard reading real `results/`.
 
 ## CONVENTIONS
 - Python 3.10 compatible (CI runs 3.10 + 3.11 on Ubuntu + Windows). No `StrEnum`; use `from __future__ import annotations`.
