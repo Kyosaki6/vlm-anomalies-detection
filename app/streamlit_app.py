@@ -3,7 +3,7 @@
 
     streamlit run app/streamlit_app.py
 
-Skeleton này chạy trên dữ liệu GIẢ để track T5 (Thành) dựng UI ngay; thay `load_demo_run` bằng đọc từ results/.
+Skeleton này chạy trên dữ liệu GIẢ để track T5 (Thịnh) dựng UI ngay; thay `load_demo_run` bằng đọc từ results/.
 """
 from __future__ import annotations
 
