@@ -1,3 +1,5 @@
+import copy
+
 import pytest
 
 from vad.graph.policy import GraphPolicy, load_policy, merge_alerts, time_band_of
@@ -74,6 +76,38 @@ def test_time_band_rejects_bad_hour(bad):
 def test_graph_has_typed_edges(policy):
     kinds = {d["kind"] for _, _, d in policy.graph.edges(data=True)}
     assert {"has_severity", "requires", "follows", "escalates_with"} <= kinds
+
+
+# --- coverage queries (thay placeholder responders_in) ----------------------------
+
+def test_responders_in_reads_zone_staffing(policy):
+    assert policy.responders_in("parking_lot") == {"security", "police"}
+    assert "fire_dept" in policy.responders_in("default")
+
+
+def test_responders_in_unknown_zone_falls_back_to_default(policy):
+    assert policy.responders_in("moon_base") == policy.responders_in("default")
+
+
+def test_events_requiring_is_a_real_reverse_query(policy):
+    needing_police = policy.events_requiring("police")
+    assert {"Abuse", "Arson", "Burglary", "Robbery", "Shooting"} <= needing_police
+    assert "Shoplifting" not in needing_police          # chỉ cần security
+    assert policy.events_requiring("no_such_responder") == set()
+
+
+def test_coverage_gaps_finds_missing_responders(policy):
+    gaps = policy.coverage_gaps("parking_lot")           # chỉ có security + police
+    assert "fire_dept" in gaps["Arson"]
+    assert "traffic_police" in gaps["RoadAccidents"]
+    assert "Fighting" not in gaps                        # security có mặt
+    assert policy.coverage_gaps("default") == {}         # default đủ người -> không thiếu gì
+
+
+def test_coverage_gaps_empty_when_zone_declares_nothing(policy):
+    p = copy.deepcopy(policy.policy)
+    p["zones"]["bare"] = {"severity_shift": 0}
+    assert GraphPolicy(p).coverage_gaps("bare") == {}
 
 
 def test_policy_yaml_missing_key_is_rejected(tmp_path):

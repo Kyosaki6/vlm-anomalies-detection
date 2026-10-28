@@ -20,7 +20,9 @@ File này chỉ nói **cái gì đã chạy thật, cái gì còn là việc c�
 | `vad/temporal/ops.py` | Thịnh (T1) | **xong + test** | normalize / EMA / median / top-k pool / candidate windows / căn frame. |
 | `vad/eval/metrics.py` | Thịnh (T1) | **xong + test** | AUC frame-level micro + bootstrap CI theo **video**. Chưa có `run_benchmark.py`. |
 | `vad/verify/vlm.py` | Phước (T2) | **parser JSON xong; `VLMVerifier` = STUB** | **Chưa chọn model.** Phải đo VRAM thật, không đoán. |
-| `vad/graph/policy.py` + `configs/policy.yaml` | Nam (T4) | **chạy được + test** | Zone/giờ/leo thang/gộp cảnh báo + đường đi giải thích. Chưa có event typer zero-shot, chưa có coverage query thật (`responders_in` là placeholder). |
+| `vad/graph/policy.py` + `configs/policy.yaml` | Nam (T4) | **xong + test** | Zone/giờ/leo thang/gộp cảnh báo + đường đi giải thích. Coverage query thật: `responders_in`, `events_requiring`, `coverage_gaps` (zone khai báo `available_responders`). |
+| `vad/graph/alerts.py` | Nam (T4) | **xong + test** | `apply_cooldown` (dùng `hygiene.cooldown_s`, trước đây là khoá chết) + `build_alert_feed`: cửa sổ chồng lấn -> leo thang, rồi gộp, rồi cooldown. Đây là thứ dashboard ăn. |
+| `vad/score/typing.py` | Nam (T4) | **xong + test** | Event typer zero-shot 13 lớp (cosine với prompt trong `configs/prompts.yaml`, không train). `aggregate='mean'|'max'`, `include_normal`. **Chưa đo accuracy trên UCF** (cần embedding thật). |
 | `app/streamlit_app.py` | Thịnh (T5) | **skeleton chạy trên DỮ LIỆU GIẢ** | Cần đọc kết quả thật từ `results/`. |
 
 ## Chạy
@@ -28,7 +30,7 @@ File này chỉ nói **cái gì đã chạy thật, cái gì còn là việc c�
 ```bash
 pip install -r requirements-dev.txt            # test (CI cũng dùng)
 pip install -r requirements-app.txt            # thêm streamlit cho dashboard
-python -m pytest -q                            # 236 test, không cần GPU, không tải model
+python -m pytest -q                            # 267 test, không cần GPU, không tải model
 streamlit run app/streamlit_app.py             # dashboard demo (dữ liệu giả)
 python scripts/precompute_embeddings.py --manifest manifests/<file>.csv --shard 2/4 --dry-run
 ```
