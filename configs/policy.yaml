@@ -22,12 +22,14 @@ events:
   Unknown:       {severity: medium,   responders: [security],              protocol: P-REVIEW}
 
 # Zone nâng/hạ severity (số bậc, có thể âm). Zone lạ -> 0.
+# available_responders = bên xử lý ĐƯỢC BỐ TRÍ tại zone (dữ liệu minh hoạ cho demo, không phải bảng
+# phân công thật). `GraphPolicy.coverage_gaps()` dùng nó để tìm sự kiện thiếu người xử lý.
 zones:
-  default:     {severity_shift: 0}
-  school_gate: {severity_shift: 1}
-  market:      {severity_shift: 0}
-  highway:     {severity_shift: 0}
-  parking_lot: {severity_shift: -1}
+  default:     {severity_shift: 0,  available_responders: [security, police, ambulance, fire_dept, traffic_police]}
+  school_gate: {severity_shift: 1,  available_responders: [security, police, ambulance]}
+  market:      {severity_shift: 0,  available_responders: [security, police, ambulance]}
+  highway:     {severity_shift: 0,  available_responders: [traffic_police, police, ambulance]}
+  parking_lot: {severity_shift: -1, available_responders: [security, police]}
 
 # Khung giờ (giờ 24h, [start, end) ; có thể vắt qua nửa đêm)
 time_bands:

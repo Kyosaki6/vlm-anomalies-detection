@@ -129,8 +129,38 @@ class GraphPolicy:
         )
 
     def responders_in(self, zone: str) -> set[str]:
-        """Truy vấn đồ thị: bên xử lý có thể được gọi bởi MỌI sự kiện (placeholder cho coverage query)."""
-        return {n[1] for n, d in self.graph.nodes(data=True) if d.get("kind") == "responder"}
+        """Truy vấn: bên xử lý nào ĐƯỢC BỐ TRÍ trong zone này (khai báo `available_responders`).
+
+        Zone lạ -> 'default'. Zone không khai báo -> tập rỗng nghĩa là "chưa có dữ liệu bố trí",
+        KHÔNG phải "không ai ứng cứu" (coverage_gaps trả rỗng trong trường hợp đó).
+        """
+        zone_name = zone if zone in self.policy["zones"] else "default"
+        return set(self.policy["zones"][zone_name].get("available_responders", []) or [])
+
+    def events_requiring(self, responder: str) -> set[str]:
+        """Truy vấn ngược: bên xử lý này tham gia vào những sự kiện nào (duyệt cạnh `requires`)."""
+        node = ("responder", responder)
+        if node not in self.graph:
+            return set()
+        return {src[1] for src, _, data in self.graph.in_edges(node, data=True)
+                if data.get("kind") == "requires"}
+
+    def coverage_gaps(self, zone: str) -> dict[str, tuple[str, ...]]:
+        """Sự kiện nào KHÔNG đủ bên xử lý trong zone: {tên sự kiện: (bên còn thiếu...)}.
+
+        Đây là lý do tồn tại của đồ thị thay vì bảng if-else: cùng một cấu trúc trả lời được
+        "zone này thiếu ai cho sự kiện nào" mà không phải viết tay một truy vấn cho mỗi câu hỏi.
+        Zone chưa khai báo `available_responders` -> {} (không có dữ liệu, không đoán).
+        """
+        available = self.responders_in(zone)
+        if not available:
+            return {}
+        gaps: dict[str, tuple[str, ...]] = {}
+        for name, spec in self.policy["events"].items():
+            missing = tuple(r for r in spec.get("responders", []) if r not in available)
+            if missing:
+                gaps[name] = missing
+        return gaps
 
 
 def merge_alerts(alerts: list[Alert], merge_gap_s: float) -> list[Alert]:
