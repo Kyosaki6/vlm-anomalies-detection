@@ -32,7 +32,7 @@ File này chỉ nói **cái gì đã chạy thật, cái gì còn là việc c�
 ```bash
 pip install -r requirements-dev.txt            # test (CI cũng dùng)
 pip install -r requirements-app.txt            # thêm streamlit cho dashboard
-python -m pytest -q                            # 304 test, không cần GPU, không tải model
+python -m pytest -q                            # 364 test, không cần GPU, không tải model
 streamlit run app/streamlit_app.py             # dashboard demo (dữ liệu giả)
 python scripts/precompute_embeddings.py --manifest manifests/<file>.csv --shard 2/4 --dry-run
 ```
