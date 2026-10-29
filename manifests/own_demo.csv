@@ -1,6 +1,9 @@
 video_id,path,dataset,split,n_frames,fps
 own_fight_01,datasets/own/own_fight_01.mp4,own,demo,607,25
+own_fight_02,datasets/own/own_fight_02.mp4,own,demo,317,25
+own_fight_03,datasets/own/own_fight_03.mp4,own,demo,462,29.97
 own_normal_01,datasets/own/own_normal_01.mp4,own,demo,548,29.97
 own_normal_02,datasets/own/own_normal_02.mp4,own,demo,504,23.976
+own_normal_03,datasets/own/own_normal_03.mp4,own,demo,154,25
 own_steal_01,datasets/own/own_steal_01.mp4,own,demo,415,29.97
 own_vandalism_01,datasets/own/own_vandalism_01.mp4,own,demo,964,59.9401
