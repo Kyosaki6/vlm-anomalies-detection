@@ -38,11 +38,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from vad.datasets.ucf_crime import Annotation, load_annotations  # noqa: E402
 from vad.embed.cache import DEFAULT_CACHE_DIR, has_cached, load_embeddings  # noqa: E402
+from vad.embed.siglip import DEFAULT_MODEL_ID as DEFAULT_MODEL  # noqa: E402  (một nguồn duy nhất, khớp precompute)
 from vad.score.typing import ZeroShotEventTyper, load_typing_prompts  # noqa: E402
 from vad.types import EventType  # noqa: E402
 
 SOURCE_FPS = 30.0          # frame trong annotation UCF-Crime là 30 fps
-DEFAULT_MODEL = "google/siglip2-base-patch16-384"
 
 # Nhóm gần nghĩa: dùng CHỈ để báo cáo phụ. Cố tình để nhỏ và giải thích được.
 # UCF-Crime coi đây là các lớp riêng, nên `strict` mới là con số chính.
@@ -255,6 +255,9 @@ def main(argv: list[str] | None = None) -> int:
     missing = len(annotations) - len(cache_len)
     if missing:
         print(f"  bỏ qua {missing} video chưa embed (chạy precompute trước)")
+    if not cache_len:
+        print(f"  gợi ý: cache khoá theo model + fps. Nếu đã embed bằng model/fps khác, truyền --model / --fps"
+              f" cho khớp (hiện: {args.model} @ {args.fps} fps).")
 
     if args.dry_run:
         n_segments = sum(len(annotations[v].segments) for v in cache_len)

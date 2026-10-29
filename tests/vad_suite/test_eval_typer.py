@@ -260,3 +260,18 @@ def test_cli_writes_json_payload_shape(tmp_path):
     }, ensure_ascii=False))
     assert payload["summary"]["strict_accuracy"] == 1.0
     assert payload["cases"][0]["gt"] == "Fighting"
+
+
+def test_default_model_is_the_one_precompute_uses():
+    """Lệch model mặc định => cache không tìm thấy => 0 ca, im lặng. Khoá hai bên là MỘT hằng."""
+    import scripts.eval_typer as et
+    from vad.embed.siglip import DEFAULT_MODEL_ID
+    assert et.DEFAULT_MODEL == DEFAULT_MODEL_ID
+
+
+def test_annotation_sentinel_minus_one_is_not_a_case(tmp_path):
+    """`-1 -1` trong file annotation là 'không có đoạn', không được thành ca chấm."""
+    f = tmp_path / "ann.txt"
+    f.write_text("Abuse028_x264.mp4  Abuse  165  240  -1  -1\n", encoding="utf-8")
+    ann = load_annotations(f)["Abuse028_x264"]
+    assert ann.segments == ((165, 240),)
