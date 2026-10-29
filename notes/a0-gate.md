@@ -23,7 +23,7 @@ The band is NOT widened after the fact. The decision (accept as reproduced, or k
 |---|---|---|
 | 1 | Score direction | Clean. AUC 48.8, not a clean inverse (an inverted scorer would give ~51). Unit test: inverted prompts give 0.0, perfect give 1.0. |
 | 2 | GT alignment | Clean. Shifting labels by +1, -1, +16, -16, +30 frames gives 48.56 to 48.91. The AUC barely moves, so `expand_to_frames` and the inclusive 0-indexed convention are not the problem. |
-| 3 | Sampling phase (1 fps vs LAVAD stride 16) | NOT checked. Needs re-decoding a subset at stride 16 with CLIP, outside the cache. Open. |
+| 3 | Sampling phase (1 fps vs LAVAD stride 16) | Clean on a 60-video subset (`--limit 60`, evenly spaced, 29 anomalous + 31 normal, CPU). Same videos: 1 fps = 50.36 [37.05, 62.37], stride 16 = 50.21 [37.06, 62.30]. Difference 0.15 points, so sampling density is NOT the cause of the gap to 53.16. Script: `scripts/a0_stride_check.py` (re-decodes, cache in `cache/stride16/`, result `results/a0_stride16_limit60.json`). Full 290 videos at stride 16 (5826 s CPU): **48.43 [37.90, 59.09]**, macro 47.85, vs 48.77 at 1 fps. Same conclusion. |
 | 4 | Pooling | Clean. Micro (48.77) is what is reported; macro (49.57) printed beside it. LAVAD protocol is micro. |
 | 5 | `logit_scale` | Clean. Scales 1, 10, 100 give an identical 48.77. The sigmoid is monotone and the clip creates no ties here. |
 | 6 | Prompt text | Clean. Cached prompts are exactly "a standard scene" / "a scene with suspicious or potentially criminal activities", same as the paper. |
@@ -32,14 +32,14 @@ Other things checked: cache embeddings are fp16 with norm ~1.0001 and `load_embe
 
 ## Likely explanation (not proven)
 
-- 1 fps vs every-16th-frame sampling: our samples are a different, sparser subset, and for 7.6 % positive frames the AUC of a near-chance scorer moves by a few points.
+- ~~1 fps vs every-16th-frame sampling~~: ruled out on all 290 videos (48.43 at stride 16 vs 48.77 at 1 fps, check #3).
 - The paper gives no CI. Ours is 21 points wide, so 53.16 vs 48.77 is within noise at the video level.
 - The paper states preprocessing only as "CLIP ViT-B/32"; the HF CLIP processor (resize 224 + center crop) may differ from the authors' pipeline on 4:3 frames.
 
 ## Open decision for the standup
 
 1. Accept as reproduced (target inside the CI, plumbing proven by 1 and 2), note the deviation in the report. Or
-2. Spend a cheap Colab run on check #3 (20 videos, stride 16) before trusting later numbers.
+2. ~~Spend a Colab run on check #3~~ DONE locally on CPU for all 290 videos: sampling is not the cause (48.43). Remaining unexplained gap (~4.7 points to 53.16) is inside the CI; only HF CLIP preprocessing vs the authors' pipeline is untested. Recommendation: option 1, accept as reproduced within noise and report the deviation honestly.
 
 ## First look at A1 to A3 (same loop, cache only)
 
