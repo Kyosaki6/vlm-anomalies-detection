@@ -35,23 +35,28 @@ Hệ thống được phát triển và kiểm thử trên các cấu hình ph�
 
 ## 4.2. Kết quả thực nghiệm và Phân tích thành phần (Ablation Study)
 
-Bảng dưới đây tổng hợp tiến trình cải thiện độ chính xác qua từng thành phần thiết kế. Mọi ô số liệu đang chờ kết quả chạy thực nghiệm từ các máy trạm và được đánh dấu `TBD`.
+Bảng dưới đây tổng hợp tiến trình cải thiện độ chính xác qua từng thành phần thiết kế. Các ô A0 - A3 là số liệu thật (chạy trên cache embedding, 290 video, 1.111.808 khung hình; `results/ablation_A*.json`). Các ô còn lại đánh dấu `TBD` chờ kết quả chạy.
 
-<!-- TODO(TH8): Cập nhật số liệu A0 từ nhiệm vụ TH4 -->
-<!-- TODO(TH8): Cập nhật số liệu A1 đến A5 từ nhiệm vụ TH5 -->
+<!-- TODO(TH8): Cập nhật số liệu A4, A5 từ nhiệm vụ TH5 -->
 <!-- TODO(TH8): Cập nhật số liệu A6 từ nhiệm vụ TH7 và A5 -->
 
 | Mã | Biến thể thực nghiệm | Kiến trúc trích xuất | Kỹ thuật áp dụng | ROC-AUC (%) | 95% Bootstrap CI | Ghi chú kỹ thuật |
 |---|---|---|---|---|---|---|
-| **A0** | Baseline CLIP B/32 | CLIP ViT-B/32 | 2 prompt cơ bản, chấm điểm từng khung độc lập | TBD <!-- TODO(TH8): TH4 --> | [TBD, TBD] <!-- TODO(TH8): TH4 --> | Cổng tái lập mốc ~53.2% của LAVAD |
-| **A1** | SigLIP 2 đơn khung | SigLIP 2 Base | 2 prompt cơ bản, chấm điểm từng khung độc lập | TBD <!-- TODO(TH8): TH5 --> | [TBD, TBD] <!-- TODO(TH8): TH5 --> | So sánh trực tiếp backbone SigLIP 2 vs CLIP |
-| **A2** | + Prompt Ensemble | SigLIP 2 Base | Tổ hợp 4 prompt bình thường + 4 prompt bất thường | TBD <!-- TODO(TH8): TH5 --> | [TBD, TBD] <!-- TODO(TH8): TH5 --> | Giảm độ nhạy với cách diễn đạt câu lệnh |
-| **A3** | + Chuẩn hóa video | SigLIP 2 Base | Thêm `robust_normalize` (median và MAD nội tại video) | TBD <!-- TODO(TH8): TH5 --> | [TBD, TBD] <!-- TODO(TH8): TH5 --> | Cân bằng mức điểm giữa các góc quay camera |
+| **A0** | Baseline CLIP B/32 | CLIP ViT-B/32 | 2 prompt cơ bản, chấm điểm từng khung độc lập | 48.77 | [38.30, 59.40] | Cổng tái lập mốc 53.16% của LAVAD: mốc nằm trong CI nhưng thấp hơn dải chấp nhận 50.2 - 56.2 (xem 4.2.1) |
+| **A1** | SigLIP 2 đơn khung | SigLIP 2 Base | 2 prompt cơ bản, chấm điểm từng khung độc lập | 65.87 | [57.93, 73.44] | So sánh trực tiếp backbone SigLIP 2 vs CLIP (+17.1 điểm so với A0) |
+| **A2** | + Prompt Ensemble | SigLIP 2 Base | Tổ hợp 4 prompt bình thường + 4 prompt bất thường | 72.39 | [64.14, 80.39] | Giảm độ nhạy với cách diễn đạt câu lệnh (+6.5 điểm so với A1) |
+| **A3** | + Chuẩn hóa video | SigLIP 2 Base | Thêm `robust_normalize` (median và MAD nội tại video) | 58.99 | [54.89, 63.24] | Micro AUC GIẢM 13.4 điểm so với A2 dù macro AUC giữ nguyên 64.12 (xem 4.2.2) |
 | **A4** | + Xử lý thời gian | SigLIP 2 Base | Thêm gom cụm top-k và làm mịn EMA/Median | TBD <!-- TODO(TH8): TH5 --> | [TBD, TBD] <!-- TODO(TH8): TH5 --> | Triệt tiêu gai nhiễu tức thời của khung đơn |
 | **A5** | + Bộ nhớ cảnh tĩnh | SigLIP 2 Base | Kết hợp điểm khoảng cách Normal Memory Bank | TBD <!-- TODO(TH8): TH5 --> | [TBD, TBD] <!-- TODO(TH8): TH5 --> | Tận dụng đặc trưng các khung hình bình thường |
 | **A6** | + Thẩm định VLM | SigLIP 2 + VLM | Tầng 1 (A4/A5) + Kiểm chứng Generative VLM Tầng 2 | TBD <!-- TODO(TH8): TH7, A5 --> | [TBD, TBD] <!-- TODO(TH8): TH7, A5 --> | Đánh giá đóng góp của VLM trên các cửa sổ nghi vấn |
 
-## 4.3. Đánh giá phân loại sự kiện (Event Typing)
+### 4.2.1. Kết quả cổng kiểm chứng A0
+
+A0 đạt 48.77% (CI 95% theo video [38.30, 59.40]), thấp hơn mốc 53.16% của LAVAD 4.4 điểm và nằm ngoài dải chấp nhận 50.2 - 56.2 đã đặt trước khi chạy. Mốc 53.16% vẫn nằm trong khoảng tin cậy. Các kiểm tra sai sót: đảo nhãn (loại trừ, một scorer đảo sẽ cho ~51), dịch nhãn ±1, ±16, +30 khung hình (AUC chỉ dao động 48.56 - 48.91, nên căn khung và quy ước biên đoạn là đúng), `logit_scale` 1/10/100 (cùng 48.77), pooling micro (macro 49.57), và prompt trùng văn bản của bài báo. Chưa kiểm tra: pha lấy mẫu (hệ thống lấy 1 fps, LAVAD lấy mỗi 16 khung). Chi tiết: `notes/a0-gate.md`. Báo cáo ghi nhận đây là độ lệch so với bài báo gốc, không điều chỉnh dải chấp nhận sau khi có kết quả.
+
+### 4.2.2. Ảnh hưởng của chuẩn hóa theo video (A2 so với A3)
+
+Chuẩn hóa robust z-score theo từng video là phép đơn điệu trong mỗi video nên AUC theo từng video không đổi (macro 64.12 ở cả A2 và A3). Tuy nhiên micro AUC gộp khung hình giữa các video, và chuẩn hóa xóa mức chênh điểm giữa video bất thường và video bình thường, nên micro AUC giảm từ 72.39 xuống 58.99. Điều này cũng có nghĩa tỉ lệ cảnh báo sai trên giờ (FA/hour) khi dùng chuẩn hóa theo video phản ánh chính phép chuẩn hóa hơn là hệ thống. <!-- TODO(TH8): ghi quyết định (a) giữ nguyên hoặc (b) chuẩn hóa theo thống kê calib_normal sau khi nhóm chốt -->
 
 Khác với tác vụ phát hiện nhị phân, bộ phân loại sự kiện zero-shot 13 lớp (`vad/score/typing.py`) được đo lường riêng trên các đoạn video đã xác định có bất thường theo nhãn mặt đất.
 
