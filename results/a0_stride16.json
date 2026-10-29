@@ -1,0 +1,17 @@
+{
+  "check": "A0 stride sampling (LAVAD every 16th frame)",
+  "stride": 16,
+  "config": "openai/clip-vit-base-patch32",
+  "limit": null,
+  "elapsed_s": 5837.9,
+  "auc_micro": 0.48430176478439707,
+  "ci_lo": 0.379015339830003,
+  "ci_hi": 0.5909371641003052,
+  "auc_macro_mean_per_video": 0.478474729012418,
+  "n_videos": 290,
+  "n_videos_anomalous": 140,
+  "n_videos_normal": 150,
+  "n_frames": 1111808,
+  "n_anomalous_frames": 84331,
+  "note": "CHẨN ĐOÁN kiểm tra #3 của a0-gate.md, không thay kết quả A0 chính"
+}
