@@ -1,0 +1,449 @@
+{
+  "header": {
+    "built_at": "2026-10-29 20:15:01",
+    "builder_commit": "ac3d181",
+    "seed": 0,
+    "k": 4,
+    "n_anomaly": 8,
+    "n_normal": 8,
+    "source_test": "manifests/ucf_test.csv + Temporal_Anomaly_Annotation (GT segment)",
+    "source_normal": "manifests/ucf_calib_normal.csv (train-normal, không đụng test)",
+    "jpeg_quality": 95,
+    "skipped": [],
+    "note": "Chọn xác định seed 0; không chọn tay; 4 khung cách đều (quy ước A3)."
+  },
+  "windows": [
+    {
+      "video_id": "Arrest024_x264",
+      "label": "anomaly",
+      "gt_event": "Arrest",
+      "fps": 30.0,
+      "n_frames": 3629,
+      "video_path": "datasets/ucf_crime/test/Anomaly-Videos-Part-1/Arrest/Arrest024_x264.mp4",
+      "segment": [
+        1005,
+        3105
+      ],
+      "frame_indices": [
+        1005,
+        1705,
+        2405,
+        3105
+      ],
+      "source": "ucf_crime_test_gt",
+      "window_id": "w01",
+      "frame_paths": [
+        "bench_windows/w01/frame_0.jpg",
+        "bench_windows/w01/frame_1.jpg",
+        "bench_windows/w01/frame_2.jpg",
+        "bench_windows/w01/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "Shoplifting001_x264",
+      "label": "anomaly",
+      "gt_event": "Shoplifting",
+      "fps": 30.0,
+      "n_frames": 4344,
+      "video_path": "datasets/ucf_crime/test/Anomaly-Videos-Part-4/Shoplifting/Shoplifting001_x264.mp4",
+      "segment": [
+        1550,
+        2000
+      ],
+      "frame_indices": [
+        1550,
+        1700,
+        1850,
+        2000
+      ],
+      "source": "ucf_crime_test_gt",
+      "window_id": "w02",
+      "frame_paths": [
+        "bench_windows/w02/frame_0.jpg",
+        "bench_windows/w02/frame_1.jpg",
+        "bench_windows/w02/frame_2.jpg",
+        "bench_windows/w02/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "Shooting021_x264",
+      "label": "anomaly",
+      "gt_event": "Shooting",
+      "fps": 30.0,
+      "n_frames": 1275,
+      "video_path": "datasets/ucf_crime/test/Anomaly-Videos-Part-3/Shooting/Shooting021_x264.mp4",
+      "segment": [
+        480,
+        630
+      ],
+      "frame_indices": [
+        480,
+        530,
+        580,
+        630
+      ],
+      "source": "ucf_crime_test_gt",
+      "window_id": "w03",
+      "frame_paths": [
+        "bench_windows/w03/frame_0.jpg",
+        "bench_windows/w03/frame_1.jpg",
+        "bench_windows/w03/frame_2.jpg",
+        "bench_windows/w03/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "Explosion004_x264",
+      "label": "anomaly",
+      "gt_event": "Explosion",
+      "fps": 30.0,
+      "n_frames": 1902,
+      "video_path": "datasets/ucf_crime/test/Anomaly-Videos-Part-2/Explosion/Explosion004_x264.mp4",
+      "segment": [
+        75,
+        225
+      ],
+      "frame_indices": [
+        75,
+        125,
+        175,
+        225
+      ],
+      "source": "ucf_crime_test_gt",
+      "window_id": "w04",
+      "frame_paths": [
+        "bench_windows/w04/frame_0.jpg",
+        "bench_windows/w04/frame_1.jpg",
+        "bench_windows/w04/frame_2.jpg",
+        "bench_windows/w04/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "Stealing062_x264",
+      "label": "anomaly",
+      "gt_event": "Stealing",
+      "fps": 30.0,
+      "n_frames": 1560,
+      "video_path": "datasets/ucf_crime/test/Anomaly-Videos-Part-4/Stealing/Stealing062_x264.mp4",
+      "segment": [
+        360,
+        1050
+      ],
+      "frame_indices": [
+        360,
+        590,
+        820,
+        1050
+      ],
+      "source": "ucf_crime_test_gt",
+      "window_id": "w05",
+      "frame_paths": [
+        "bench_windows/w05/frame_0.jpg",
+        "bench_windows/w05/frame_1.jpg",
+        "bench_windows/w05/frame_2.jpg",
+        "bench_windows/w05/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "Arson011_x264",
+      "label": "anomaly",
+      "gt_event": "Arson",
+      "fps": 30.0,
+      "n_frames": 1266,
+      "video_path": "datasets/ucf_crime/test/Anomaly-Videos-Part-1/Arson/Arson011_x264.mp4",
+      "segment": [
+        680,
+        1265
+      ],
+      "frame_indices": [
+        680,
+        875,
+        1070,
+        1265
+      ],
+      "source": "ucf_crime_test_gt",
+      "window_id": "w06",
+      "frame_paths": [
+        "bench_windows/w06/frame_0.jpg",
+        "bench_windows/w06/frame_1.jpg",
+        "bench_windows/w06/frame_2.jpg",
+        "bench_windows/w06/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "Assault006_x264",
+      "label": "anomaly",
+      "gt_event": "Assault",
+      "fps": 30.0,
+      "n_frames": 8096,
+      "video_path": "datasets/ucf_crime/test/Anomaly-Videos-Part-1/Assault/Assault006_x264.mp4",
+      "segment": [
+        1185,
+        8095
+      ],
+      "frame_indices": [
+        1185,
+        3488,
+        5792,
+        8095
+      ],
+      "source": "ucf_crime_test_gt",
+      "window_id": "w07",
+      "frame_paths": [
+        "bench_windows/w07/frame_0.jpg",
+        "bench_windows/w07/frame_1.jpg",
+        "bench_windows/w07/frame_2.jpg",
+        "bench_windows/w07/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "RoadAccidents009_x264",
+      "label": "anomaly",
+      "gt_event": "RoadAccidents",
+      "fps": 30.0,
+      "n_frames": 918,
+      "video_path": "datasets/ucf_crime/test/Anomaly-Videos-Part-3/RoadAccidents/RoadAccidents009_x264.mp4",
+      "segment": [
+        210,
+        240
+      ],
+      "frame_indices": [
+        210,
+        220,
+        230,
+        240
+      ],
+      "source": "ucf_crime_test_gt",
+      "window_id": "w08",
+      "frame_paths": [
+        "bench_windows/w08/frame_0.jpg",
+        "bench_windows/w08/frame_1.jpg",
+        "bench_windows/w08/frame_2.jpg",
+        "bench_windows/w08/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "Normal_Videos585_x264",
+      "label": "normal",
+      "gt_event": "Normal",
+      "fps": 30.0,
+      "n_frames": 1789,
+      "video_path": "datasets/ucf_crime/train_normal/Training-Normal-Videos-Part-2/Normal_Videos585_x264.mp4",
+      "segment": [
+        734,
+        878
+      ],
+      "frame_indices": [
+        734,
+        782,
+        830,
+        878
+      ],
+      "source": "ucf_calib_normal",
+      "window_id": "w09",
+      "frame_paths": [
+        "bench_windows/w09/frame_0.jpg",
+        "bench_windows/w09/frame_1.jpg",
+        "bench_windows/w09/frame_2.jpg",
+        "bench_windows/w09/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "Normal_Videos236_x264",
+      "label": "normal",
+      "gt_event": "Normal",
+      "fps": 30.0,
+      "n_frames": 3380,
+      "video_path": "datasets/ucf_crime/train_normal/Training-Normal-Videos-Part-1/Normal_Videos236_x264.mp4",
+      "segment": [
+        1926,
+        2155
+      ],
+      "frame_indices": [
+        1926,
+        2002,
+        2079,
+        2155
+      ],
+      "source": "ucf_calib_normal",
+      "window_id": "w10",
+      "frame_paths": [
+        "bench_windows/w10/frame_0.jpg",
+        "bench_windows/w10/frame_1.jpg",
+        "bench_windows/w10/frame_2.jpg",
+        "bench_windows/w10/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "Normal_Videos219_x264",
+      "label": "normal",
+      "gt_event": "Normal",
+      "fps": 30.0,
+      "n_frames": 2670,
+      "video_path": "datasets/ucf_crime/train_normal/Training-Normal-Videos-Part-1/Normal_Videos219_x264.mp4",
+      "segment": [
+        2333,
+        2554
+      ],
+      "frame_indices": [
+        2333,
+        2407,
+        2480,
+        2554
+      ],
+      "source": "ucf_calib_normal",
+      "window_id": "w11",
+      "frame_paths": [
+        "bench_windows/w11/frame_0.jpg",
+        "bench_windows/w11/frame_1.jpg",
+        "bench_windows/w11/frame_2.jpg",
+        "bench_windows/w11/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "Normal_Videos669_x264",
+      "label": "normal",
+      "gt_event": "Normal",
+      "fps": 30.0,
+      "n_frames": 1219,
+      "video_path": "datasets/ucf_crime/train_normal/Training-Normal-Videos-Part-2/Normal_Videos669_x264.mp4",
+      "segment": [
+        416,
+        556
+      ],
+      "frame_indices": [
+        416,
+        463,
+        509,
+        556
+      ],
+      "source": "ucf_calib_normal",
+      "window_id": "w12",
+      "frame_paths": [
+        "bench_windows/w12/frame_0.jpg",
+        "bench_windows/w12/frame_1.jpg",
+        "bench_windows/w12/frame_2.jpg",
+        "bench_windows/w12/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "Normal_Videos428_x264",
+      "label": "normal",
+      "gt_event": "Normal",
+      "fps": 30.0,
+      "n_frames": 855,
+      "video_path": "datasets/ucf_crime/train_normal/Training-Normal-Videos-Part-1/Normal_Videos428_x264.mp4",
+      "segment": [
+        59,
+        295
+      ],
+      "frame_indices": [
+        59,
+        138,
+        216,
+        295
+      ],
+      "source": "ucf_calib_normal",
+      "window_id": "w13",
+      "frame_paths": [
+        "bench_windows/w13/frame_0.jpg",
+        "bench_windows/w13/frame_1.jpg",
+        "bench_windows/w13/frame_2.jpg",
+        "bench_windows/w13/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "Normal_Videos657_x264",
+      "label": "normal",
+      "gt_event": "Normal",
+      "fps": 30.0,
+      "n_frames": 1496,
+      "video_path": "datasets/ucf_crime/train_normal/Training-Normal-Videos-Part-2/Normal_Videos657_x264.mp4",
+      "segment": [
+        324,
+        539
+      ],
+      "frame_indices": [
+        324,
+        396,
+        467,
+        539
+      ],
+      "source": "ucf_calib_normal",
+      "window_id": "w14",
+      "frame_paths": [
+        "bench_windows/w14/frame_0.jpg",
+        "bench_windows/w14/frame_1.jpg",
+        "bench_windows/w14/frame_2.jpg",
+        "bench_windows/w14/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "Normal_Videos173_x264",
+      "label": "normal",
+      "gt_event": "Normal",
+      "fps": 30.0,
+      "n_frames": 600,
+      "video_path": "datasets/ucf_crime/train_normal/Training-Normal-Videos-Part-1/Normal_Videos173_x264.mp4",
+      "segment": [
+        175,
+        396
+      ],
+      "frame_indices": [
+        175,
+        249,
+        322,
+        396
+      ],
+      "source": "ucf_calib_normal",
+      "window_id": "w15",
+      "frame_paths": [
+        "bench_windows/w15/frame_0.jpg",
+        "bench_windows/w15/frame_1.jpg",
+        "bench_windows/w15/frame_2.jpg",
+        "bench_windows/w15/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    },
+    {
+      "video_id": "Normal_Videos263_x264",
+      "label": "normal",
+      "gt_event": "Normal",
+      "fps": 30.0,
+      "n_frames": 1800,
+      "video_path": "datasets/ucf_crime/train_normal/Training-Normal-Videos-Part-1/Normal_Videos263_x264.mp4",
+      "segment": [
+        240,
+        424
+      ],
+      "frame_indices": [
+        240,
+        301,
+        363,
+        424
+      ],
+      "source": "ucf_calib_normal",
+      "window_id": "w16",
+      "frame_paths": [
+        "bench_windows/w16/frame_0.jpg",
+        "bench_windows/w16/frame_1.jpg",
+        "bench_windows/w16/frame_2.jpg",
+        "bench_windows/w16/frame_3.jpg"
+      ],
+      "fps_actual": 30.0
+    }
+  ]
+}

@@ -1,7 +1,7 @@
-# Phụ thuộc riêng cho tier-2 VLM (A1/A2, Phước).
-# KHÔNG đưa vào requirements-dev.txt: CI không được tải model hay cần GPU.
+# Phụ thuộ­ng riêng cho tier-2 VLM (A1/A2, Phước).
+# KHÔNG đưa vào requirements-dev.txt: CI không tải model hay cần GPU.
 # Cài tay khi chạy bench/verify thật:  pip install -r requirements-vlm.txt
 bitsandbytes>=0.43.0
 accelerate>=0.30.0
-qwen-vl-utils>=0.0.8
-num2words>=0.5.13        # SmolVLM processor yêu cầu
+transformers>=4.49.0   # cùng floor với requirements.txt; script dùng class Qwen2VL/Qwen2_5_VL/SmolVLM
+num2words>=0.5.13      # SmolVLM processor yêu cầu
