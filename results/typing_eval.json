@@ -1,0 +1,1872 @@
+{
+  "task": "C3-typing",
+  "model": "google/siglip2-base-patch16-384",
+  "sample_fps": 1.0,
+  "aggregate": "mean",
+  "annotation_file": "datasets/ucf_crime/Temporal_Anomaly_Annotation_for_Testing_Videos.txt",
+  "summary": {
+    "n_cases": 156,
+    "n_videos": 140,
+    "strict_correct": 63,
+    "strict_accuracy": 0.40384615384615385,
+    "lenient_correct": 78,
+    "lenient_accuracy": 0.5,
+    "chance_level": 0.07692307692307693,
+    "per_class": {
+      "Abuse": {
+        "total": 2,
+        "correct": 0
+      },
+      "Arrest": {
+        "total": 5,
+        "correct": 0
+      },
+      "Arson": {
+        "total": 10,
+        "correct": 1
+      },
+      "Assault": {
+        "total": 4,
+        "correct": 0
+      },
+      "Burglary": {
+        "total": 15,
+        "correct": 2
+      },
+      "Explosion": {
+        "total": 22,
+        "correct": 11
+      },
+      "Fighting": {
+        "total": 5,
+        "correct": 3
+      },
+      "RoadAccidents": {
+        "total": 23,
+        "correct": 19
+      },
+      "Robbery": {
+        "total": 5,
+        "correct": 0
+      },
+      "Shooting": {
+        "total": 25,
+        "correct": 0
+      },
+      "Shoplifting": {
+        "total": 25,
+        "correct": 24
+      },
+      "Stealing": {
+        "total": 7,
+        "correct": 1
+      },
+      "Vandalism": {
+        "total": 8,
+        "correct": 2
+      }
+    },
+    "confusion": {
+      "Abuse": {
+        "Vandalism": 2
+      },
+      "Arrest": {
+        "Fighting": 1,
+        "Abuse": 1,
+        "RoadAccidents": 1,
+        "Assault": 1,
+        "Burglary": 1
+      },
+      "Arson": {
+        "Explosion": 1,
+        "Stealing": 1,
+        "RoadAccidents": 3,
+        "Assault": 2,
+        "Arson": 1,
+        "Burglary": 2
+      },
+      "Assault": {
+        "Abuse": 3,
+        "Fighting": 1
+      },
+      "Burglary": {
+        "Stealing": 5,
+        "Vandalism": 3,
+        "Robbery": 3,
+        "Burglary": 2,
+        "Abuse": 1,
+        "Arrest": 1
+      },
+      "Explosion": {
+        "Explosion": 11,
+        "RoadAccidents": 3,
+        "Arrest": 1,
+        "Burglary": 1,
+        "Shoplifting": 2,
+        "Arson": 1,
+        "Abuse": 2,
+        "Fighting": 1
+      },
+      "Fighting": {
+        "Fighting": 3,
+        "Assault": 1,
+        "Burglary": 1
+      },
+      "RoadAccidents": {
+        "Vandalism": 2,
+        "RoadAccidents": 19,
+        "Robbery": 2
+      },
+      "Robbery": {
+        "Shoplifting": 2,
+        "Vandalism": 2,
+        "Arrest": 1
+      },
+      "Shooting": {
+        "Fighting": 1,
+        "Assault": 2,
+        "Vandalism": 3,
+        "Shoplifting": 3,
+        "RoadAccidents": 5,
+        "Abuse": 2,
+        "Stealing": 5,
+        "Burglary": 1,
+        "Robbery": 1,
+        "Arrest": 2
+      },
+      "Shoplifting": {
+        "Shoplifting": 24,
+        "Fighting": 1
+      },
+      "Stealing": {
+        "Vandalism": 3,
+        "RoadAccidents": 1,
+        "Arrest": 2,
+        "Stealing": 1
+      },
+      "Vandalism": {
+        "RoadAccidents": 1,
+        "Shoplifting": 5,
+        "Vandalism": 2
+      }
+    }
+  },
+  "cases": [
+    {
+      "video_id": "Abuse028_x264",
+      "gt": "Abuse",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.35204516909531325,
+      "n_frames": 4,
+      "start_s": 5.5,
+      "end_s": 8.0
+    },
+    {
+      "video_id": "Abuse030_x264",
+      "gt": "Abuse",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.8328267688465292,
+      "n_frames": 4,
+      "start_s": 42.5,
+      "end_s": 45.333333333333336
+    },
+    {
+      "video_id": "Arrest001_x264",
+      "gt": "Arrest",
+      "pred": "Fighting",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.3015690805198786,
+      "n_frames": 11,
+      "start_s": 39.5,
+      "end_s": 49.5
+    },
+    {
+      "video_id": "Arrest007_x264",
+      "gt": "Arrest",
+      "pred": "Abuse",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.20750731961236255,
+      "n_frames": 22,
+      "start_s": 51.0,
+      "end_s": 72.0
+    },
+    {
+      "video_id": "Arrest024_x264",
+      "gt": "Arrest",
+      "pred": "RoadAccidents",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.8615912698318937,
+      "n_frames": 71,
+      "start_s": 33.5,
+      "end_s": 103.5
+    },
+    {
+      "video_id": "Arrest030_x264",
+      "gt": "Arrest",
+      "pred": "Assault",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.20255286527850375,
+      "n_frames": 57,
+      "start_s": 184.5,
+      "end_s": 240.0
+    },
+    {
+      "video_id": "Arrest039_x264",
+      "gt": "Arrest",
+      "pred": "Burglary",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.34155495537525055,
+      "n_frames": 105,
+      "start_s": 240.5,
+      "end_s": 344.5
+    },
+    {
+      "video_id": "Arson007_x264",
+      "gt": "Arson",
+      "pred": "Explosion",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.2847147545488234,
+      "n_frames": 116,
+      "start_s": 75.0,
+      "end_s": 190.0
+    },
+    {
+      "video_id": "Arson009_x264",
+      "gt": "Arson",
+      "pred": "Stealing",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.23805151683591239,
+      "n_frames": 4,
+      "start_s": 7.333333333333333,
+      "end_s": 10.5
+    },
+    {
+      "video_id": "Arson010_x264",
+      "gt": "Arson",
+      "pred": "RoadAccidents",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.287182252288999,
+      "n_frames": 13,
+      "start_s": 29.5,
+      "end_s": 41.0
+    },
+    {
+      "video_id": "Arson011_x264",
+      "gt": "Arson",
+      "pred": "Assault",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.4885117282131142,
+      "n_frames": 10,
+      "start_s": 5.0,
+      "end_s": 14.0
+    },
+    {
+      "video_id": "Arson011_x264",
+      "gt": "Arson",
+      "pred": "Assault",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.43954318168763173,
+      "n_frames": 21,
+      "start_s": 22.666666666666668,
+      "end_s": 42.233333333333334
+    },
+    {
+      "video_id": "Arson016_x264",
+      "gt": "Arson",
+      "pred": "Arson",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.920247358014187,
+      "n_frames": 27,
+      "start_s": 33.333333333333336,
+      "end_s": 59.86666666666667
+    },
+    {
+      "video_id": "Arson018_x264",
+      "gt": "Arson",
+      "pred": "RoadAccidents",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.4366907895951274,
+      "n_frames": 12,
+      "start_s": 9.0,
+      "end_s": 20.0
+    },
+    {
+      "video_id": "Arson022_x264",
+      "gt": "Arson",
+      "pred": "Burglary",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.6114970371079326,
+      "n_frames": 18,
+      "start_s": 116.66666666666667,
+      "end_s": 133.33333333333334
+    },
+    {
+      "video_id": "Arson035_x264",
+      "gt": "Arson",
+      "pred": "RoadAccidents",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.3600416912794267,
+      "n_frames": 11,
+      "start_s": 20.0,
+      "end_s": 30.0
+    },
+    {
+      "video_id": "Arson041_x264",
+      "gt": "Arson",
+      "pred": "Burglary",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.2749229957713315,
+      "n_frames": 50,
+      "start_s": 71.0,
+      "end_s": 120.5
+    },
+    {
+      "video_id": "Assault006_x264",
+      "gt": "Assault",
+      "pred": "Abuse",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.2856814084880522,
+      "n_frames": 231,
+      "start_s": 39.5,
+      "end_s": 269.8666666666667
+    },
+    {
+      "video_id": "Assault010_x264",
+      "gt": "Assault",
+      "pred": "Abuse",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.4409033088694179,
+      "n_frames": 13,
+      "start_s": 377.6666666666667,
+      "end_s": 389.3333333333333
+    },
+    {
+      "video_id": "Assault010_x264",
+      "gt": "Assault",
+      "pred": "Abuse",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.43218365343828324,
+      "n_frames": 24,
+      "start_s": 408.6666666666667,
+      "end_s": 431.0
+    },
+    {
+      "video_id": "Assault011_x264",
+      "gt": "Assault",
+      "pred": "Fighting",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.29241621118559835,
+      "n_frames": 21,
+      "start_s": 12.5,
+      "end_s": 32.0
+    },
+    {
+      "video_id": "Burglary005_x264",
+      "gt": "Burglary",
+      "pred": "Stealing",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.4106834743775881,
+      "n_frames": 12,
+      "start_s": 157.0,
+      "end_s": 168.0
+    },
+    {
+      "video_id": "Burglary017_x264",
+      "gt": "Burglary",
+      "pred": "Stealing",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.5603315425777031,
+      "n_frames": 16,
+      "start_s": 5.0,
+      "end_s": 20.0
+    },
+    {
+      "video_id": "Burglary018_x264",
+      "gt": "Burglary",
+      "pred": "Stealing",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.3162925559765548,
+      "n_frames": 12,
+      "start_s": 24.0,
+      "end_s": 35.0
+    },
+    {
+      "video_id": "Burglary021_x264",
+      "gt": "Burglary",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.16769633830283717,
+      "n_frames": 5,
+      "start_s": 2.0,
+      "end_s": 6.666666666666667
+    },
+    {
+      "video_id": "Burglary021_x264",
+      "gt": "Burglary",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.21199453674234248,
+      "n_frames": 17,
+      "start_s": 28.0,
+      "end_s": 44.666666666666664
+    },
+    {
+      "video_id": "Burglary024_x264",
+      "gt": "Burglary",
+      "pred": "Stealing",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.3599571210939601,
+      "n_frames": 40,
+      "start_s": 2.0,
+      "end_s": 41.0
+    },
+    {
+      "video_id": "Burglary032_x264",
+      "gt": "Burglary",
+      "pred": "Robbery",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.19055892929833226,
+      "n_frames": 81,
+      "start_s": 43.0,
+      "end_s": 123.0
+    },
+    {
+      "video_id": "Burglary033_x264",
+      "gt": "Burglary",
+      "pred": "Burglary",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.5532947743495215,
+      "n_frames": 10,
+      "start_s": 2.0,
+      "end_s": 11.0
+    },
+    {
+      "video_id": "Burglary035_x264",
+      "gt": "Burglary",
+      "pred": "Burglary",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.3838135177290867,
+      "n_frames": 59,
+      "start_s": 0.03333333333333333,
+      "end_s": 58.0
+    },
+    {
+      "video_id": "Burglary037_x264",
+      "gt": "Burglary",
+      "pred": "Abuse",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.23011403267659494,
+      "n_frames": 6,
+      "start_s": 8.0,
+      "end_s": 13.0
+    },
+    {
+      "video_id": "Burglary037_x264",
+      "gt": "Burglary",
+      "pred": "Stealing",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.2373947510005633,
+      "n_frames": 43,
+      "start_s": 18.0,
+      "end_s": 60.0
+    },
+    {
+      "video_id": "Burglary061_x264",
+      "gt": "Burglary",
+      "pred": "Robbery",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.4239240532907711,
+      "n_frames": 51,
+      "start_s": 140.0,
+      "end_s": 190.0
+    },
+    {
+      "video_id": "Burglary076_x264",
+      "gt": "Burglary",
+      "pred": "Robbery",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.22195305230377685,
+      "n_frames": 91,
+      "start_s": 53.0,
+      "end_s": 143.33333333333334
+    },
+    {
+      "video_id": "Burglary079_x264",
+      "gt": "Burglary",
+      "pred": "Arrest",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.38406967354249016,
+      "n_frames": 100,
+      "start_s": 258.3333333333333,
+      "end_s": 357.0
+    },
+    {
+      "video_id": "Burglary092_x264",
+      "gt": "Burglary",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.1288985712707071,
+      "n_frames": 7,
+      "start_s": 8.0,
+      "end_s": 14.0
+    },
+    {
+      "video_id": "Explosion002_x264",
+      "gt": "Explosion",
+      "pred": "Explosion",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.26749346785637557,
+      "n_frames": 21,
+      "start_s": 50.0,
+      "end_s": 70.0
+    },
+    {
+      "video_id": "Explosion004_x264",
+      "gt": "Explosion",
+      "pred": "Explosion",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.3528006388637696,
+      "n_frames": 6,
+      "start_s": 2.5,
+      "end_s": 7.5
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "gt": "Explosion",
+      "pred": "Explosion",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.5037797065830635,
+      "n_frames": 24,
+      "start_s": 53.0,
+      "end_s": 76.0
+    },
+    {
+      "video_id": "Explosion008_x264",
+      "gt": "Explosion",
+      "pred": "Explosion",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.8752182980949528,
+      "n_frames": 9,
+      "start_s": 33.5,
+      "end_s": 41.5
+    },
+    {
+      "video_id": "Explosion010_x264",
+      "gt": "Explosion",
+      "pred": "Explosion",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.6873052003026048,
+      "n_frames": 28,
+      "start_s": 9.5,
+      "end_s": 36.0
+    },
+    {
+      "video_id": "Explosion011_x264",
+      "gt": "Explosion",
+      "pred": "RoadAccidents",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.9545037891298481,
+      "n_frames": 6,
+      "start_s": 26.5,
+      "end_s": 31.5
+    },
+    {
+      "video_id": "Explosion013_x264",
+      "gt": "Explosion",
+      "pred": "Explosion",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.25410620983820154,
+      "n_frames": 16,
+      "start_s": 84.0,
+      "end_s": 99.0
+    },
+    {
+      "video_id": "Explosion016_x264",
+      "gt": "Explosion",
+      "pred": "Explosion",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.6365834451171238,
+      "n_frames": 10,
+      "start_s": 6.0,
+      "end_s": 15.0
+    },
+    {
+      "video_id": "Explosion017_x264",
+      "gt": "Explosion",
+      "pred": "RoadAccidents",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.4900057720863183,
+      "n_frames": 16,
+      "start_s": 33.0,
+      "end_s": 48.0
+    },
+    {
+      "video_id": "Explosion020_x264",
+      "gt": "Explosion",
+      "pred": "Arrest",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.1727253169313623,
+      "n_frames": 8,
+      "start_s": 2.0,
+      "end_s": 9.0
+    },
+    {
+      "video_id": "Explosion021_x264",
+      "gt": "Explosion",
+      "pred": "Explosion",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.6151433822548062,
+      "n_frames": 6,
+      "start_s": 4.5,
+      "end_s": 9.0
+    },
+    {
+      "video_id": "Explosion022_x264",
+      "gt": "Explosion",
+      "pred": "Explosion",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.5592400970188252,
+      "n_frames": 7,
+      "start_s": 74.33333333333333,
+      "end_s": 80.66666666666667
+    },
+    {
+      "video_id": "Explosion025_x264",
+      "gt": "Explosion",
+      "pred": "Burglary",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.4693144047692601,
+      "n_frames": 7,
+      "start_s": 8.666666666666666,
+      "end_s": 14.0
+    },
+    {
+      "video_id": "Explosion027_x264",
+      "gt": "Explosion",
+      "pred": "Shoplifting",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.6561675676091093,
+      "n_frames": 4,
+      "start_s": 3.5,
+      "end_s": 6.0
+    },
+    {
+      "video_id": "Explosion028_x264",
+      "gt": "Explosion",
+      "pred": "RoadAccidents",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.751783656749917,
+      "n_frames": 15,
+      "start_s": 9.333333333333334,
+      "end_s": 23.333333333333332
+    },
+    {
+      "video_id": "Explosion029_x264",
+      "gt": "Explosion",
+      "pred": "Arson",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.5137447812806967,
+      "n_frames": 7,
+      "start_s": 61.0,
+      "end_s": 67.33333333333333
+    },
+    {
+      "video_id": "Explosion033_x264",
+      "gt": "Explosion",
+      "pred": "Explosion",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.610835264434617,
+      "n_frames": 14,
+      "start_s": 32.333333333333336,
+      "end_s": 45.0
+    },
+    {
+      "video_id": "Explosion033_x264",
+      "gt": "Explosion",
+      "pred": "Explosion",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.6498296083736852,
+      "n_frames": 55,
+      "start_s": 51.666666666666664,
+      "end_s": 105.2
+    },
+    {
+      "video_id": "Explosion035_x264",
+      "gt": "Explosion",
+      "pred": "Abuse",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.35192696979861154,
+      "n_frames": 4,
+      "start_s": 8.333333333333334,
+      "end_s": 11.666666666666666
+    },
+    {
+      "video_id": "Explosion036_x264",
+      "gt": "Explosion",
+      "pred": "Fighting",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.32775876021369893,
+      "n_frames": 5,
+      "start_s": 65.0,
+      "end_s": 69.0
+    },
+    {
+      "video_id": "Explosion039_x264",
+      "gt": "Explosion",
+      "pred": "Shoplifting",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.2085312994069234,
+      "n_frames": 4,
+      "start_s": 2.0,
+      "end_s": 5.0
+    },
+    {
+      "video_id": "Explosion043_x264",
+      "gt": "Explosion",
+      "pred": "Abuse",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.30694141609327974,
+      "n_frames": 6,
+      "start_s": 148.66666666666666,
+      "end_s": 153.33333333333334
+    },
+    {
+      "video_id": "Fighting003_x264",
+      "gt": "Fighting",
+      "pred": "Fighting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.40634313362823277,
+      "n_frames": 44,
+      "start_s": 60.666666666666664,
+      "end_s": 103.43333333333334
+    },
+    {
+      "video_id": "Fighting018_x264",
+      "gt": "Fighting",
+      "pred": "Assault",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.2696560006852935,
+      "n_frames": 13,
+      "start_s": 2.6666666666666665,
+      "end_s": 14.0
+    },
+    {
+      "video_id": "Fighting033_x264",
+      "gt": "Fighting",
+      "pred": "Fighting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.49908927190812924,
+      "n_frames": 10,
+      "start_s": 19.0,
+      "end_s": 28.0
+    },
+    {
+      "video_id": "Fighting042_x264",
+      "gt": "Fighting",
+      "pred": "Burglary",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.5732350463187784,
+      "n_frames": 32,
+      "start_s": 9.666666666666666,
+      "end_s": 40.0
+    },
+    {
+      "video_id": "Fighting047_x264",
+      "gt": "Fighting",
+      "pred": "Fighting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.355829334383527,
+      "n_frames": 56,
+      "start_s": 6.666666666666667,
+      "end_s": 61.0
+    },
+    {
+      "video_id": "RoadAccidents001_x264",
+      "gt": "RoadAccidents",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.21813698677188756,
+      "n_frames": 4,
+      "start_s": 7.0,
+      "end_s": 10.0
+    },
+    {
+      "video_id": "RoadAccidents002_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.4977706793691642,
+      "n_frames": 3,
+      "start_s": 8.0,
+      "end_s": 10.0
+    },
+    {
+      "video_id": "RoadAccidents004_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.8931232222912346,
+      "n_frames": 3,
+      "start_s": 4.666666666666667,
+      "end_s": 6.3
+    },
+    {
+      "video_id": "RoadAccidents009_x264",
+      "gt": "RoadAccidents",
+      "pred": "Robbery",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.34150367929266806,
+      "n_frames": 2,
+      "start_s": 7.0,
+      "end_s": 8.0
+    },
+    {
+      "video_id": "RoadAccidents010_x264",
+      "gt": "RoadAccidents",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.5140185525734942,
+      "n_frames": 3,
+      "start_s": 7.666666666666667,
+      "end_s": 9.0
+    },
+    {
+      "video_id": "RoadAccidents011_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.9001474098429316,
+      "n_frames": 3,
+      "start_s": 8.666666666666666,
+      "end_s": 10.0
+    },
+    {
+      "video_id": "RoadAccidents012_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.99281453030034,
+      "n_frames": 6,
+      "start_s": 8.333333333333334,
+      "end_s": 13.0
+    },
+    {
+      "video_id": "RoadAccidents016_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.7165650139380308,
+      "n_frames": 8,
+      "start_s": 17.666666666666668,
+      "end_s": 24.0
+    },
+    {
+      "video_id": "RoadAccidents017_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.6748883936255068,
+      "n_frames": 3,
+      "start_s": 2.0,
+      "end_s": 4.333333333333333
+    },
+    {
+      "video_id": "RoadAccidents019_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.9346394246400517,
+      "n_frames": 6,
+      "start_s": 25.0,
+      "end_s": 30.0
+    },
+    {
+      "video_id": "RoadAccidents020_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.9897586692415243,
+      "n_frames": 5,
+      "start_s": 20.333333333333332,
+      "end_s": 24.333333333333332
+    },
+    {
+      "video_id": "RoadAccidents021_x264",
+      "gt": "RoadAccidents",
+      "pred": "Robbery",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.3272475893553066,
+      "n_frames": 3,
+      "start_s": 1.0,
+      "end_s": 3.0
+    },
+    {
+      "video_id": "RoadAccidents022_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.9531675459964413,
+      "n_frames": 4,
+      "start_s": 4.0,
+      "end_s": 7.333333333333333
+    },
+    {
+      "video_id": "RoadAccidents121_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.83347723802664,
+      "n_frames": 3,
+      "start_s": 11.0,
+      "end_s": 13.0
+    },
+    {
+      "video_id": "RoadAccidents122_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.41149094637878625,
+      "n_frames": 3,
+      "start_s": 10.0,
+      "end_s": 12.0
+    },
+    {
+      "video_id": "RoadAccidents123_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.9266973943670116,
+      "n_frames": 4,
+      "start_s": 4.333333333333333,
+      "end_s": 7.0
+    },
+    {
+      "video_id": "RoadAccidents124_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.8849919329403813,
+      "n_frames": 7,
+      "start_s": 8.333333333333334,
+      "end_s": 14.0
+    },
+    {
+      "video_id": "RoadAccidents125_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.9181554839304236,
+      "n_frames": 5,
+      "start_s": 16.333333333333332,
+      "end_s": 20.0
+    },
+    {
+      "video_id": "RoadAccidents127_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.97963508420275,
+      "n_frames": 5,
+      "start_s": 72.0,
+      "end_s": 76.66666666666667
+    },
+    {
+      "video_id": "RoadAccidents128_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.37246655021334907,
+      "n_frames": 4,
+      "start_s": 3.0,
+      "end_s": 6.666666666666667
+    },
+    {
+      "video_id": "RoadAccidents131_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.8623904246787191,
+      "n_frames": 3,
+      "start_s": 6.0,
+      "end_s": 8.0
+    },
+    {
+      "video_id": "RoadAccidents132_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.952589614489511,
+      "n_frames": 4,
+      "start_s": 7.333333333333333,
+      "end_s": 10.666666666666666
+    },
+    {
+      "video_id": "RoadAccidents133_x264",
+      "gt": "RoadAccidents",
+      "pred": "RoadAccidents",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.980333918437157,
+      "n_frames": 7,
+      "start_s": 9.0,
+      "end_s": 15.0
+    },
+    {
+      "video_id": "Robbery048_x264",
+      "gt": "Robbery",
+      "pred": "Shoplifting",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.6185591438383968,
+      "n_frames": 17,
+      "start_s": 15.0,
+      "end_s": 31.0
+    },
+    {
+      "video_id": "Robbery050_x264",
+      "gt": "Robbery",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.531466469828315,
+      "n_frames": 32,
+      "start_s": 16.5,
+      "end_s": 47.0
+    },
+    {
+      "video_id": "Robbery102_x264",
+      "gt": "Robbery",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.350331693341464,
+      "n_frames": 17,
+      "start_s": 36.0,
+      "end_s": 52.0
+    },
+    {
+      "video_id": "Robbery106_x264",
+      "gt": "Robbery",
+      "pred": "Arrest",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.2941641446856901,
+      "n_frames": 5,
+      "start_s": 16.0,
+      "end_s": 20.0
+    },
+    {
+      "video_id": "Robbery137_x264",
+      "gt": "Robbery",
+      "pred": "Shoplifting",
+      "correct": false,
+      "lenient_correct": true,
+      "confidence": 0.862245043703268,
+      "n_frames": 62,
+      "start_s": 4.5,
+      "end_s": 65.0
+    },
+    {
+      "video_id": "Shooting002_x264",
+      "gt": "Shooting",
+      "pred": "Fighting",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.263687557652003,
+      "n_frames": 3,
+      "start_s": 34.0,
+      "end_s": 36.666666666666664
+    },
+    {
+      "video_id": "Shooting004_x264",
+      "gt": "Shooting",
+      "pred": "Assault",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.2523195446125819,
+      "n_frames": 7,
+      "start_s": 16.666666666666668,
+      "end_s": 22.0
+    },
+    {
+      "video_id": "Shooting007_x264",
+      "gt": "Shooting",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.6292482346541785,
+      "n_frames": 5,
+      "start_s": 1.5,
+      "end_s": 5.5
+    },
+    {
+      "video_id": "Shooting008_x264",
+      "gt": "Shooting",
+      "pred": "Shoplifting",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.37469546849088037,
+      "n_frames": 9,
+      "start_s": 2.5,
+      "end_s": 10.5
+    },
+    {
+      "video_id": "Shooting010_x264",
+      "gt": "Shooting",
+      "pred": "RoadAccidents",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.19981191720600075,
+      "n_frames": 7,
+      "start_s": 36.5,
+      "end_s": 42.0
+    },
+    {
+      "video_id": "Shooting011_x264",
+      "gt": "Shooting",
+      "pred": "Abuse",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.30061753482298853,
+      "n_frames": 10,
+      "start_s": 49.333333333333336,
+      "end_s": 58.333333333333336
+    },
+    {
+      "video_id": "Shooting013_x264",
+      "gt": "Shooting",
+      "pred": "Stealing",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.25589032182154176,
+      "n_frames": 4,
+      "start_s": 28.666666666666668,
+      "end_s": 31.5
+    },
+    {
+      "video_id": "Shooting015_x264",
+      "gt": "Shooting",
+      "pred": "RoadAccidents",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.7591110157767947,
+      "n_frames": 30,
+      "start_s": 28.5,
+      "end_s": 57.166666666666664
+    },
+    {
+      "video_id": "Shooting018_x264",
+      "gt": "Shooting",
+      "pred": "Shoplifting",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.7559139264181294,
+      "n_frames": 7,
+      "start_s": 10.5,
+      "end_s": 16.0
+    },
+    {
+      "video_id": "Shooting019_x264",
+      "gt": "Shooting",
+      "pred": "RoadAccidents",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.3609397292326476,
+      "n_frames": 15,
+      "start_s": 34.0,
+      "end_s": 48.5
+    },
+    {
+      "video_id": "Shooting021_x264",
+      "gt": "Shooting",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.2736109320154225,
+      "n_frames": 6,
+      "start_s": 16.0,
+      "end_s": 21.0
+    },
+    {
+      "video_id": "Shooting022_x264",
+      "gt": "Shooting",
+      "pred": "Burglary",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.2895722938219037,
+      "n_frames": 16,
+      "start_s": 95.0,
+      "end_s": 110.0
+    },
+    {
+      "video_id": "Shooting024_x264",
+      "gt": "Shooting",
+      "pred": "RoadAccidents",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.3363747908890742,
+      "n_frames": 20,
+      "start_s": 24.0,
+      "end_s": 43.5
+    },
+    {
+      "video_id": "Shooting026_x264",
+      "gt": "Shooting",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.12994741116065117,
+      "n_frames": 15,
+      "start_s": 6.5,
+      "end_s": 20.0
+    },
+    {
+      "video_id": "Shooting028_x264",
+      "gt": "Shooting",
+      "pred": "Robbery",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.3397457779827563,
+      "n_frames": 10,
+      "start_s": 9.5,
+      "end_s": 18.5
+    },
+    {
+      "video_id": "Shooting032_x264",
+      "gt": "Shooting",
+      "pred": "Assault",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.1802277635317401,
+      "n_frames": 8,
+      "start_s": 266.5,
+      "end_s": 273.5
+    },
+    {
+      "video_id": "Shooting033_x264",
+      "gt": "Shooting",
+      "pred": "Stealing",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.18107424112602918,
+      "n_frames": 11,
+      "start_s": 56.0,
+      "end_s": 66.66666666666667
+    },
+    {
+      "video_id": "Shooting034_x264",
+      "gt": "Shooting",
+      "pred": "Arrest",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.21714810610364524,
+      "n_frames": 4,
+      "start_s": 32.0,
+      "end_s": 35.0
+    },
+    {
+      "video_id": "Shooting037_x264",
+      "gt": "Shooting",
+      "pred": "RoadAccidents",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.7542802703992924,
+      "n_frames": 5,
+      "start_s": 4.666666666666667,
+      "end_s": 8.666666666666666
+    },
+    {
+      "video_id": "Shooting043_x264",
+      "gt": "Shooting",
+      "pred": "Arrest",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.43629818717812474,
+      "n_frames": 11,
+      "start_s": 31.5,
+      "end_s": 41.0
+    },
+    {
+      "video_id": "Shooting046_x264",
+      "gt": "Shooting",
+      "pred": "Abuse",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.23536468934395888,
+      "n_frames": 9,
+      "start_s": 133.5,
+      "end_s": 141.0
+    },
+    {
+      "video_id": "Shooting046_x264",
+      "gt": "Shooting",
+      "pred": "Shoplifting",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.34086258590129304,
+      "n_frames": 12,
+      "start_s": 158.66666666666666,
+      "end_s": 169.6
+    },
+    {
+      "video_id": "Shooting047_x264",
+      "gt": "Shooting",
+      "pred": "Stealing",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.2927769855858578,
+      "n_frames": 59,
+      "start_s": 72.0,
+      "end_s": 130.0
+    },
+    {
+      "video_id": "Shooting047_x264",
+      "gt": "Shooting",
+      "pred": "Stealing",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.2781623549289002,
+      "n_frames": 59,
+      "start_s": 162.0,
+      "end_s": 220.0
+    },
+    {
+      "video_id": "Shooting048_x264",
+      "gt": "Shooting",
+      "pred": "Stealing",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.25781407297563175,
+      "n_frames": 11,
+      "start_s": 47.0,
+      "end_s": 57.666666666666664
+    },
+    {
+      "video_id": "Shoplifting001_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.8641768464269194,
+      "n_frames": 16,
+      "start_s": 51.666666666666664,
+      "end_s": 66.66666666666667
+    },
+    {
+      "video_id": "Shoplifting004_x264",
+      "gt": "Shoplifting",
+      "pred": "Fighting",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.3134707718508482,
+      "n_frames": 91,
+      "start_s": 73.33333333333333,
+      "end_s": 163.33333333333334
+    },
+    {
+      "video_id": "Shoplifting005_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.8528138782399132,
+      "n_frames": 8,
+      "start_s": 24.0,
+      "end_s": 31.0
+    },
+    {
+      "video_id": "Shoplifting007_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.7381896468225058,
+      "n_frames": 8,
+      "start_s": 18.333333333333332,
+      "end_s": 25.333333333333332
+    },
+    {
+      "video_id": "Shoplifting007_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.8246613636657969,
+      "n_frames": 11,
+      "start_s": 154.33333333333334,
+      "end_s": 164.0
+    },
+    {
+      "video_id": "Shoplifting010_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.7959118961928018,
+      "n_frames": 6,
+      "start_s": 25.0,
+      "end_s": 30.666666666666668
+    },
+    {
+      "video_id": "Shoplifting010_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.8076153264253242,
+      "n_frames": 15,
+      "start_s": 51.666666666666664,
+      "end_s": 65.66666666666667
+    },
+    {
+      "video_id": "Shoplifting015_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.698266843915195,
+      "n_frames": 6,
+      "start_s": 67.0,
+      "end_s": 72.0
+    },
+    {
+      "video_id": "Shoplifting016_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.7301090757190338,
+      "n_frames": 4,
+      "start_s": 21.0,
+      "end_s": 24.0
+    },
+    {
+      "video_id": "Shoplifting017_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.4646843156343347,
+      "n_frames": 3,
+      "start_s": 12.0,
+      "end_s": 14.0
+    },
+    {
+      "video_id": "Shoplifting020_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.7270000936699907,
+      "n_frames": 5,
+      "start_s": 78.0,
+      "end_s": 82.0
+    },
+    {
+      "video_id": "Shoplifting021_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.39085014294023457,
+      "n_frames": 6,
+      "start_s": 69.0,
+      "end_s": 74.0
+    },
+    {
+      "video_id": "Shoplifting022_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.896227960836916,
+      "n_frames": 6,
+      "start_s": 9.0,
+      "end_s": 14.0
+    },
+    {
+      "video_id": "Shoplifting022_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.8845627607034668,
+      "n_frames": 5,
+      "start_s": 48.0,
+      "end_s": 52.0
+    },
+    {
+      "video_id": "Shoplifting027_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.7559457367469925,
+      "n_frames": 3,
+      "start_s": 36.0,
+      "end_s": 38.666666666666664
+    },
+    {
+      "video_id": "Shoplifting027_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.731318598253872,
+      "n_frames": 9,
+      "start_s": 49.0,
+      "end_s": 57.0
+    },
+    {
+      "video_id": "Shoplifting028_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.8628394271363204,
+      "n_frames": 10,
+      "start_s": 19.0,
+      "end_s": 28.0
+    },
+    {
+      "video_id": "Shoplifting029_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.9813293380493753,
+      "n_frames": 16,
+      "start_s": 34.0,
+      "end_s": 49.0
+    },
+    {
+      "video_id": "Shoplifting031_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.5701058574263784,
+      "n_frames": 8,
+      "start_s": 4.0,
+      "end_s": 11.0
+    },
+    {
+      "video_id": "Shoplifting033_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.9216188609958592,
+      "n_frames": 5,
+      "start_s": 21.0,
+      "end_s": 25.0
+    },
+    {
+      "video_id": "Shoplifting034_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.9058454926238756,
+      "n_frames": 5,
+      "start_s": 245.0,
+      "end_s": 249.0
+    },
+    {
+      "video_id": "Shoplifting037_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.2558078783831722,
+      "n_frames": 3,
+      "start_s": 38.0,
+      "end_s": 40.0
+    },
+    {
+      "video_id": "Shoplifting039_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.4693512484511815,
+      "n_frames": 6,
+      "start_s": 73.0,
+      "end_s": 78.0
+    },
+    {
+      "video_id": "Shoplifting044_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.7125582130673495,
+      "n_frames": 7,
+      "start_s": 369.0,
+      "end_s": 375.0
+    },
+    {
+      "video_id": "Shoplifting049_x264",
+      "gt": "Shoplifting",
+      "pred": "Shoplifting",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.7806211640279589,
+      "n_frames": 12,
+      "start_s": 34.0,
+      "end_s": 45.0
+    },
+    {
+      "video_id": "Stealing019_x264",
+      "gt": "Stealing",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.4654287520826504,
+      "n_frames": 3,
+      "start_s": 91.0,
+      "end_s": 93.0
+    },
+    {
+      "video_id": "Stealing019_x264",
+      "gt": "Stealing",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.5023187692395235,
+      "n_frames": 7,
+      "start_s": 139.0,
+      "end_s": 145.0
+    },
+    {
+      "video_id": "Stealing036_x264",
+      "gt": "Stealing",
+      "pred": "RoadAccidents",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.4569958007198733,
+      "n_frames": 12,
+      "start_s": 42.0,
+      "end_s": 53.0
+    },
+    {
+      "video_id": "Stealing058_x264",
+      "gt": "Stealing",
+      "pred": "Arrest",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.34524708927608816,
+      "n_frames": 104,
+      "start_s": 19.0,
+      "end_s": 122.0
+    },
+    {
+      "video_id": "Stealing062_x264",
+      "gt": "Stealing",
+      "pred": "Arrest",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.5337919939299317,
+      "n_frames": 24,
+      "start_s": 12.0,
+      "end_s": 35.0
+    },
+    {
+      "video_id": "Stealing079_x264",
+      "gt": "Stealing",
+      "pred": "Vandalism",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.46061230970982725,
+      "n_frames": 23,
+      "start_s": 85.0,
+      "end_s": 107.0
+    },
+    {
+      "video_id": "Stealing079_x264",
+      "gt": "Stealing",
+      "pred": "Stealing",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.3347817832581486,
+      "n_frames": 34,
+      "start_s": 117.0,
+      "end_s": 150.0
+    },
+    {
+      "video_id": "Vandalism007_x264",
+      "gt": "Vandalism",
+      "pred": "RoadAccidents",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.35574393527116605,
+      "n_frames": 18,
+      "start_s": 8.0,
+      "end_s": 25.0
+    },
+    {
+      "video_id": "Vandalism015_x264",
+      "gt": "Vandalism",
+      "pred": "Shoplifting",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.29292359013561814,
+      "n_frames": 24,
+      "start_s": 67.0,
+      "end_s": 90.0
+    },
+    {
+      "video_id": "Vandalism017_x264",
+      "gt": "Vandalism",
+      "pred": "Shoplifting",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.6426983189641712,
+      "n_frames": 3,
+      "start_s": 9.0,
+      "end_s": 11.0
+    },
+    {
+      "video_id": "Vandalism017_x264",
+      "gt": "Vandalism",
+      "pred": "Shoplifting",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.6583062659440422,
+      "n_frames": 3,
+      "start_s": 26.0,
+      "end_s": 28.0
+    },
+    {
+      "video_id": "Vandalism028_x264",
+      "gt": "Vandalism",
+      "pred": "Vandalism",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.37249665099011237,
+      "n_frames": 6,
+      "start_s": 61.0,
+      "end_s": 66.0
+    },
+    {
+      "video_id": "Vandalism028_x264",
+      "gt": "Vandalism",
+      "pred": "Vandalism",
+      "correct": true,
+      "lenient_correct": true,
+      "confidence": 0.3199224844791889,
+      "n_frames": 10,
+      "start_s": 80.0,
+      "end_s": 89.0
+    },
+    {
+      "video_id": "Vandalism036_x264",
+      "gt": "Vandalism",
+      "pred": "Shoplifting",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.8312010813493934,
+      "n_frames": 9,
+      "start_s": 18.0,
+      "end_s": 26.0
+    },
+    {
+      "video_id": "Vandalism036_x264",
+      "gt": "Vandalism",
+      "pred": "Shoplifting",
+      "correct": false,
+      "lenient_correct": false,
+      "confidence": 0.8966560895045922,
+      "n_frames": 4,
+      "start_s": 33.0,
+      "end_s": 36.0
+    }
+  ]
+}
