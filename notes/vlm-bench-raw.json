@@ -1,0 +1,70 @@
+{
+  "header": {
+    "gpu": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+    "gpu_total_vram_gb": 6.0,
+    "torch": "2.14.1+cu126",
+    "timestamp": "2026-10-29 18:37:21",
+    "frames": [
+      "data/duong_pho_1.jpg",
+      "data/duong_pho_2.jpg",
+      "data/duong_pho_3.jpg",
+      "data/duong_pho_4.jpg"
+    ]
+  },
+  "results": [
+    {
+      "model_id": "Qwen/Qwen2-VL-2B-Instruct",
+      "class": "Qwen2VLForConditionalGeneration",
+      "ok": true,
+      "load_seconds": 12.7,
+      "load_vram_gb": 1.55,
+      "peak_vram_gb": 1.92,
+      "peak_vram_after_load_gb": 1.55,
+      "runs": [
+        4.22,
+        3.61,
+        3.74
+      ],
+      "mean_s_per_window": 3.86,
+      "median_s_per_window": 3.74,
+      "output_tokens_cap": 128,
+      "sample_output": "{\"is_anomaly\": false, \"event_type\": \"Normal\", \"caption\": \"People walking on a street at night.\", \"confidence\": 0.9}"
+    },
+    {
+      "model_id": "Qwen/Qwen2.5-VL-3B-Instruct",
+      "class": "Qwen2_5_VLForConditionalGeneration",
+      "ok": true,
+      "load_seconds": 18.4,
+      "load_vram_gb": 3.52,
+      "peak_vram_gb": 3.89,
+      "peak_vram_after_load_gb": 3.52,
+      "runs": [
+        5.55,
+        5.45,
+        5.37
+      ],
+      "mean_s_per_window": 5.46,
+      "median_s_per_window": 5.45,
+      "output_tokens_cap": 128,
+      "sample_output": "```json\n{\n    \"is_anomaly\": true,\n    \"event_type\": \"Normal\",\n    \"caption\": \"People walking and riding motorcycles on a busy street at night.\",\n    \"confidence\": 0.95\n}\n```"
+    },
+    {
+      "model_id": "HuggingFaceTB/SmolVLM2-2.2B-instruct",
+      "class": "SmolVLMForConditionalGeneration",
+      "ok": true,
+      "load_seconds": 760.8,
+      "load_vram_gb": 4.36,
+      "peak_vram_gb": 5.57,
+      "peak_vram_after_load_gb": 4.36,
+      "runs": [
+        30.71,
+        30.65,
+        34.19
+      ],
+      "mean_s_per_window": 31.85,
+      "median_s_per_window": 30.71,
+      "output_tokens_cap": 128,
+      "sample_output": "{\n  \"is_anomaly\": true,\n  \"event_type\": \"Abuse\",\n  \"caption\": \"Abuse\",\n  \"confidence\": 0.9999999999999997\n}"
+    }
+  ]
+}
