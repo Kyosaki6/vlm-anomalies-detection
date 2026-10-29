@@ -1,0 +1,6 @@
+video_id,event_type,start_s,end_s,staged,consent,source,valid_for_e3,notes
+own_normal_01,Normal,,,false,,stock_preview,false,iStock preview; HCMC traffic; copyright metadata author Witthaya
+own_normal_02,Normal,,,false,,stock_preview,false,iStock preview; aerial traffic circle; copyright metadata author kwhi02
+own_fight_01,Unknown,,,false,,stock_preview,false,birds fighting on the ground; NOT a human event; iStock watermark
+own_steal_01,Robbery,1.0,8.0,false,,stock_preview,false,bag snatch by force; identifiable people; iStock watermark
+own_vandalism_01,Vandalism,0.0,16.0,false,,stock_preview,false,aftermath only: bins already knocked over; no actor visible; iStock watermark
