@@ -11,7 +11,7 @@ Các mô hình nhúng đa phương thức dạng hai nhánh (dual-encoder) ánh 
 
 ### Phương pháp giám sát yếu (Weakly-Supervised VAD)
 Các phương pháp giám sát yếu chỉ sử dụng nhãn cấp video (video bình thường hoặc video có chứa bất thường) trong quá trình huấn luyện, không có mốc thời gian chính xác từng khung hình.
-- Tiêu biểu là phương pháp **RTFM (Robust Temporal Feature Magnitude)** [Tian et al., ICCV 2021 [CẦN KIỂM TRA]]. RTFM tận dụng độ lớn vector đặc trưng để phân biệt phân đoạn bất thường và đạt ROC-AUC khoảng 84% đến 86% trên tập UCF-Crime.
+- Tiêu biểu là phương pháp **RTFM (Robust Temporal Feature Magnitude)** [Tian et al., ICCV 2021 [CẦN KIỂM TRA]]. RTFM tận dụng độ lớn vector đặc trưng để phân biệt phân đoạn bất thường và đạt ROC-AUC khoảng 84% trên tập UCF-Crime với đặc trưng I3D [CẦN KIỂM TRA con số chính xác và biến thể backbone].
 - Mặc dù đạt độ chính xác cao, các phương pháp này yêu cầu tập huấn luyện lớn và không thể tổng quát hóa tốt khi gặp các dạng bất thường mới chưa từng xuất hiện.
 
 ### Phương pháp không cần huấn luyện và Zero-Shot (Zero-Shot VAD)

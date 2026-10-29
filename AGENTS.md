@@ -2,15 +2,6 @@
 
 **Updated:** 2026-10-28 · **Branch:** main · Plan: `notes/2026-10-28-plan-zero-shot-video-vad.md`
 
-## READ FIRST (MANDATORY, before any edit, test run, or delegation)
-**Read `notes/2026-10-29-day1-tasks.md` in full before doing any work in this repo.** It is the newest task sheet:
-per-task status (`[x]`/`[~]`/`[ ]`), who owns which file, frozen contracts, shared-file rules (section 6.1),
-the shard command contract (6.6) and the critical path (6.7). The plan and this file can be older than it.
-- Do not start a task until you have found its row there and know its owner, its "may edit" and "do not touch" files.
-- If the sheet and your instruction disagree, stop and say so; do not pick silently.
-- Delegating to a subagent: tell it to read that file first too.
-- Day-1 sheet carries Day-1 status only. For later days also read the newest `notes/*-tasks.md` if one exists.
-
 ## OVERVIEW
 Two codebases live in one repo:
 

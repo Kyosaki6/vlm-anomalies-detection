@@ -39,14 +39,14 @@ Audit of the zero-shot evaluation protocol in **LAVAD** (CVPR 2024: *"Harnessing
   4. **No Bootstrap CI:** LAVAD does not compute bootstrap confidence intervals; our benchmark harness (`scripts/run_benchmark.py`) computes micro-AUC matching LAVAD plus video-level bootstrap CI.
 - **Source Citation (Repository Code):**
   - File: [`src/eval.py`](https://github.com/lucazanella/lavad/blob/main/src/eval.py)
-    - Lines 116–117: `flat_scores = []`, `flat_labels = []`
-    - Lines 149–152:
+    - Lines 117–118: `flat_scores = []`, `flat_labels = []`
+    - Lines 149–152 (grep-verified `flat_scores = []` at 117, `flat_labels = []` at 118):
       ```python
       flat_scores.extend(video_scores)
       if not without_labels:
           flat_labels.extend(video_labels)
       ```
-    - Lines 169–174:
+    - Lines 171–176:
       ```python
       flat_scores = np.array(flat_scores)
       flat_labels = np.array(flat_labels)
@@ -71,12 +71,12 @@ Resolves the open question in `AGENTS.md` (*"UCF-Crime annotation segments assum
         frame_label = label
     ```
     (Uses `<=` on both ends; inclusive boundary check).
-  - [`src/data/video_record.py:12-30`](https://github.com/lucazanella/lavad/blob/main/src/data/video_record.py#L12-L30):
+  - [`src/data/video_record.py:14,29`](https://github.com/lucazanella/lavad/blob/main/src/data/video_record.py#L14):
     Docstring states: `3) The third element is the inclusive ending frame id of the video`.
-    Line 30: `num_frames = self.end_frame - self.start_frame + 1 # +1 because end frame is inclusive`.
-  - [`src/preprocessing/extract_frames.py:20,26,44`](https://github.com/lucazanella/lavad/blob/main/src/preprocessing/extract_frames.py#L20):
-    Line 20: `frame_count = 0` (0-indexed frames `000000.jpg`).
-    Line 44: `f.write(f"{video_name} 0 {num_frames - 1} 0\n")` (defines `start_frame=0`, `end_frame=num_frames - 1`).
+    Line 29: `num_frames = self.end_frame - self.start_frame + 1 # +1 because end frame is inclusive`.
+  - [`src/preprocessing/extract_frames.py:16,43`](https://github.com/lucazanella/lavad/blob/main/src/preprocessing/extract_frames.py#L16):
+    Line 16: `frame_count = 0` (0-indexed frames `000000.jpg`).
+    Line 43: `f.write(f"{video_name} 0 {num_frames - 1} 0\n")` (defines `start_frame=0`, `end_frame=num_frames - 1`).
   - [`slurm/ucf_crime/07_eval.sh:18`](https://github.com/lucazanella/lavad/blob/main/slurm/ucf_crime/07_eval.sh#L18):
     `video_fps=30`.
 
@@ -90,9 +90,9 @@ Resolves the open question in `AGENTS.md` (*"UCF-Crime annotation segments assum
   - Paper Section 4 *"Implementation Details"* ([arXiv:2404.01014v1#S4.SS1](https://arxiv.org/html/2404.01014v1#S4.SS1)):
     > *"We sample each video every 16 frames for computational efficiency."*
   - [`slurm/ucf_crime/07_eval.sh:16`](https://github.com/lucazanella/lavad/blob/main/slurm/ucf_crime/07_eval.sh#L16): `frame_interval=16`.
-  - [`src/eval.py:76,147`](https://github.com/lucazanella/lavad/blob/main/src/eval.py#L76):
-    Line 76: `scores = np.repeat(scores, frame_interval)`
-    Line 147: `video_scores = video_scores[: video.num_frames]`
+  - [`src/eval.py:78,146`](https://github.com/lucazanella/lavad/blob/main/src/eval.py#L78):
+    Line 78: `scores = np.repeat(scores, frame_interval)`
+    Line 146: `video_scores = video_scores[: video.num_frames]`
 
 ---
 
@@ -103,6 +103,6 @@ Resolves the open question in `AGENTS.md` (*"UCF-Crime annotation segments assum
 | **ZS-CLIP Prompts** | `"a standard scene"` vs `"a scene with suspicious or potentially criminal activities"` | Paper Sec. 4.1 | Matches `configs/prompts.yaml` (`detection.baseline`) |
 | **CLIP Backbone** | `ViT-B/32` (`openai/clip-vit-base-patch32`) | Paper Sec. 4.1 | Used in `scripts/precompute_embeddings.py` |
 | **Score Metric** | Softmax probability on cosine similarities | Paper Sec. 4.1 | Implemented in `vad/score/text.py` |
-| **AUC Aggregation** | **Micro-pooled** across all frames | `src/eval.py:149-174` | `scripts/run_benchmark.py` MUST pool all frames |
+| **AUC Aggregation** | **Micro-pooled** across all frames | `src/eval.py:149-176` | `scripts/run_benchmark.py` MUST pool all frames |
 | **Annotation Boundary** | **Inclusive** `[start, end]`, **0-indexed** | `src/eval.py:43`, `video_record.py:30` | Validates `vad/datasets/ucf_crime.py` |
 | **Target AUC** | **53.16%** on UCF-Crime test set | Paper Table 1 | Gate A0 reproduction target (~53.2 AUC) |

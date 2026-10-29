@@ -20,7 +20,7 @@ Video gốc ──> Trích xuất khung hình (1 - 2 fps)
           Xử lý chuỗi thời gian (Temporal Operations)
           - Chuẩn hóa nội tại video (robust_normalize: median / MAD)
           - Gom cụm cửa sổ (top-k pooling)
-          - Làm mịn chuỗi điểm (EMA + Median filter)
+          - Làm mịn chuỗi điểm (EMA hoặc Median filter, chọn một)
           - Trích xuất cửa sổ ứng viên (Candidate Windows: score > ngưỡng tau)
                     │
                     ▼
@@ -44,33 +44,35 @@ Video gốc ──> Trích xuất khung hình (1 - 2 fps)
 - Bộ trích xuất khung hình (`vad/io/video.py`) duyệt tuần tự video bằng OpenCV grab theo chu kỳ cố định (mặc định 1 đến 2 fps), giúp tiết kiệm thời gian giải mã so với việc đọc toàn bộ từng frame vào bộ nhớ RAM.
 - Bộ mã hóa (`vad/embed/siglip.py`) thiết kế hỗ trợ đa mô hình (model-generic), nạp được cả `google/siglip2-base-patch16-384` (độ dài padding 64) và `openai/clip-vit-base-patch32` (độ dài token 77).
 - Cơ chế tiền xử lý cho phép trích xuất đặc trưng cho cả SigLIP 2 và CLIP ViT-B/32 chỉ qua một lượt giải mã video duy nhất.
-- Vector đặc trưng được chuẩn hóa chuẩn L2 và lưu trữ nguyên tử (atomic write) dưới định dạng nhị phân `.npy` (nửa chính xác float16) tại thư mục `cache/embeddings/`. Khóa tệp được định danh duy nhất theo cú pháp: `{model_id}_{video_id}_{sample_fps}.npy`. Cơ chế này hỗ trợ dừng và chạy lại (resumable) mà không phải tính toán lặp lại.
+- Vector đặc trưng được chuẩn hóa chuẩn L2 và lưu trữ nguyên tử (atomic write) dưới định dạng nhị phân `.npy` (nửa chính xác float16) tại thư mục `cache/embeddings/`. Khóa tệp được định danh duy nhất theo cú pháp: `<model_slug>__<video_id>__fps<sample_fps>.npy`. Cơ chế này hỗ trợ dừng và chạy lại (resumable) mà không phải tính toán lặp lại.
 
 ### 3.2.2. Chấm điểm bằng Prompt khái quát (Generic-Prompt Scoring)
 Để phát hiện bất thường mà không làm rò rỉ thông tin phân lớp, prompt phát hiện tuyệt đối không chứa tên của 13 loại hành vi trong tập kiểm thử. Điểm số văn bản được tính dựa trên độ tương đồng cosine giữa vector ảnh $v$ và các vector văn bản:
 - Tập prompt bình thường ($T_{norm}$): gồm các mô tả khái quát như "a normal everyday scene", "a surveillance camera view of a peaceful scene".
 - Tập prompt bất thường ($T_{abn}$): gồm các mô tả như "a scene with suspicious or potentially criminal activities", "a surveillance camera view of a dangerous or violent incident".
 - Điểm dị biệt văn bản là xác suất softmax hai lớp giữa trung bình cosine của tập bất thường so với tập bình thường:
-  $$s_{text}(t) = \frac{\exp(\cos(v_t, \bar{T}_{abn}) / \tau_{temp})}{\exp(\cos(v_t, \bar{T}_{abn}) / \tau_{temp}) + \exp(\cos(v_t, \bar{T}_{norm}) / \tau_{temp})}$$
+  $$s_{text}(t) = \sigma\big(\lambda \cdot (\cos(v_t, \bar{T}_{abn}) - \cos(v_t, \bar{T}_{norm}))\big)$$
+  với $\sigma$ là hàm sigmoid (tương đương softmax hai lớp) và $\lambda$ là `logit_scale` (mặc định 100 trong `vad/score/text.py`). Bài báo LAVAD không nêu hệ số này cho ZS-CLIP, nên cổng A0 phải kiểm tra ảnh hưởng của $\lambda$.
 
 ### 3.2.3. Chấm điểm qua bộ nhớ cảnh bình thường (Normal Memory Bank)
 Với các camera cố định, hệ thống duy trì một ngân hàng vector đặc trưng đại diện cho các khung hình bình thường được ghi nhận trước đó ($M = \{m_1, m_2, \dots, m_K\}$). Điểm dị biệt bộ nhớ được tính bằng khoảng cách cosine đến khung hình bình thường giống nhất:
 $$s_{mem}(t) = 1 - \max_{j} \cos(v_t, m_j)$$
-Điểm tổng hợp Tầng 1 là tổ hợp tuyến tính giữa điểm văn bản và điểm bộ nhớ:
-$$s_{raw}(t) = \alpha \cdot s_{text}(t) + (1 - \alpha) \cdot s_{mem}(t)$$
+Điểm văn bản (xác suất, thang 0..1) và điểm bộ nhớ ($1 - \cos$) khác thang đo nên KHÔNG cộng trực tiếp. `vad/pipeline.py` chuẩn hoá từng điểm theo video rồi mới kết hợp tuyến tính (bật bằng `use_memory`, bắt buộc kèm `per_video_norm`):
+$$s(t) = (1 - w) \cdot \hat{s}_{text}(t) + w \cdot \hat{s}_{mem}(t)$$
+với $w$ là `memory_weight` (mặc định 0.5).
 
 ## 3.3. Xử lý chuỗi thời gian (Temporal Operations)
 
-Điểm thô $s_{raw}(t)$ thường chứa nhiều gai nhiễu do dao động ánh sáng tức thời hoặc chuyển động ngẫu nhiên của cảm biến. Module `vad/temporal/ops.py` thực hiện chuỗi biến đổi tuần tự:
+Điểm thô $s(t)$ thường chứa nhiều gai nhiễu do dao động ánh sáng tức thời hoặc chuyển động ngẫu nhiên của cảm biến. Module `vad/temporal/ops.py` thực hiện chuỗi biến đổi tuần tự:
 
 1. **Chuẩn hóa nội tại theo video (`robust_normalize`):**
    Thay vì dùng giá trị cực đại min-max toàn cục dễ bị phá vỡ bởi các điểm ngoại lai (outliers), hệ thống chuẩn hóa bằng trung vị (median) và độ lệch tuyệt đối trung vị (MAD - Median Absolute Deviation):
-   $$\hat{s}(t) = \frac{s_{raw}(t) - \text{median}(s)}{\text{MAD}(s) + \epsilon}$$
+   $$\hat{s}(t) = \frac{s(t) - \text{median}(s)}{1.4826 \cdot \text{MAD}(s) + \epsilon}$$
    Biến đổi này đưa phân phối điểm của các video có độ sáng và nền cảnh khác nhau về cùng một thước đo so sánh.
 2. **Gom cụm theo cửa sổ thời gian (Top-k Window Pooling):**
    Trong một cửa sổ quan sát kích thước $W$ khung hình quanh thời điểm $t$, hệ thống lấy giá trị trung bình của $k$ giá trị cao nhất ($k \le W$). Kỹ thuật này giữ được tín hiệu bất thường kéo dài và triệt tiêu xung nhiễu xuất hiện ở đúng một khung hình duy nhất.
 3. **Làm mịn chuỗi thời gian (Median Filter & EMA):**
-   Áp dụng bộ lọc trung vị với kích thước hạt nhỏ để loại bỏ các điểm nhảy đột ngột, tiếp nối bằng lọc trung bình trượt hàm mũ (Exponential Moving Average - EMA) nhằm tạo đường cong điểm số liên tục, mượt mà.
+   Chọn MỘT trong hai (`PipelineConfig.smoothing`): bộ lọc trung vị (`median`, loại điểm nhảy đột ngột) hoặc trung bình trượt hàm mũ (`ema`, Exponential Moving Average). Cấu hình A4/A5 dùng `ema`. Không xếp chồng cả hai.
 4. **Trích xuất cửa sổ ứng viên (Candidate Windows):**
    Các đoạn thời gian liên tục có điểm số vượt ngưỡng $\tau$ (với thời lượng tối thiểu $L_{min}$) được đóng gói thành các cửa sổ ứng viên `[start_sec, end_sec]`. Các cửa sổ gần nhau trong khoảng cách cho phép được gộp lại để tránh phân mảnh cảnh báo.
 
@@ -116,7 +118,7 @@ Các cơ chế vận hành chính của đồ thị:
    Để tránh làm quá tải nhân viên điều hành, hệ thống áp dụng cơ chế đóng băng cảnh báo (`cooldown_s = 30.0` giây) cho cùng một loại sự kiện trên cùng một camera. Các cảnh báo xuất hiện cách nhau dưới khoảng trống ngắn (`merge_gap_s = 5.0` giây) được gom thành một sự cố duy nhất.
 4. **Đường dẫn giải thích (Explainability Path):**
    Mỗi cảnh báo tạo ra trên giao diện đều mang theo chuỗi giải thích rõ ràng về các mắt xích đã duyệt qua trên đồ thị, ví dụ:
-   `Fighting @ school_gate, night -> critical -> responders: [security, police] -> protocol: P-VIOLENCE`.
+   `Fighting @ school_gate, night -> critical -> responders: [security] -> protocol: P-VIOLENCE` (theo `configs/policy.yaml`).
 
 ## 3.7. Các nguyên tắc thiết kế chống sai lệch (Anti-Patterns)
 

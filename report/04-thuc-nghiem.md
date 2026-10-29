@@ -20,7 +20,7 @@ Hệ thống được phát triển và kiểm thử trên các cấu hình ph�
    - Nhãn mặt đất (Ground Truth) được biểu diễn dưới dạng các đoạn khung hình bất thường `[start_frame, end_frame]` (chuẩn hóa ở tốc độ 30 fps) theo tệp chú thích chính thức của UCF-Crime.
 2. **UCF-Crime Calib Normal (Tập hiệu chỉnh ngưỡng):**
    - Gồm khoảng 60 video bình thường lấy từ tập huấn luyện (train normal).
-   - Được dùng riêng biệt để tính toán phân phối điểm nền và xác định ngưỡng báo động $\tau$ ứng với mức ngân sách báo động giả mục tiêu (ví dụ FPR = 5%). Tuyệt đối không chạm vào tập kiểm thử để chọn ngưỡng.
+   - Được dùng riêng biệt để tính toán phân phối điểm nền và xác định ngưỡng báo động $\tau$ ứng với mức ngân sách báo động giả mục tiêu (ví dụ FPR = 5%, mức này là giả định chưa chốt). Tuyệt đối không chạm vào tập kiểm thử để chọn ngưỡng.
 3. **ShanghaiTech Campus (Mục tiêu mở rộng - Stretch Goal):**
    - Gồm 107 video kiểm thử tại 13 góc quay khuôn viên trường đại học.
    - Nếu điều kiện thời gian cho phép, tập này được đánh giá theo quy ước "training-free kết hợp khung hình tham chiếu bình thường". Nếu thiếu thời gian, báo cáo ghi rõ giới hạn kỹ thuật này.
@@ -29,7 +29,7 @@ Hệ thống được phát triển và kiểm thử trên các cấu hình ph�
 
 ### 4.1.3. Giao thức đánh giá (Evaluation Protocol)
 
-- **Frame-level Micro ROC-AUC:** Điểm bất thường sau khi nội suy về tốc độ khung hình gốc (`expand_to_frames`) được nối liền thành một chuỗi nhị phân liên tục trên toàn bộ 290 video kiểm thử. Diện tích dưới đường cong ROC (ROC-AUC) được tính trên toàn bộ chuỗi khung hình này theo đúng giao thức của các công trình công bố (LAVAD, RTFM).
+- **Frame-level Micro ROC-AUC:** Điểm bất thường sau khi nội suy về tốc độ khung hình gốc (`expand_to_frames`) được nối liền thành một chuỗi nhị phân liên tục trên toàn bộ 290 video kiểm thử. Diện tích dưới đường cong ROC (ROC-AUC) được tính trên toàn bộ chuỗi khung hình này theo đúng giao thức của LAVAD (`notes/lavad-protocol.md`: gộp mọi khung hình của mọi video rồi tính một AUC, không lấy trung bình theo video). Khác biệt cần lưu ý: LAVAD lấy mẫu mỗi 16 khung rồi lặp lại điểm, còn hệ thống này lấy mẫu 1 fps rồi dùng `expand_to_frames`.
 - **Khoảng tin cậy Bootstrap 95% theo Video:** Để phản ánh đúng sự biến động giữa các cảnh quay khác nhau, hệ thống thực hiện lấy mẫu lặp lại có hoàn lại 1000 lần trên cấp độ video (resampling over videos), sau đó tính khoảng tin cậy 95% CI cho ROC-AUC.
 - **Điểm chuẩn cổng kiểm chứng A0 (Validity Gate):** Chạy mô hình OpenAI CLIP ViT-B/32 với hai prompt cơ sở. Kết quả phải đạt xấp xỉ mốc 53.2% (+/- 3%) được công bố bởi LAVAD để chứng minh quy trình nạp nhãn và tính toán toán học không mắc lỗi lệch khung hình (off-by-one).
 
