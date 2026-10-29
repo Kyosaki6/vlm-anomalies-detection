@@ -34,12 +34,12 @@ def test_unimplemented_real_backends_fail_loudly():
 
     SigLIPEmbedder giờ đã là bản thật: nó không còn NotImplementedError, nhưng input rỗng vẫn phải
     raise (không được im lặng trả mảng (0,0) rồi để lỗi nổ ở chỗ khác khó hiểu hơn).
-    VLMVerifier vẫn là stub của T2 -> NotImplementedError.
+    VLMVerifier đã nối model (A2): bỏ input rỗng -> ValueError; hết retry vẫn raise RuntimeError.
     """
     with pytest.raises(ValueError, match="rỗng"):
         SigLIPEmbedder(device="cpu").embed_images([])
-    with pytest.raises(NotImplementedError):
-        VLMVerifier("x").verify([], {})
+    with pytest.raises(ValueError, match="rỗng"):
+        VLMVerifier("x").verify([], {})               # không gọi model với đầu vào vô nghĩa
 
 
 def test_video_ref_is_frozen():

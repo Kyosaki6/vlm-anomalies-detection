@@ -1,18 +1,34 @@
 # -*- coding: utf-8 -*-
 """Tier-2: VLM sinh ngôn ngữ THẬT (track T2, Phước). Bắt buộc theo đề tài đã đăng ký.
 
-Việc cần làm (chưa làm, KHÔNG giả vờ có):
-  1. Chọn model (ứng viên lớp 2-3B, 4-bit, <6 GB VRAM — phải ĐO, không đoán); ghi quyết định vào notes/.
-  2. Prompt lấy từ configs/prompts.yaml (khoá `verifier`); ép JSON, parse bằng `parse_verifier_json`.
-  3. Ghi kết quả mỗi Window ra file riêng để chạy lại được (Colab có thể rớt).
+Trạng thái:
+  - [x] `parse_verifier_json` (hành vi giữ nguyên — hợp đồng với A3/C7).
+  - [x] A2: `VLMVerifier.verify` thật — prompt từ configs/prompts.yaml (khoá `verifier`),
+        1 lần retry khi JSON hỏng, lần 2 -> RuntimeError (KHÔNG bao giờ trả kết quả bịa).
+  - [x] A1 đã chọn model (notes/vlm-selection.md, đo trên Colab T4):
+        Qwen/Qwen2.5-VL-3B-Instruct, 4-bit nf4, 4 khung 320x240 native, greedy, max_new_tokens=128.
+        Nạp model lazy (chỉ khi verify thật chạy); test dùng mock runner, không tải model.
+  - Còn (A3): ghi mỗi Window ra file riêng để chạy lại được (scripts/run_verify.py).
 """
 from __future__ import annotations
 
 import json
 import re
-from typing import Any, Sequence
+from pathlib import Path
+from typing import Any, Callable, Sequence
+
+import yaml
 
 from vad.types import EventType, VerifyResult
+
+DEFAULT_PROMPTS = Path(__file__).resolve().parents[2] / "configs" / "prompts.yaml"
+
+# Kết quả A1redo (notes/vlm-selection.md): T4 median 4.45 s/cửa sổ, peak 2.93 GB, parse 16/16.
+# Qwen2-VL-2B bị loại (echo template `true|false`, 2/16 parse); SmolVLM2 crash generate.
+DEFAULT_MODEL_ID = "Qwen/Qwen2.5-VL-3B-Instruct"
+
+# runner(system, user, frames) -> text thô từ model. Test tiêm bản mock; bản thật lazy-load model.
+Runner = Callable[[str, str, Sequence[Any]], str]
 
 
 def parse_verifier_json(raw: str) -> VerifyResult:
@@ -41,11 +57,163 @@ def parse_verifier_json(raw: str) -> VerifyResult:
     )
 
 
+def load_verifier_prompt(path: str | Path = DEFAULT_PROMPTS) -> tuple[str, str]:
+    """Đọc khối `verifier` từ prompts.yaml -> (system, user). Thiếu khoá -> ValueError."""
+    with open(path, encoding="utf-8-sig") as f:
+        prompts = yaml.safe_load(f)
+    block = (prompts or {}).get("verifier")
+    if not isinstance(block, dict) or "system" not in block or "user" not in block:
+        raise ValueError(f"prompts.yaml thiếu khối 'verifier' (cần 'system' + 'user'): {path}")
+    return str(block["system"]), str(block["user"])
+
+
+def _context_line(context: dict) -> str:
+    """Gói ngữ cảnh cửa sổ (video, khoảng giây) thành 1 dòng cho prompt. Bỏ giá trị rỗng."""
+    parts = []
+    if context.get("video_id"):
+        parts.append(f"video_id={context['video_id']}")
+    if context.get("start_s") is not None and context.get("end_s") is not None:
+        parts.append(f"window={context['start_s']}s..{context['end_s']}s")
+    return " | ".join(parts)
+
+
 class VLMVerifier:
-    def __init__(self, model_id: str, device: str | None = None, quantization: str = "4bit"):
+    """Verifier tier-2 thật: frames + prompt `verifier` -> model sinh JSON -> VerifyResult.
+
+    Tham số:
+      model_id     HF id (mặc định = model đã đo ở A1; T4 dùng cùng model, code không đổi).
+      runner       tiêm callable (system, user, frames) -> text. None = lazy-load model thật
+                   (yêu cầu requirements-vlm.txt + GPU; test KHÔNG đi đường này).
+      max_attempts số lần thử parse (mặc định 2 = 1 retry theo spec A2).
+
+    Luôn raise khi không parse được — KHÔNG BAO GIỜ trả kết quả bịa.
+    """
+
+    def __init__(
+        self,
+        model_id: str = DEFAULT_MODEL_ID,
+        device: str | None = None,
+        quantization: str = "4bit",
+        runner: Runner | None = None,
+        prompts_path: str | Path = DEFAULT_PROMPTS,
+        max_attempts: int = 2,
+        max_new_tokens: int = 128,
+        model: Any = None,
+        processor: Any = None,
+    ):
+        if max_attempts < 1:
+            raise ValueError(f"max_attempts phải >= 1, nhận {max_attempts}")
+        if quantization not in ("4bit", "none"):
+            raise ValueError(f"quantization không hỗ trợ: {quantization!r} (chỉ '4bit' | 'none')")
         self.model_id = model_id
         self.device = device
         self.quantization = quantization
+        self.prompts_path = Path(prompts_path)
+        self.max_attempts = max_attempts
+        self.max_new_tokens = max_new_tokens
+        self._runner = runner
+        self._model = model
+        self._processor = processor
+
+    # ---- runner thật (lazy; import nặng chỉ xảy ra ở đây, test không đụng tới) ----
+
+    def _default_runner(self, system: str, user: str, frames: Sequence[Any]) -> str:
+        if self._model is None or self._processor is None:
+            self._load_model()
+        import torch
+
+        content: list[dict] = [{"type": "image"} for _ in frames]
+        content.append({"type": "text", "text": user})
+        messages = [
+            {"role": "system", "content": system},      # string, đúng đường đã đo ở A1
+            {"role": "user", "content": content},
+        ]
+        text = self._processor.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
+        )
+        target = self.device or self._model.device
+        inputs = self._processor(
+            text=[text], images=list(frames), return_tensors="pt"
+        ).to(target)
+        with torch.inference_mode():
+            out = self._model.generate(
+                **inputs, max_new_tokens=self.max_new_tokens, do_sample=False
+            )
+        gen = out[0][inputs["input_ids"].shape[1]:]
+        return self._processor.batch_decode([gen], skip_special_tokens=True)[0]
+
+    def _load_model(self) -> None:
+        """Nạp VLM lazy, cache lại. quantization='4bit' -> nf4 trên CUDA; 'none' -> fp16/fp32."""
+        import torch
+        import transformers
+
+        # Class theo gia đình model — Auto* không luôn map đúng VLM (xem scripts/bench_vlm.py).
+        by_family = {
+            "qwen2-vl": transformers.Qwen2VLForConditionalGeneration,
+            "qwen2.5-vl": transformers.Qwen2_5_VLForConditionalGeneration,
+            "smolvlm": transformers.SmolVLMForConditionalGeneration,
+        }
+        cls = next(
+            (m for name, m in by_family.items() if name in self.model_id.lower()),
+            None,
+        )
+        if cls is None:
+            cls = transformers.AutoModelForImageTextToText
+        self._processor = self._processor or transformers.AutoProcessor.from_pretrained(self.model_id)
+        if self._model is not None:
+            return
+        if self.quantization == "4bit":
+            if not torch.cuda.is_available():
+                raise RuntimeError(
+                    "quantization='4bit' cần CUDA; truyền quantization='none' "
+                    "để chạy fp16/fp32 (VLMVerifier không tự chạy 4-bit trên CPU)"
+                )
+            self._model = cls.from_pretrained(
+                self.model_id,
+                quantization_config=transformers.BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_compute_dtype=torch.float16,
+                    bnb_4bit_quant_type="nf4",
+                ),
+                device_map="cuda",
+                torch_dtype=torch.float16,
+                attn_implementation="sdpa",
+            )
+        else:
+            self._model = cls.from_pretrained(
+                self.model_id,
+                device_map="cuda" if torch.cuda.is_available() else "cpu",
+                torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
+                attn_implementation="sdpa",
+            )
+        self._model.eval()
+
+    # ---- contract ----
 
     def verify(self, frames: Sequence[Any], context: dict) -> VerifyResult:
-        raise NotImplementedError("VLMVerifier.verify: chưa nối model (việc của T2, Phước)")
+        """frames: vài khung đại diện của Window. context: {'video_id', 'start_s', 'end_s', ...}.
+
+        Parse hỏng ở lần thử cuối -> RuntimeError (retry 1 lần theo spec A2; không bịa kết quả).
+        """
+        if not frames:
+            raise ValueError("verify cần ít nhất 1 frame (danh sách rỗng)")
+        if not isinstance(context, dict):
+            raise TypeError(f"context phải là dict, nhận {type(context).__name__}")
+        system, user = load_verifier_prompt(self.prompts_path)
+        line = _context_line(context)
+        if line:
+            user = f"{user}\nContext: {line}"
+
+        run = self._runner or self._default_runner
+        last_err: ValueError | None = None
+        for attempt in range(1, self.max_attempts + 1):
+            raw = run(system, user, frames)
+            try:
+                return parse_verifier_json(raw)
+            except ValueError as e:
+                last_err = e
+                print(f"[VLMVerifier] lần {attempt}/{self.max_attempts} parse hỏng: {e}")
+        raise RuntimeError(
+            f"VLMVerifier không parse được JSON sau {self.max_attempts} lần "
+            f"(model={self.model_id}): {last_err}"
+        ) from last_err
