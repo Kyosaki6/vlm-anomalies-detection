@@ -1,65 +1,113 @@
 # -*- coding: utf-8 -*-
-"""Dashboard (English UI) — chế độ REPLAY: đọc kết quả đã tính sẵn, không cần GPU hay tải model.
+"""Dashboard (English UI) — chế độ REPLAY: đọc kết quả đã tính sẵn trong results/, không cần GPU hay model.
 
-    streamlit run app/streamlit_app.py
+    streamlit run app/streamlit_app.py              # đọc results/*.json
+    streamlit run app/streamlit_app.py -- --demo    # dữ liệu GIẢ có banner (không cần results/)
+    VAD_DEMO=1 streamlit run app/streamlit_app.py   # như trên, bằng biến môi trường
 
-Skeleton này chạy trên dữ liệu GIẢ để track T5 (Thịnh) dựng UI ngay; thay `load_demo_run` bằng đọc từ results/.
+Dữ liệu giả CHỈ xuất hiện khi bật --demo, và luôn có banner. File kết quả có `metadata.note`
+(vd `results/sample_run.json`) cũng hiện banner với nội dung nguyên văn.
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
 import streamlit as st  # noqa: E402
 
-from vad.fakes import FakeVerifier  # noqa: E402
-from vad.graph.policy import GraphPolicy  # noqa: E402
-from vad.temporal.ops import candidate_windows, ema, robust_normalize  # noqa: E402
-from vad.types import EventType  # noqa: E402
+import data  # noqa: E402
+from vad.results import DEFAULT_RESULTS_DIR  # noqa: E402
 
 
-def load_demo_run(seed: int = 0, seconds: int = 120, fps: float = 1.0):
-    """DỮ LIỆU GIẢ: nền nhiễu + một đoạn cao. TODO(T5): đọc scores/captions/alerts từ results/."""
-    rng = np.random.default_rng(seed)
-    scores = rng.normal(0.0, 1.0, int(seconds * fps))
-    scores[45:60] += 4.0
-    return scores, fps
+def demo_requested(argv: list[str] | None = None) -> bool:
+    args = sys.argv[1:] if argv is None else argv
+    return "--demo" in args or os.environ.get("VAD_DEMO", "").strip() not in ("", "0")
+
+
+def _timeline_chart(run, threshold: float):
+    import altair as alt
+
+    t, s = data.timeline(run)
+    df = pd.DataFrame({"time (s)": t, "score": s})
+    line = alt.Chart(df).mark_line().encode(x="time (s)", y="score")
+    rule = alt.Chart(pd.DataFrame({"y": [threshold]})).mark_rule(color="red", strokeDash=[6, 4]).encode(y="y")
+    return line + rule
 
 
 def main() -> None:
     st.set_page_config(page_title="Zero-Shot Video Anomaly Alerting", layout="wide")
     st.title("Zero-Shot Video Anomaly & Surveillance Alerting")
-    st.caption("Replay mode: showing precomputed results. DEMO DATA — placeholder until real runs are wired in.")
+    st.caption("Replay mode: showing precomputed results from results/. No model runs here.")
+
+    demo = demo_requested()
+    results_dir = Path(os.environ.get("VAD_RESULTS_DIR", DEFAULT_RESULTS_DIR))
 
     with st.sidebar:
         st.header("Settings")
-        zone = st.selectbox("Zone", ["default", "school_gate", "market", "highway", "parking_lot"])
-        hour = st.slider("Hour of day", 0, 23, 22)
-        threshold = st.slider("Anomaly threshold (z-score)", 0.0, 6.0, 2.5, 0.1)
+        if demo:
+            run = data.demo_run()
+        else:
+            ids = data.list_video_ids(results_dir)
+            if not ids:
+                st.error(f"No result files in {results_dir}. Run the pipeline or start with `-- --demo`.")
+                st.stop()
+            video_id = st.selectbox("Video", ids)
+            try:
+                run = data.load_run(video_id, results_dir)
+            except (ValueError, FileNotFoundError) as e:
+                st.error(f"Cannot load {video_id}: {e}")
+                st.stop()
+        lo, hi = (float(min(run.anomaly_scores, default=0.0)), float(max(run.anomaly_scores, default=1.0)))
+        hi = max(hi, lo + 1e-6)
+        threshold = st.slider("Score threshold", lo, hi, (lo + hi) / 2, (hi - lo) / 100)
+        min_sev = st.selectbox("Minimum severity", ["low", "medium", "high", "critical"])
 
-    scores, fps = load_demo_run()
-    smooth = ema(robust_normalize(scores), alpha=0.4)
+    if data.is_demo(run):
+        st.warning(data.DEMO_NOTE)
+    elif data.is_placeholder(run):
+        st.warning(f"Placeholder result: {data.run_note(run)}")
+
+    meta = run.metadata
+    c1, c2, c3, c4 = st.columns(4)
+    c1.metric("Video", run.video_id)
+    c2.metric("Duration", f"{data.duration_s(run):.0f} s")
+    c3.metric("Crossings >= threshold", data.threshold_crossings(run, threshold))
+    c4.metric("Alerts", len(run.alerts))
+    st.caption(f"model: {meta.get('model', '?')} · commit: {meta.get('commit', '?')} · "
+               f"run at: {meta.get('timestamp', '?')} · sample_fps: {run.sample_fps:g}")
+
     st.subheader("Anomaly score timeline")
-    st.line_chart(smooth)
+    st.altair_chart(_timeline_chart(run, threshold), use_container_width=True)
 
-    windows = candidate_windows(smooth, sample_fps=fps, threshold=threshold, video_id="demo_video")
+    st.subheader("Candidate windows (tier 1) and verification (tier 2)")
+    rows = []
+    for w, v in data.detections(run):
+        rows.append({"start (s)": w.start_s, "end (s)": w.end_s, "tier-1 score": round(w.score, 3),
+                     "VLM verdict": "not verified" if v is None else ("anomaly" if v.is_anomaly else "normal"),
+                     "type": "" if v is None else v.event_type.value,
+                     "confidence": None if v is None else v.confidence,
+                     "caption": "" if v is None else v.caption})
+    if rows:
+        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+    else:
+        st.info("No candidate windows in this run.")
+
     st.subheader("Alerts")
-    if not windows:
-        st.info("No suspicious window above the threshold.")
-    policy, verifier = GraphPolicy(), FakeVerifier(EventType.FIGHTING)
-    for w in windows:
-        alert = policy.to_alert(w, verifier.verify([], {"video_id": w.video_id}), zone=zone, hour=hour)
-        if alert is None:
-            continue
+    alerts = data.alerts_by_severity(run.alerts, min_sev)
+    if not alerts:
+        st.info("No alerts at this severity." if run.alerts else "No alerts in this run.")
+    for a in alerts:
         with st.container(border=True):
-            st.markdown(f"**{alert.event_type.value}** · severity **{alert.severity}** · "
-                        f"{alert.start_s:.0f}s–{alert.end_s:.0f}s")
-            st.write(f"Responders: {', '.join(alert.responders) or '—'} · Protocol: {alert.protocol}")
-            st.write(f"VLM caption: {alert.caption}")
-            st.caption("Why: " + " → ".join(alert.path))
+            st.markdown(f"**{a.event_type.value}** · severity **{a.severity}** · {a.start_s:.0f}s–{a.end_s:.0f}s"
+                        f"{' · camera ' + a.camera if a.camera else ''}")
+            st.write(f"Responders: {', '.join(a.responders) or '—'} · Protocol: {a.protocol}")
+            st.write(f"VLM caption: {a.caption or '—'} (confidence {a.confidence:.2f})")
+            st.caption("Why: " + " → ".join(a.path))
 
 
 if __name__ == "__main__":
