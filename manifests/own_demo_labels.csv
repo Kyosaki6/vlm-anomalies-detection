@@ -1,6 +1,9 @@
 video_id,event_type,start_s,end_s
-own_normal_01,Normal,0.0,18.0
-own_normal_02,Normal,,
-own_steal_01,Robbery,1.0,8.0
+own_fight_01,Fighting,0.0,24.28
 own_fight_02,Fighting,0.8,12.68
 own_fight_03,Assault,8.0,15.4
+own_normal_01,Normal,0.0,18.0
+own_normal_02,Normal,,
+own_normal_03,Normal,,
+own_steal_01,Robbery,1.0,8.0
+own_vandalism_01,Vandalism,0.0,16.08
