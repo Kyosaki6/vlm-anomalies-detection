@@ -45,7 +45,7 @@ def _cfg(**kw) -> pl.PipelineConfig:
 
 
 def test_presets_cover_a0_to_a5_and_use_the_right_model():
-    assert list(pl.ABLATIONS) == ["A0", "A1", "A2", "A3", "A4", "A5"]
+    assert list(pl.ABLATIONS) == ["A0", "A1", "A2", "A3", "A4", "A5", "A3c", "A4c", "A5c"]
     assert pl.ABLATIONS["A0"].model_id == pl.CLIP_B32_ID
     assert all(c.model_id == pl.SIGLIP2_ID for k, c in pl.ABLATIONS.items() if k != "A0")
     a = pl.ABLATIONS
@@ -54,6 +54,11 @@ def test_presets_cover_a0_to_a5_and_use_the_right_model():
     assert a["A3"].per_video_norm and a["A3"].pool_window_s == 0 and a["A3"].smoothing == "none"
     assert a["A4"].pool_window_s > 0 and a["A4"].smoothing == "ema" and not a["A4"].use_memory
     assert a["A5"].use_memory
+    for k in ("A3", "A4", "A5"):
+        assert a[k].norm_ref == "video"
+        c = a[k + "c"]
+        assert c.norm_ref == "calib" and c.per_video_norm
+        assert replace(c, norm_ref="video") == a[k]          # biến thể c chỉ khác đúng nguồn thống kê
 
 
 @pytest.mark.parametrize("kw", [dict(prompt_set="x"), dict(smoothing="gauss"), dict(sample_fps=0.0),
@@ -195,3 +200,68 @@ def test_build_memory_bank_concat_and_subsample():
         pl.build_memory_bank([])
     with pytest.raises(ValueError):
         pl.build_memory_bank([a], max_frames=0)
+
+
+# --- chuẩn hoá bằng thống kê calib_normal (A3c..A5c) ------------------------------------------
+
+def test_norm_ref_validation():
+    with pytest.raises(ValueError, match="norm_ref"):
+        _cfg(per_video_norm=True, norm_ref="global")
+    with pytest.raises(ValueError, match="per_video_norm"):
+        _cfg(norm_ref="calib")                                  # calib mà không bật chuẩn hoá = cấu hình vô nghĩa
+
+def test_calib_norm_without_stats_raises_not_silently_per_video(prompts, clip):
+    frames, _ = clip
+    with pytest.raises(ValueError, match="calib_stats"):
+        pl.run_tier1(frames, *prompts, _cfg(per_video_norm=True, norm_ref="calib"))
+
+def test_calib_norm_uses_fixed_stats_and_keeps_cross_video_offset(prompts, clip):
+    frames, _ = clip
+    cfg = _cfg(per_video_norm=True, norm_ref="calib")
+    st = pl.CalibStats(text_median=0.4, text_mad=0.1)
+    r = pl.run_tier1(frames, *prompts, cfg, calib_stats=st)
+    np.testing.assert_allclose(r.scores, (r.text_scores - 0.4) / (1.4826 * 0.1 + 1e-8))
+    # video bất thường toàn khung (dịch điểm lên) vẫn cao hơn video bình thường: chuẩn hoá theo video sẽ xoá chênh lệch này
+    shifted = pl.run_tier1(frames, *prompts, cfg, calib_stats=pl.CalibStats(0.4, 0.1)).scores
+    other = pl.run_tier1(frames, *prompts, cfg, calib_stats=pl.CalibStats(0.2, 0.1)).scores
+    assert other.mean() > shifted.mean()
+    per_video = pl.run_tier1(frames, *prompts, _cfg(per_video_norm=True)).scores
+    assert abs(np.median(per_video)) < 1e-6 and abs(np.median(r.scores)) > 1e-3
+
+def test_calib_stats_text_matches_pooled_median_mad(prompts, clip):
+    frames, _ = clip
+    cfg = _cfg(per_video_norm=True, norm_ref="calib")
+    a, b = frames[:30], frames[30:]
+    st = pl.compute_calib_stats([a, b], *prompts, cfg)
+    pooled = np.concatenate([pl.run_tier1(v, *prompts, _cfg()).scores for v in (a, b)])
+    med = np.median(pooled)
+    assert st.text_median == pytest.approx(med)
+    assert st.text_mad == pytest.approx(np.median(np.abs(pooled - med)))
+    assert st.memory_median is None
+
+def test_calib_stats_memory_is_leave_one_video_out(prompts, clip):
+    frames, _ = clip
+    cfg = _cfg(per_video_norm=True, norm_ref="calib", use_memory=True)
+    a, b = frames[:30], frames[30:]
+    st = pl.compute_calib_stats([a, b], *prompts, cfg)
+    loo = np.concatenate([pl.memory_anomaly_scores(a, b), pl.memory_anomaly_scores(b, a)])
+    leaky = np.concatenate([pl.memory_anomaly_scores(v, np.concatenate([a, b])) for v in (a, b)])
+    assert st.memory_median == pytest.approx(np.median(loo))
+    assert np.median(leaky) == pytest.approx(0.0, abs=1e-9)    # nếu để video trong bank của chính nó, điểm sập về 0
+    assert st.memory_median > 1e-6
+
+def test_calib_stats_rejects_empty_and_single_video_memory(prompts, clip):
+    frames, _ = clip
+    cfg = _cfg(per_video_norm=True, norm_ref="calib", use_memory=True)
+    with pytest.raises(ValueError):
+        pl.compute_calib_stats([], *prompts, cfg)
+    with pytest.raises(ValueError, match="2 video"):
+        pl.compute_calib_stats([frames], *prompts, cfg)
+
+def test_calib_memory_run_needs_memory_stats(prompts, clip):
+    frames, bank = clip
+    cfg = _cfg(per_video_norm=True, norm_ref="calib", use_memory=True)
+    with pytest.raises(ValueError, match="memory"):
+        pl.run_tier1(frames, *prompts, cfg, normal_bank=bank[None], calib_stats=pl.CalibStats(0.4, 0.1))
+    ok = pl.run_tier1(frames, *prompts, cfg, normal_bank=bank[None], calib_stats=pl.CalibStats(0.4, 0.1, 0.2, 0.05))
+    assert np.isfinite(ok.scores).all()

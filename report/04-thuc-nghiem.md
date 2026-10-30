@@ -37,7 +37,6 @@ Hệ thống được phát triển và kiểm thử trên các cấu hình ph�
 
 Bảng dưới đây tổng hợp tiến trình cải thiện độ chính xác qua từng thành phần thiết kế. Các ô A0 - A3 là số liệu thật (chạy trên cache embedding, 290 video, 1.111.808 khung hình; `results/ablation_A*.json`). Các ô còn lại đánh dấu `TBD` chờ kết quả chạy.
 
-<!-- TODO(TH8): Cập nhật số liệu A4, A5 từ nhiệm vụ TH5 -->
 <!-- TODO(TH8): Cập nhật số liệu A6 từ nhiệm vụ TH7 và A5 -->
 
 | Mã | Biến thể thực nghiệm | Kiến trúc trích xuất | Kỹ thuật áp dụng | ROC-AUC (%) | 95% Bootstrap CI | Ghi chú kỹ thuật |
@@ -46,17 +45,22 @@ Bảng dưới đây tổng hợp tiến trình cải thiện độ chính xác 
 | **A1** | SigLIP 2 đơn khung | SigLIP 2 Base | 2 prompt cơ bản, chấm điểm từng khung độc lập | 65.87 | [57.93, 73.44] | So sánh trực tiếp backbone SigLIP 2 vs CLIP (+17.1 điểm so với A0) |
 | **A2** | + Prompt Ensemble | SigLIP 2 Base | Tổ hợp 4 prompt bình thường + 4 prompt bất thường | 72.39 | [64.14, 80.39] | Giảm độ nhạy với cách diễn đạt câu lệnh (+6.5 điểm so với A1) |
 | **A3** | + Chuẩn hóa video | SigLIP 2 Base | Thêm `robust_normalize` (median và MAD nội tại video) | 58.99 | [54.89, 63.24] | Micro AUC GIẢM 13.4 điểm so với A2 dù macro AUC giữ nguyên 64.12 (xem 4.2.2) |
-| **A4** | + Xử lý thời gian | SigLIP 2 Base | Thêm gom cụm top-k và làm mịn EMA/Median | TBD <!-- TODO(TH8): TH5 --> | [TBD, TBD] <!-- TODO(TH8): TH5 --> | Triệt tiêu gai nhiễu tức thời của khung đơn |
-| **A5** | + Bộ nhớ cảnh tĩnh | SigLIP 2 Base | Kết hợp điểm khoảng cách Normal Memory Bank | TBD <!-- TODO(TH8): TH5 --> | [TBD, TBD] <!-- TODO(TH8): TH5 --> | Tận dụng đặc trưng các khung hình bình thường |
+| **A4** | + Xử lý thời gian | SigLIP 2 Base | Thêm gom cụm top-k và làm mịn EMA/Median | 58.41 | [53.51, 63.42] | Macro 63.35. Micro giảm 0.6 và macro giảm 0.8 so với A3 (58.99 / 64.12), cả hai nằm trong nhiễu. Top-k và EMA chưa cứu được micro AUC bị chuẩn hóa theo video làm mất (xem 4.2.2) |
+| **A5** | + Bộ nhớ cảnh tĩnh | SigLIP 2 Base | Kết hợp điểm khoảng cách Normal Memory Bank | 57.08 | [52.14, 62.28] | Macro 58.87. Memory bank từ `calib_normal` (trọng số 0.5) KHÔNG cải thiện: micro -1.3, macro -4.5 so với A4. Báo cáo trung thực là kết quả âm |
+| **A3c** | A3 chuẩn hóa theo `calib_normal` | SigLIP 2 Base | Như A3 nhưng median/MAD cố định tính trên 60 video `calib_normal` (gộp khung hình) | 72.39 | [64.14, 80.39] | Bằng đúng A2: phép biến đổi affine toàn cục là đơn điệu nên không đổi AUC. Giữ được chênh lệch giữa các video (xem 4.2.2) |
+| **A4c** | A4 chuẩn hóa theo `calib_normal` | SigLIP 2 Base | Như A4 với thống kê calib cố định | 73.00 | [64.45, 81.15] | Macro 63.35. Top-k và EMA cho +0.6 điểm so với A3c, nằm trong nhiễu |
+| **A5c** | A5 chuẩn hóa theo `calib_normal` | SigLIP 2 Base | Như A5; thống kê memory tính leave-one-video-out trên `calib_normal` | 64.95 | [55.19, 74.61] | Macro 57.87. Memory bank vẫn làm giảm (-8.1 điểm so với A4c): kết quả âm |
 | **A6** | + Thẩm định VLM | SigLIP 2 + VLM | Tầng 1 (A4/A5) + Kiểm chứng Generative VLM Tầng 2 | TBD <!-- TODO(TH8): TH7, A5 --> | [TBD, TBD] <!-- TODO(TH8): TH7, A5 --> | Đánh giá đóng góp của VLM trên các cửa sổ nghi vấn |
 
 ### 4.2.1. Kết quả cổng kiểm chứng A0
 
-A0 đạt 48.77% (CI 95% theo video [38.30, 59.40]), thấp hơn mốc 53.16% của LAVAD 4.4 điểm và nằm ngoài dải chấp nhận 50.2 - 56.2 đã đặt trước khi chạy. Mốc 53.16% vẫn nằm trong khoảng tin cậy. Các kiểm tra sai sót: đảo nhãn (loại trừ, một scorer đảo sẽ cho ~51), dịch nhãn ±1, ±16, +30 khung hình (AUC chỉ dao động 48.56 - 48.91, nên căn khung và quy ước biên đoạn là đúng), `logit_scale` 1/10/100 (cùng 48.77), pooling micro (macro 49.57), và prompt trùng văn bản của bài báo. Chưa kiểm tra: pha lấy mẫu (hệ thống lấy 1 fps, LAVAD lấy mỗi 16 khung). Chi tiết: `notes/a0-gate.md`. Báo cáo ghi nhận đây là độ lệch so với bài báo gốc, không điều chỉnh dải chấp nhận sau khi có kết quả.
+A0 đạt 48.77% (CI 95% theo video [38.30, 59.40]), thấp hơn mốc 53.16% của LAVAD 4.4 điểm và nằm ngoài dải chấp nhận 50.2 - 56.2 đã đặt trước khi chạy. Mốc 53.16% vẫn nằm trong khoảng tin cậy. Các kiểm tra sai sót: đảo nhãn (loại trừ, một scorer đảo sẽ cho ~51), dịch nhãn ±1, ±16, +30 khung hình (AUC chỉ dao động 48.56 - 48.91, nên căn khung và quy ước biên đoạn là đúng), `logit_scale` 1/10/100 (cùng 48.77), pooling micro (macro 49.57), và prompt trùng văn bản của bài báo. Pha lấy mẫu đã kiểm tra trên cả 290 video (lấy mỗi 16 khung: 48.43 so với 48.77 ở 1 fps), không phải nguyên nhân. Chưa kiểm tra: tiền xử lý ảnh của CLIP HF so với pipeline của tác giả. Chi tiết: `notes/a0-gate.md`. Báo cáo ghi nhận đây là độ lệch so với bài báo gốc, không điều chỉnh dải chấp nhận sau khi có kết quả.
 
 ### 4.2.2. Ảnh hưởng của chuẩn hóa theo video (A2 so với A3)
 
-Chuẩn hóa robust z-score theo từng video là phép đơn điệu trong mỗi video nên AUC theo từng video không đổi (macro 64.12 ở cả A2 và A3). Tuy nhiên micro AUC gộp khung hình giữa các video, và chuẩn hóa xóa mức chênh điểm giữa video bất thường và video bình thường, nên micro AUC giảm từ 72.39 xuống 58.99. Điều này cũng có nghĩa tỉ lệ cảnh báo sai trên giờ (FA/hour) khi dùng chuẩn hóa theo video phản ánh chính phép chuẩn hóa hơn là hệ thống. <!-- TODO(TH8): ghi quyết định (a) giữ nguyên hoặc (b) chuẩn hóa theo thống kê calib_normal sau khi nhóm chốt -->
+Chuẩn hóa robust z-score theo từng video là phép đơn điệu trong mỗi video nên AUC theo từng video không đổi (macro 64.12 ở cả A2 và A3). Tuy nhiên micro AUC gộp khung hình giữa các video, và chuẩn hóa xóa mức chênh điểm giữa video bất thường và video bình thường, nên micro AUC giảm từ 72.39 xuống 58.99. Điều này cũng có nghĩa tỉ lệ cảnh báo sai trên giờ (FA/hour) khi dùng chuẩn hóa theo video phản ánh chính phép chuẩn hóa hơn là hệ thống, vì mọi video, kể cả video bình thường, bị ép về cùng phân phối.
+
+**Quyết định (b): chuẩn hóa bằng thống kê cố định từ `calib_normal`.** Median và MAD của điểm được tính một lần trên toàn bộ khung hình của 60 video `calib_normal` (`PipelineConfig.norm_ref="calib"`, các biến thể A3c, A4c, A5c), rồi áp cho mọi video. Kết quả: A3c = 72.39, đúng bằng A2, như lý thuyết dự đoán (phép biến đổi affine chung cho mọi khung hình không đổi thứ hạng). Khác biệt là điểm sau chuẩn hóa có ý nghĩa tuyệt đối giữa các video, nên ngưỡng hiệu chỉnh trên `calib_normal` và FA/hour đo hệ thống thay vì đo phép chuẩn hóa. Với memory, mỗi video calib được chấm bằng bank dựng từ các video calib còn lại (leave-one-video-out), nếu không điểm memory của video nằm trong bank của chính nó bằng 0 và MAD bị đánh sập. Các biến thể chuẩn hóa theo video (A3, A4, A5) vẫn được giữ làm đối chứng.
 
 Khác với tác vụ phát hiện nhị phân, bộ phân loại sự kiện zero-shot 13 lớp (`vad/score/typing.py`) được đo lường riêng trên các đoạn video đã xác định có bất thường theo nhãn mặt đất.
 

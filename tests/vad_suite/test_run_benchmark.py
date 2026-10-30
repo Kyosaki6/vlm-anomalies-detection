@@ -342,3 +342,33 @@ def test_cli_unknown_ablation_and_missing_ablation_rejected(tmp_path):
         rb.main(["--manifest", "m.csv", "--ablation", "A9"])
     with pytest.raises(SystemExit):
         rb.main(["--manifest", "m.csv"])
+
+# --- A3c: chuẩn hoá bằng thống kê calib_normal -------------------------------------------------
+
+def test_calib_norm_ablation_runs_and_records_stats(world):
+    normal, abnormal = world["prompts"]
+    two = (np.concatenate([normal, normal]), np.concatenate([abnormal, abnormal]))
+    cfg = pl.ABLATIONS["A3c"]
+    calib_rows = [r for r in world["rows"] if r["video_id"] != "V1"]            # chỉ video bình thường làm calib
+    from vad.embed.cache import load_embeddings
+    stats = pl.compute_calib_stats([load_embeddings(cfg.model_id, r["video_id"], 1.0, world["cache"])
+                                    for r in calib_rows], *two, cfg)
+    res = rb.run_ablation("A3c", cfg, world["rows"], world["ann"], world["cache"], two, n_bootstraps=10,
+                          commit="x", calib_stats=stats)
+    assert res["config"]["norm_ref"] == "calib"
+    assert res["calib_stats"]["text_median"] == pytest.approx(stats.text_median)
+    assert res["auc_micro"] > 0.9
+    rb.write_json_atomic(world["tmp"] / "o.json", res)                          # allow_nan=False: không NaN lọt vào JSON
+
+def test_calib_norm_ablation_without_stats_fails_loud(world):
+    normal, abnormal = world["prompts"]
+    two = (np.concatenate([normal, normal]), np.concatenate([abnormal, abnormal]))
+    with pytest.raises(ValueError, match="calib_stats"):
+        rb.run_ablation("A3c", pl.ABLATIONS["A3c"], world["rows"], world["ann"], world["cache"], two,
+                        n_bootstraps=10, commit="x")
+
+def test_build_calib_stats_lists_missing_cache(world):
+    man = world["tmp"] / "calib.csv"
+    man.write_text("video_id,path,dataset,split,n_frames,fps\nGHOST,x,ucf_crime,calib_normal,100,30\n", encoding="utf-8")
+    with pytest.raises(rb.BenchmarkInputError, match="GHOST"):
+        rb.build_calib_stats(man, pl.ABLATIONS["A3c"], world["cache"], world["prompts"], 1000)
