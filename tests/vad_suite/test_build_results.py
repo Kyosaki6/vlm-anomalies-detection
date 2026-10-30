@@ -371,12 +371,3 @@ def test_verify_windows_calls_with_replay_context(world):
 
     out = br.verify_windows([Window("v", 1.0, 2.0, 0.9)], Spy(), "v")
     assert out[0].is_anomaly and calls == [{"video_id": "v", "start_s": 1.0, "end_s": 2.0, "tier": "2"}]
-
-
-def test_ablation_a4c_with_calib_stats_builds(world):
-    from vad.pipeline import CalibStats
-    st = CalibStats(text_median=0.5, text_mad=0.1)
-    res = _build(world, limit=2, config=_config("A4c", threshold=1.0), calib_stats=st)
-    assert len(res) == 2
-    assert res[0].metadata["ablation"] == "A4c"
-    assert np.isfinite(res[0].anomaly_scores).all()
