@@ -23,7 +23,8 @@ def list_video_ids(root: str | Path = DEFAULT_RESULTS_DIR) -> list[str]:
     base = Path(root)
     if not base.is_dir():
         return []
-    return sorted(p.stem for p in base.glob("*.json") if p.is_file())
+    non_video = ("ablation_", "threshold_", "a0_", "typing_eval")
+    return sorted(p.stem for p in base.glob("*.json") if p.is_file() and not p.stem.startswith(non_video))
 
 
 def load_run(video_id: str, root: str | Path = DEFAULT_RESULTS_DIR) -> RunResult:

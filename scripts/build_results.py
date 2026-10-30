@@ -38,13 +38,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from run_benchmark import (BenchmarkInputError, expected_samples, git_commit,  # noqa: E402
+from run_benchmark import (BenchmarkInputError, build_calib_stats, expected_samples, git_commit,  # noqa: E402
                            load_or_embed_prompts, read_benchmark_manifest, select_rows)
 from vad.embed.cache import DEFAULT_CACHE_DIR, has_cached, load_embeddings  # noqa: E402
 from vad.fakes import FakeVerifier  # noqa: E402
 from vad.graph.alerts import build_alert_feed  # noqa: E402
 from vad.graph.policy import DEFAULT_POLICY, GraphPolicy  # noqa: E402
-from vad.pipeline import ABLATIONS, DEFAULT_PROMPTS, PipelineConfig, build_memory_bank, score_cached_video  # noqa: E402
+from vad.pipeline import ABLATIONS, DEFAULT_PROMPTS, CalibStats, PipelineConfig, build_memory_bank, score_cached_video  # noqa: E402
 from vad.results import DEFAULT_RESULTS_DIR, RunResult, make_metadata  # noqa: E402
 from vad.types import Alert, VerifyResult, Window  # noqa: E402
 
@@ -167,7 +167,8 @@ def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.nd
                        commit: str = "", extra_note: str = "", tier2_source: str = "none",
                        threshold_source: str = "placeholder", calib_manifest: str = "",
                        normal_bank: np.ndarray | None = None,
-                       saved_windows: Sequence[Window] | None = None) -> RunResult:
+                       saved_windows: Sequence[Window] | None = None,
+                       calib_stats: CalibStats | None = None) -> RunResult:
     """Một video -> RunResult đầy đủ (điểm, cửa sổ, tier-2 nếu có, cảnh báo, metadata).
 
     `config.threshold` quyết định có cắt cửa sổ hay không: None = chỉ có đường điểm (dashboard vẫn vẽ
@@ -180,7 +181,7 @@ def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.nd
         raise BuildResultsError(f"tier2_source phải thuộc {TIER2_SOURCES}, nhận {tier2_source!r}")
 
     tier1 = score_cached_video(video_id, config, normal_embs, abnormal_embs, cache_dir,
-                               normal_bank=normal_bank)
+                               normal_bank=normal_bank, calib_stats=calib_stats)
     windows = tier1.windows
     verify = tuple(verify_results or ())
 
@@ -260,6 +261,7 @@ def build_from_manifest(rows: Sequence[dict[str, Any]], config: PipelineConfig, 
                         ablation: str = "", commit: str = "", extra_note: str = "",
                         threshold_source: str = "placeholder", calib_manifest: str = "",
                         normal_bank: np.ndarray | None = None,
+                        calib_stats: CalibStats | None = None,
                         write: bool = True) -> list[RunResult]:
     """Chạy mọi video trong `rows` và (mặc định) ghi `results/<id>.json` + `results/windows/<id>.json`."""
     check_cache(rows, config, cache_dir)
@@ -272,7 +274,7 @@ def build_from_manifest(rows: Sequence[dict[str, Any]], config: PipelineConfig, 
         if verifier is not None:
             # cắt cửa sổ trước bằng chính config, rồi mới gọi verifier -> hai bên chắc chắn cùng số cửa sổ
             probe = score_cached_video(vid, config, normal_embs, abnormal_embs, cache_dir,
-                                       normal_bank=normal_bank)
+                                       normal_bank=normal_bank, calib_stats=calib_stats)
             verify = verify_windows(probe.windows, verifier, vid)
         elif verify_dir is not None:
             saved_windows, verify = load_verify_results(Path(verify_dir) / f"{vid}.json", vid)
@@ -281,7 +283,8 @@ def build_from_manifest(rows: Sequence[dict[str, Any]], config: PipelineConfig, 
                                  policy=policy, camera=camera, zone=zone, hour=hour, ablation=ablation,
                                  commit=commit, extra_note=extra_note, tier2_source=tier2_source,
                                  threshold_source=threshold_source, calib_manifest=calib_manifest,
-                                 normal_bank=normal_bank, saved_windows=saved_windows)
+                                 normal_bank=normal_bank, saved_windows=saved_windows,
+                                 calib_stats=calib_stats)
         check_lengths(vid, np.asarray(res.anomaly_scores), row, res.sample_fps)
         if write:
             res.to_json(root=out_dir)
@@ -376,13 +379,19 @@ def main(argv: list[str] | None = None) -> int:
             bank = build_memory_bank([load_embeddings(config.model_id, r["video_id"], config.sample_fps,
                                                       args.cache_dir) for r in calib_rows],
                                      max_frames=args.bank_max_frames)
+        stats = None
+        if config.per_video_norm and config.norm_ref == "calib":
+            if not args.calib_manifest:
+                p.error(f"{args.ablation} chuẩn hoá theo calib_normal: cần --calib-manifest manifests/ucf_calib_normal.csv")
+            stats = build_calib_stats(args.calib_manifest, config, args.cache_dir, (normal_embs, abnormal_embs),
+                                      args.bank_max_frames)
         results = build_from_manifest(
             rows, config, normal_embs, abnormal_embs, cache_dir=args.cache_dir, out_dir=args.out_dir,
             verify_dir=args.verify_dir, verifier=FakeVerifier() if args.verifier == "fake" else None,
             policy=GraphPolicy(), camera=args.camera, zone=args.zone, hour=args.hour,
             ablation=args.ablation, commit=git_commit(), extra_note=args.note,
             threshold_source=args.threshold_source, calib_manifest=args.calib_manifest or "",
-            normal_bank=bank,
+            normal_bank=bank, calib_stats=stats,
         )
     except BenchmarkInputError as e:
         raise BuildResultsError(str(e)) from e
