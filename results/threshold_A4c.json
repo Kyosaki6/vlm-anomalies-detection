@@ -1,0 +1,52 @@
+{
+  "ablation": "A4c",
+  "config": {
+    "model_id": "google/siglip2-base-patch16-384",
+    "sample_fps": 1.0,
+    "prompt_set": "ensemble",
+    "logit_scale": 100.0,
+    "per_video_norm": true,
+    "norm_ref": "calib",
+    "pool_window_s": 5.0,
+    "pool_k": 3,
+    "smoothing": "ema",
+    "ema_alpha": 0.3,
+    "median_kernel": 5,
+    "use_memory": false,
+    "memory_weight": 0.5,
+    "threshold": null,
+    "min_len_s": 1.0,
+    "merge_gap_s": 2.0
+  },
+  "calib_stats": {
+    "text_median": 0.6130537648795478,
+    "text_mad": 0.16998128784669664,
+    "memory_median": null,
+    "memory_mad": null
+  },
+  "calibration": {
+    "threshold": 1.1685914439041403,
+    "target_fpr": 0.05,
+    "achieved_calib_fpr": 0.0499191955467768,
+    "n_calib_videos": 60,
+    "n_calib_samples": 5569
+  },
+  "test_at_threshold": {
+    "threshold": 1.1685914439041403,
+    "normal_sample_fpr": 0.10570717315139222,
+    "anomalous_sample_tpr": 0.3906814661848219,
+    "fa_per_hour": 20.63784375216711,
+    "false_alarm_windows": 124,
+    "normal_hours": 6.00837962962963,
+    "incidents": 156,
+    "incidents_detected": 81,
+    "incident_recall": 0.5192307692307693,
+    "mean_latency_s": 2.034567901234568,
+    "median_latency_s": 0.0,
+    "windows_total": 307,
+    "windows_per_video": 1.0586206896551724
+  },
+  "note": "Ngưỡng chọn CHỈ từ calib_normal; test chỉ để đo. FPR test có thể lệch FPR calib (khác phân phối).",
+  "commit": "59f134c",
+  "timestamp": "2026-10-30T08:07:02+00:00"
+}
