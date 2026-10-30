@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_246_x264",
+  "sample_fps": 1.0,
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_246_x264",
+      "start_s": 0.0,
+      "end_s": 28.0,
+      "score": 1.3928556796658624
+    },
+    {
+      "video_id": "Normal_Videos_246_x264",
+      "start_s": 64.0,
+      "end_s": 73.0,
+      "score": 1.2079508881823184
+    },
+    {
+      "video_id": "Normal_Videos_246_x264",
+      "start_s": 76.0,
+      "end_s": 167.0,
+      "score": 1.381662895220987
+    }
+  ],
+  "verify_results": [],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "1849ed5",
+    "timestamp": "2026-10-30T08:12:30+00:00",
+    "schema_version": 1,
+    "tier": "1",
+    "ablation": "A4c",
+    "threshold": 1.1685914439041403,
+    "fps": 30.0,
+    "n_frames": 4993
+  }
+}

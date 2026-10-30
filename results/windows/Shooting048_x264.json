@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "video_id": "Shooting048_x264",
+  "sample_fps": 1.0,
+  "candidate_windows": [
+    {
+      "video_id": "Shooting048_x264",
+      "start_s": 0.0,
+      "end_s": 54.0,
+      "score": 1.332345205738135
+    }
+  ],
+  "verify_results": [],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "1849ed5",
+    "timestamp": "2026-10-30T08:12:32+00:00",
+    "schema_version": 1,
+    "tier": "1",
+    "ablation": "A4c",
+    "threshold": 1.1685914439041403,
+    "fps": 30.0,
+    "n_frames": 2741
+  }
+}

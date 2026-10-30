@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "video_id": "Shoplifting021_x264",
+  "sample_fps": 1.0,
+  "candidate_windows": [
+    {
+      "video_id": "Shoplifting021_x264",
+      "start_s": 5.0,
+      "end_s": 10.0,
+      "score": 1.1846380543023611
+    },
+    {
+      "video_id": "Shoplifting021_x264",
+      "start_s": 38.0,
+      "end_s": 47.0,
+      "score": 1.2316159219184484
+    },
+    {
+      "video_id": "Shoplifting021_x264",
+      "start_s": 60.0,
+      "end_s": 75.0,
+      "score": 1.2247423763968937
+    },
+    {
+      "video_id": "Shoplifting021_x264",
+      "start_s": 105.0,
+      "end_s": 108.0,
+      "score": 1.1903873108001441
+    }
+  ],
+  "verify_results": [],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "1849ed5",
+    "timestamp": "2026-10-30T08:12:32+00:00",
+    "schema_version": 1,
+    "tier": "1",
+    "ablation": "A4c",
+    "threshold": 1.1685914439041403,
+    "fps": 30.0,
+    "n_frames": 3551
+  }
+}

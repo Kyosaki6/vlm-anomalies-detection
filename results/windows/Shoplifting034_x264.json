@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "video_id": "Shoplifting034_x264",
+  "sample_fps": 1.0,
+  "candidate_windows": [
+    {
+      "video_id": "Shoplifting034_x264",
+      "start_s": 227.0,
+      "end_s": 230.0,
+      "score": 1.1737778627785072
+    }
+  ],
+  "verify_results": [],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "1849ed5",
+    "timestamp": "2026-10-30T08:12:32+00:00",
+    "schema_version": 1,
+    "tier": "1",
+    "ablation": "A4c",
+    "threshold": 1.1685914439041403,
+    "fps": 30.0,
+    "n_frames": 11937
+  }
+}
