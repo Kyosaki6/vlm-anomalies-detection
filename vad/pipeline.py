@@ -35,6 +35,7 @@ SIGLIP2_ID = "google/siglip2-base-patch16-384"
 CLIP_B32_ID = "openai/clip-vit-base-patch32"
 PROMPT_SETS = ("baseline", "ensemble")
 SMOOTHING = ("none", "ema", "median")
+NORM_REFS = ("video", "calib")
 
 
 @dataclass(frozen=True)
@@ -45,7 +46,8 @@ class PipelineConfig:
     sample_fps: float = 1.0
     prompt_set: str = "baseline"             # 'baseline' (1 normal + 1 abnormal) | 'ensemble' (4 + 4)
     logit_scale: float = DEFAULT_LOGIT_SCALE
-    per_video_norm: bool = False             # robust z-score theo từng video
+    per_video_norm: bool = False             # bật chuẩn hoá robust z-score (tham chiếu chọn bởi `norm_ref`)
+    norm_ref: str = "video"                  # 'video' = median/MAD của chính video | 'calib' = thống kê cố định từ calib_normal
     pool_window_s: float = 0.0               # 0 = tắt top-k pooling
     pool_k: int = 3
     smoothing: str = "none"                  # 'none' | 'ema' | 'median'
@@ -62,6 +64,10 @@ class PipelineConfig:
             raise ValueError(f"prompt_set phải thuộc {PROMPT_SETS}, nhận {self.prompt_set!r}")
         if self.smoothing not in SMOOTHING:
             raise ValueError(f"smoothing phải thuộc {SMOOTHING}, nhận {self.smoothing!r}")
+        if self.norm_ref not in NORM_REFS:
+            raise ValueError(f"norm_ref phải thuộc {NORM_REFS}, nhận {self.norm_ref!r}")
+        if self.norm_ref == "calib" and not self.per_video_norm:
+            raise ValueError("norm_ref='calib' chỉ có nghĩa khi per_video_norm=True (công tắc bật chuẩn hoá)")
         if not self.sample_fps > 0:
             raise ValueError(f"sample_fps phải > 0, nhận {self.sample_fps}")
         if self.pool_window_s < 0 or self.pool_k < 1:
@@ -81,6 +87,11 @@ _A2 = dict(prompt_set="ensemble")
 _A3 = dict(_A2, per_video_norm=True)
 _A4 = dict(_A3, pool_window_s=5.0, pool_k=3, smoothing="ema", ema_alpha=0.3)
 _A5 = dict(_A4, use_memory=True, memory_weight=0.5)
+# Biến thể 'c': chuẩn hoá bằng thống kê calib_normal CỐ ĐỊNH thay vì median/MAD từng video, để ngưỡng và FA/hour
+# có nghĩa (chuẩn hoá theo video ép mọi video, kể cả video bình thường, về cùng phân phối).
+_A3C = dict(_A3, norm_ref="calib")
+_A4C = dict(_A4, norm_ref="calib")
+_A5C = dict(_A5, norm_ref="calib")
 
 ABLATIONS: dict[str, PipelineConfig] = {
     "A0": _preset(CLIP_B32_ID),
@@ -89,7 +100,20 @@ ABLATIONS: dict[str, PipelineConfig] = {
     "A3": _preset(SIGLIP2_ID, **_A3),
     "A4": _preset(SIGLIP2_ID, **_A4),
     "A5": _preset(SIGLIP2_ID, **_A5),
+    "A3c": _preset(SIGLIP2_ID, **_A3C),
+    "A4c": _preset(SIGLIP2_ID, **_A4C),
+    "A5c": _preset(SIGLIP2_ID, **_A5C),
 }
+
+
+@dataclass(frozen=True)
+class CalibStats:
+    """Median/MAD cố định của điểm trên `calib_normal` (cho `norm_ref='calib'`). Memory chỉ có khi `use_memory`."""
+
+    text_median: float
+    text_mad: float
+    memory_median: float | None = None
+    memory_mad: float | None = None
 
 
 @dataclass(frozen=True)
@@ -152,8 +176,45 @@ def temporal_stage(scores: np.ndarray, config: PipelineConfig) -> np.ndarray:
     return out
 
 
+def _median_mad(x: np.ndarray) -> tuple[float, float]:
+    x = np.asarray(x, dtype=np.float64)
+    med = float(np.median(x))
+    return med, float(np.median(np.abs(x - med)))
+
+
+def apply_robust_norm(scores: np.ndarray, median: float, mad: float, eps: float = 1e-8) -> np.ndarray:
+    """(x - median) / (1.4826 * MAD + eps) với median/MAD cho trước (cùng công thức `robust_normalize`)."""
+    return (np.asarray(scores, dtype=np.float64) - median) / (1.4826 * mad + eps)
+
+
+def compute_calib_stats(frame_embs_per_video: Sequence[np.ndarray], normal_embs: np.ndarray,
+                        abnormal_embs: np.ndarray, config: PipelineConfig,
+                        bank_max_frames: int | None = None) -> CalibStats:
+    """Median/MAD điểm text (và memory) gộp trên mọi frame của `calib_normal`.
+
+    Memory: mỗi video calib được chấm với bank dựng từ CÁC VIDEO CÒN LẠI (leave-one-video-out). Nếu để video
+    nằm trong bank của chính nó thì 1 - max cosine = 0 và MAD bị đánh sập (rò rỉ).
+    """
+    vids = [_validate_frames(e) for e in frame_embs_per_video]
+    if not vids:
+        raise ValueError("Cần ít nhất một video calib_normal để tính thống kê chuẩn hoá")
+    text = np.concatenate([text_anomaly_scores(f, normal_embs, abnormal_embs, logit_scale=config.logit_scale)
+                           for f in vids])
+    t_med, t_mad = _median_mad(text)
+    if not config.use_memory:
+        return CalibStats(t_med, t_mad)
+    if len(vids) < 2:
+        raise ValueError("use_memory cần >= 2 video calib_normal để chấm leave-one-video-out")
+    mem = np.concatenate([
+        memory_anomaly_scores(v, build_memory_bank([o for j, o in enumerate(vids) if j != i], bank_max_frames))
+        for i, v in enumerate(vids)])
+    m_med, m_mad = _median_mad(mem)
+    return CalibStats(t_med, t_mad, m_med, m_mad)
+
+
 def run_tier1(frame_embs: np.ndarray, normal_embs: np.ndarray, abnormal_embs: np.ndarray,
-              config: PipelineConfig, video_id: str = "", normal_bank: np.ndarray | None = None) -> Tier1Result:
+              config: PipelineConfig, video_id: str = "", normal_bank: np.ndarray | None = None,
+              calib_stats: CalibStats | None = None) -> Tier1Result:
     """Embedding frame (T, D) + embedding prompt -> điểm cuối + cửa sổ ứng viên."""
     frames = _validate_frames(frame_embs)
     text = text_anomaly_scores(frames, normal_embs, abnormal_embs, logit_scale=config.logit_scale)
@@ -166,10 +227,21 @@ def run_tier1(frame_embs: np.ndarray, normal_embs: np.ndarray, abnormal_embs: np
 
     fused = text
     if config.per_video_norm:
-        fused = robust_normalize(text)
-        if memory is not None:
-            w = config.memory_weight
-            fused = (1.0 - w) * fused + w * robust_normalize(memory)
+        if config.norm_ref == "calib":
+            if calib_stats is None:
+                raise ValueError("norm_ref='calib' nhưng không truyền calib_stats (không được lặng lẽ chuẩn hoá theo video)")
+            fused = apply_robust_norm(text, calib_stats.text_median, calib_stats.text_mad)
+            if memory is not None:
+                if calib_stats.memory_median is None or calib_stats.memory_mad is None:
+                    raise ValueError("calib_stats thiếu thống kê memory nhưng use_memory=True")
+                w = config.memory_weight
+                fused = (1.0 - w) * fused + w * apply_robust_norm(memory, calib_stats.memory_median,
+                                                                   calib_stats.memory_mad)
+        else:
+            fused = robust_normalize(text)
+            if memory is not None:
+                w = config.memory_weight
+                fused = (1.0 - w) * fused + w * robust_normalize(memory)
 
     final = temporal_stage(fused, config)
     windows: tuple[Window, ...] = ()
@@ -182,10 +254,12 @@ def run_tier1(frame_embs: np.ndarray, normal_embs: np.ndarray, abnormal_embs: np
 
 def score_cached_video(video_id: str, config: PipelineConfig, normal_embs: np.ndarray, abnormal_embs: np.ndarray,
                        cache_dir: str | Path = DEFAULT_CACHE_DIR,
-                       normal_bank: np.ndarray | None = None) -> Tier1Result:
+                       normal_bank: np.ndarray | None = None,
+                       calib_stats: CalibStats | None = None) -> Tier1Result:
     """Đọc embedding từ cache theo (model, video, fps) của config rồi chạy `run_tier1`."""
     frames = load_embeddings(config.model_id, video_id, config.sample_fps, cache_dir)
-    return run_tier1(frames, normal_embs, abnormal_embs, config, video_id=video_id, normal_bank=normal_bank)
+    return run_tier1(frames, normal_embs, abnormal_embs, config, video_id=video_id, normal_bank=normal_bank,
+                     calib_stats=calib_stats)
 
 
 def with_threshold(config: PipelineConfig, threshold: float | None) -> PipelineConfig:

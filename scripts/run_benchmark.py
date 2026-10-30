@@ -31,8 +31,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from vad.datasets.ucf_crime import Annotation, load_annotations, load_gt  # noqa: E402
 from vad.embed.cache import DEFAULT_CACHE_DIR, _slug, has_cached, load_embeddings  # noqa: E402
 from vad.eval.metrics import fast_frame_level_auc, fast_video_bootstrap_auc_ci  # noqa: E402
-from vad.pipeline import (ABLATIONS, DEFAULT_PROMPTS, PipelineConfig, build_memory_bank,  # noqa: E402
-                          load_detection_prompts, score_cached_video)
+from vad.pipeline import (ABLATIONS, DEFAULT_PROMPTS, CalibStats, PipelineConfig, build_memory_bank,  # noqa: E402
+                          compute_calib_stats, load_detection_prompts, score_cached_video)
 from vad.temporal.ops import expand_to_frames  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -150,8 +150,8 @@ def check_inputs(rows: list[dict[str, Any]], annotations: dict[str, Annotation],
 
 def score_all(rows: list[dict[str, Any]], annotations: dict[str, Annotation], config: PipelineConfig,
               normal_embs: np.ndarray, abnormal_embs: np.ndarray, cache_dir: str | Path,
-              normal_bank: np.ndarray | None = None, label_shift: int = 0
-              ) -> tuple[list[np.ndarray], list[np.ndarray]]:
+              normal_bank: np.ndarray | None = None, label_shift: int = 0,
+              calib_stats: CalibStats | None = None) -> tuple[list[np.ndarray], list[np.ndarray]]:
     """-> (điểm theo frame, nhãn theo frame) cho từng video, cùng thứ tự `rows`."""
     scores_pv: list[np.ndarray] = []
     labels_pv: list[np.ndarray] = []
@@ -159,7 +159,8 @@ def score_all(rows: list[dict[str, Any]], annotations: dict[str, Annotation], co
     bad_score: list[str] = []
     for r in rows:
         vid = r["video_id"]
-        res = score_cached_video(vid, config, normal_embs, abnormal_embs, cache_dir, normal_bank=normal_bank)
+        res = score_cached_video(vid, config, normal_embs, abnormal_embs, cache_dir, normal_bank=normal_bank,
+                                 calib_stats=calib_stats)
         t = res.scores
         want = expected_samples(r["n_frames"], r["fps"], config.sample_fps)
         if abs(len(t) - want) > LENGTH_TOLERANCE:
@@ -231,17 +232,19 @@ def result_file(out_dir: str | Path, ablation_id: str, tag: str = "") -> Path:
 def run_ablation(ablation_id: str, config: PipelineConfig, rows: list[dict[str, Any]],
                  annotations: dict[str, Annotation], cache_dir: str | Path, prompts: tuple[np.ndarray, np.ndarray],
                  n_bootstraps: int = 1000, seed: int = 42, normal_bank: np.ndarray | None = None,
-                 label_shift: int = 0, manifest: str = "", commit: str | None = None) -> dict[str, Any]:
+                 label_shift: int = 0, manifest: str = "", commit: str | None = None,
+                 calib_stats: CalibStats | None = None) -> dict[str, Any]:
     """Một ablation -> dict kết quả (chưa ghi đĩa)."""
     t0 = time.time()
     check_inputs(rows, annotations, config, cache_dir)
     scores_pv, labels_pv = score_all(rows, annotations, config, prompts[0], prompts[1], cache_dir,
-                                     normal_bank=normal_bank, label_shift=label_shift)
+                                     normal_bank=normal_bank, label_shift=label_shift, calib_stats=calib_stats)
     t_score = time.time() - t0
     ev = evaluate(rows, scores_pv, labels_pv, n_bootstraps, seed)
     return {
         "ablation": ablation_id, "config": asdict(config), "manifest": manifest,
         "seed": seed, "n_bootstraps": n_bootstraps, "label_shift": label_shift,
+        "calib_stats": asdict(calib_stats) if calib_stats is not None else None,
         "protocol": "micro-pooled frame-level AUC (LAVAD), CI bootstrap over videos",
         "commit": commit if commit is not None else git_commit(),
         "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -249,6 +252,15 @@ def run_ablation(ablation_id: str, config: PipelineConfig, rows: list[dict[str, 
         **ev,
     }
 
+
+def build_calib_stats(manifest: str | Path, config: PipelineConfig, cache_dir: str | Path,
+                      prompts: tuple[np.ndarray, np.ndarray], max_frames: int) -> CalibStats:
+    rows = read_benchmark_manifest(manifest)
+    missing = [r["video_id"] for r in rows if not has_cached(config.model_id, r["video_id"], config.sample_fps, cache_dir)]
+    if missing:
+        raise BenchmarkInputError(f"Thiếu cache calib_normal cho thống kê chuẩn hoá ({len(missing)} video): {missing}")
+    return compute_calib_stats([load_embeddings(config.model_id, r["video_id"], config.sample_fps, cache_dir)
+                                for r in rows], prompts[0], prompts[1], config, bank_max_frames=max_frames)
 
 def build_bank(manifest: str | Path, config: PipelineConfig, cache_dir: str | Path, max_frames: int) -> np.ndarray:
     rows = read_benchmark_manifest(manifest)
@@ -264,7 +276,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--manifest", required=True)
     p.add_argument("--annotations", default=str(DEFAULT_ANNOTATIONS))
     p.add_argument("--ablation", action="append", default=[], help=f"một trong {sorted(ABLATIONS)}; lặp lại được")
-    p.add_argument("--all", action="store_true", help="chạy mọi ablation A0..A5")
+    p.add_argument("--all", action="store_true", help="chạy mọi ablation (A0..A5, A3c..A5c)")
     p.add_argument("--limit", type=int, default=None, help="chỉ chạy N video cách đều (chạy thử)")
     p.add_argument("--out-dir", default=str(DEFAULT_RESULTS))
     p.add_argument("--n-bootstraps", type=int, default=1000)
@@ -304,8 +316,14 @@ def main(argv: list[str] | None = None) -> int:
             if not args.calib_manifest:
                 p.error(f"{aid} dùng normal memory: cần --calib-manifest manifests/ucf_calib_normal.csv")
             bank = build_bank(args.calib_manifest, config, args.cache_dir, args.bank_max_frames)
+        stats = None
+        if config.per_video_norm and config.norm_ref == "calib":
+            if not args.calib_manifest:
+                p.error(f"{aid} chuẩn hoá theo calib_normal: cần --calib-manifest manifests/ucf_calib_normal.csv")
+            stats = build_calib_stats(args.calib_manifest, config, args.cache_dir, prompts, args.bank_max_frames)
         res = run_ablation(aid, config, rows, annotations, args.cache_dir, prompts, n_bootstraps=args.n_bootstraps,
-                           seed=args.seed, normal_bank=bank, label_shift=args.label_shift, manifest=str(args.manifest))
+                           seed=args.seed, normal_bank=bank, label_shift=args.label_shift, manifest=str(args.manifest),
+                           calib_stats=stats)
         res["limit"] = args.limit
         res["note"] = ("CHẨN ĐOÁN, không phải kết quả chính" if diagnostic else
                        ("chạy thử --limit, không phải kết quả chính" if args.limit else ""))

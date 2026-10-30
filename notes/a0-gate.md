@@ -56,3 +56,23 @@ cross-video offset (an anomalous video scores higher overall than a normal one).
 rewards. This is the same design question as day2 §1 "FA/hour": per-video normalisation hurts the headline metric and
 also makes FA/hour measure the normalisation. Decide (a) keep and report honestly, or (b) normalise with `calib_normal`
 statistics, before TH5 on D3 morning. A4/A5 inherit this.
+
+## A3 to A5 and the normalisation decision (2026-10-30, TH5)
+
+Decision: **(b)**, normalise with fixed `calib_normal` median/MAD (`norm_ref="calib"`, ablations `A3c/A4c/A5c`).
+Per-video variants A3/A4/A5 stay as controls.
+
+| ID | norm | micro AUC | CI95 (videos) | macro |
+|---|---|---|---|---|
+| A3 | per video | 58.99 | [54.89, 63.24] | 64.12 |
+| A4 | per video | 58.41 | [53.51, 63.42] | 63.35 |
+| A5 | per video | 57.08 | [52.14, 62.28] | 58.87 |
+| A3c | calib | 72.39 | [64.14, 80.39] | 64.12 |
+| A4c | calib | 73.00 | [64.45, 81.15] | 63.35 |
+| A5c | calib | 64.95 | [55.19, 74.61] | 57.87 |
+
+- A3c == A2 exactly: a global affine map cannot change micro AUC. This is the sanity check that the new path is wired right.
+- A4c vs A3c: +0.6, inside the CI. Temporal pooling/EMA does not clearly help micro AUC.
+- A5c: normal memory hurts (-8.1 vs A4c). Report as a negative result; do not tune it on test.
+- Memory stats for calib are leave-one-video-out (a video inside its own bank scores 0 and collapses the MAD).
+- Best tier-1 candidate for threshold calibration and tier-2 windows: **A4c**.
