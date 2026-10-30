@@ -1,6 +1,6 @@
 # A1redo — Chọn VLM cho tier-2 trên Colab T4 (Phước)
 
-**Ngày đo:** 2026-10-30 · **Máy:** Colab T4 (14.56 GB, idle 169 MB) · **Git:** `242cdf3`
+**Ngày đo:** 2026-10-30 · **Máy:** Colab T4 (14.56 GB, idle 169 MB) · **Git:** `242cdf3` (commit local lúc chạy Colab, chưa push nên không tồn tại trên remote; raw JSON/log T4 giữ nguyên hash này)
 **Prompt hash:** `3d71fdba` (`configs/prompts.yaml` verifier, không chỉnh tay) · **Windows hash:** `556e8652` (LF; bản Windows CRLF ra `f112ac22` — cùng nội dung, đã xác minh sha1 sau khi chuẩn hoá dòng)
 **Số liệu thô:** `notes/vlm-bench-raw-t4-{qwen2vl2b,qwen25vl3b,smolvlm2}.json` + `-capped-*.json` · **Log:** `notes/vlm-bench-log-t4.txt` · **Phiên bản:** `notes/pip-versions-t4.txt`
 **Cửa sổ:** `notes/vlm-bench-windows.json` (16 cửa sổ THẬT: 8 anomaly/8 lớp từ GT UCF test + 8 normal từ calib, seed 0, 4 khung 320x240 cách đều)
@@ -55,7 +55,7 @@ Ngưỡng 3 s của task-sheet viết cho 3050, T4 là hạ tầng chính → c�
 
 | Setup | s/window (đo được) | 200 windows | 600 windows | 1000 windows | Vượt 2 h/session? |
 |---|---|---|---|---|---|
-| T4 Colab · 3B images (đo quality) | 4.45 | 15 phút | 45 phút | 74 phút | Không (kể cả 1600 windows) |
+| T4 Colab · 3B images (đo quality) | 4.45 | 15 phút | 45 phút | 74 phút | Không (1600 windows ≈ 119 phút, sát ngưỡng 2 h) |
 | T4 Colab · 3B video (chưa đo quality) | 4.00 | 13 phút | 40 phút | 67 phút | Không |
 | 3050 local | **NOT MEASURED** (fit simulated) | n/a | n/a | n/a | n/a |
 
