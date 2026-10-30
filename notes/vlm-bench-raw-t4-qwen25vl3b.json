@@ -1,0 +1,386 @@
+{
+  "header": {
+    "gpu": "Tesla T4",
+    "gpu_total_vram_gb": 14.56,
+    "clocks_sm_max_temp": [
+      "585, 1590, 72"
+    ],
+    "python": "3.13.16",
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "bitsandbytes": "0.50.2",
+    "accelerate": "1.15.0",
+    "git_commit": "242cdf3",
+    "attn_implementation": "sdpa",
+    "quant": "nf4, fp16 compute (BitsAndBytesConfig)",
+    "prompt_hash": "3d71fdba",
+    "windows_hash": "556e8652",
+    "warmup": 2,
+    "runs": 8,
+    "max_new_tokens": 128,
+    "vram_cap_gb": null,
+    "skip_quality": false,
+    "timestamp": "2026-10-30 01:11:47"
+  },
+  "results": [
+    {
+      "model_id": "Qwen/Qwen2.5-VL-3B-Instruct",
+      "class": "Qwen2_5_VLForConditionalGeneration",
+      "ok": true,
+      "variants": [
+        {
+          "variant": "images_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 2.93,
+            "torch_alloc_gb": 2.52,
+            "torch_reserved_gb": 2.63
+          },
+          "timing": {
+            "n_measured": 8,
+            "median_s": 4.45,
+            "mean_s": 4.41,
+            "p90_s": 4.74,
+            "min_s": 3.98,
+            "max_s": 4.74,
+            "runs_s": [
+              4.5,
+              4.45,
+              4.61,
+              4.74,
+              4.43,
+              4.45,
+              4.12,
+              3.98
+            ],
+            "median_preprocess_s": 0.029,
+            "median_prefill_s": 0.627,
+            "median_decode_s": 3.819,
+            "median_out_tokens": 54
+          },
+          "vram": {
+            "device_peak_gb": 2.93,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen approaching a car and attempting to steal something from it.\",\n  \"confidence\": 0.95\n}\n```"
+          },
+          "torch_alloc_peak_gb": 2.52,
+          "torch_reserved_peak_gb": 2.63
+        },
+        {
+          "variant": "images_cap448",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 2.93,
+            "torch_alloc_gb": 2.52,
+            "torch_reserved_gb": 2.63
+          },
+          "timing": {
+            "n_measured": 8,
+            "median_s": 4.43,
+            "mean_s": 4.41,
+            "p90_s": 4.9,
+            "min_s": 4.05,
+            "max_s": 4.9,
+            "runs_s": [
+              4.42,
+              4.43,
+              4.53,
+              4.9,
+              4.43,
+              4.47,
+              4.06,
+              4.05
+            ],
+            "median_preprocess_s": 0.029,
+            "median_prefill_s": 0.609,
+            "median_decode_s": 3.817,
+            "median_out_tokens": 54
+          },
+          "vram": {
+            "device_peak_gb": 2.93,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen approaching a car and attempting to steal something from it.\",\n  \"confidence\": 0.95\n}\n```"
+          },
+          "torch_alloc_peak_gb": 2.52,
+          "torch_reserved_peak_gb": 2.63
+        },
+        {
+          "variant": "video_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 322,
+            "worst_prompt_tokens": 125,
+            "worst_image_tokens": 197
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 322,
+            "device_peak_gb": 2.86,
+            "torch_alloc_gb": 2.49,
+            "torch_reserved_gb": 2.57
+          },
+          "timing": {
+            "n_measured": 8,
+            "median_s": 4.0,
+            "mean_s": 4.04,
+            "p90_s": 4.48,
+            "min_s": 3.68,
+            "max_s": 4.48,
+            "runs_s": [
+              4.43,
+              4.48,
+              4.0,
+              4.0,
+              3.87,
+              4.06,
+              3.83,
+              3.68
+            ],
+            "median_preprocess_s": 0.022,
+            "median_prefill_s": 0.378,
+            "median_decode_s": 3.626,
+            "median_out_tokens": 51
+          },
+          "vram": {
+            "device_peak_gb": 2.86,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen approaching a car and then entering it, suggesting a potential robbery scenario.\",\n  \"confidence\": 0.95\n}\n```"
+          },
+          "torch_alloc_peak_gb": 2.49,
+          "torch_reserved_peak_gb": 2.57
+        }
+      ],
+      "idle_device_mb": 169.0,
+      "load_seconds": 155.6,
+      "attn_implementation": "sdpa",
+      "quality": {
+        "variant": "images_native",
+        "n_windows": 16,
+        "parse_ok_first_try": "16/16",
+        "consistency": "16/16",
+        "tpr": "6/8",
+        "fpr": "0/8",
+        "type_match": "0/8",
+        "mean_conf_correct": 0.95,
+        "mean_conf_wrong": 0.95,
+        "outputs": [
+          {
+            "window_id": "w01",
+            "label": "anomaly",
+            "gt_event": "Arrest",
+            "raw": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is being robbed by armed individuals on a city street.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": true,
+              "event_type": "Robbery",
+              "caption": "A person is being robbed by armed individuals on a city street.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w02",
+            "label": "anomaly",
+            "gt_event": "Shoplifting",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A cashier assists a customer at a checkout counter.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A cashier assists a customer at a checkout counter.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w03",
+            "label": "anomaly",
+            "gt_event": "Shooting",
+            "raw": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen approaching a car and attempting to steal something from it.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": true,
+              "event_type": "Robbery",
+              "caption": "A person is seen approaching a car and attempting to steal something from it.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w04",
+            "label": "anomaly",
+            "gt_event": "Explosion",
+            "raw": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Burglary\",\n  \"caption\": \"A person is seen breaking into a house and leaving with items.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": true,
+              "event_type": "Burglary",
+              "caption": "A person is seen breaking into a house and leaving with items.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w05",
+            "label": "anomaly",
+            "gt_event": "Stealing",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A person is seen walking towards a white van parked on the side of a dirt road.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A person is seen walking towards a white van parked on the side of a dirt road.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w06",
+            "label": "anomaly",
+            "gt_event": "Arson",
+            "raw": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen holding a green object and then a gun, indicating a robbery scenario.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": true,
+              "event_type": "Robbery",
+              "caption": "A person is seen holding a green object and then a gun, indicating a robbery scenario.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w07",
+            "label": "anomaly",
+            "gt_event": "Assault",
+            "raw": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A group of individuals is seen entering a store and engaging in a robbery.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": true,
+              "event_type": "Robbery",
+              "caption": "A group of individuals is seen entering a store and engaging in a robbery.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w08",
+            "label": "anomaly",
+            "gt_event": "RoadAccidents",
+            "raw": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A white pickup truck is being robbed by two individuals on a city street.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": true,
+              "event_type": "Robbery",
+              "caption": "A white pickup truck is being robbed by two individuals on a city street.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w09",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A person is working at their desk in an office.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A person is working at their desk in an office.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w10",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"An office environment with employees working at their desks.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "An office environment with employees working at their desks.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w11",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A person is sitting at a table in a restaurant.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A person is sitting at a table in a restaurant.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w12",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A black sports car is parked on the side of a busy street.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A black sports car is parked on the side of a busy street.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w13",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A chef is preparing food in a kitchen.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A chef is preparing food in a kitchen.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w14",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A person rides a motorcycle down a street next to a row of shops.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A person rides a motorcycle down a street next to a row of shops.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w15",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A man is demonstrating something to another man at a desk.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A man is demonstrating something to another man at a desk.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w16",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A group of people working in an office with boxes stacked around them.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A group of people working in an office with boxes stacked around them.",
+              "confidence": 0.95
+            }
+          }
+        ]
+      },
+      "clocks_sm_before": [
+        "585"
+      ],
+      "clocks_sm_after": [
+        "960"
+      ]
+    }
+  ]
+}

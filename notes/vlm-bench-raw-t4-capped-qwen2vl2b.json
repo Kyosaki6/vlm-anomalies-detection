@@ -1,0 +1,166 @@
+{
+  "header": {
+    "gpu": "Tesla T4",
+    "gpu_total_vram_gb": 14.56,
+    "clocks_sm_max_temp": [
+      "585, 1590, 73"
+    ],
+    "python": "3.13.16",
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "bitsandbytes": "0.50.2",
+    "accelerate": "1.15.0",
+    "git_commit": "242cdf3",
+    "attn_implementation": "sdpa",
+    "quant": "nf4, fp16 compute (BitsAndBytesConfig)",
+    "prompt_hash": "3d71fdba",
+    "windows_hash": "556e8652",
+    "warmup": 2,
+    "runs": 3,
+    "max_new_tokens": 128,
+    "vram_cap_gb": 5.5,
+    "skip_quality": true,
+    "timestamp": "2026-10-30 01:24:33"
+  },
+  "results": [
+    {
+      "model_id": "Qwen/Qwen2-VL-2B-Instruct",
+      "class": "Qwen2VLForConditionalGeneration",
+      "ok": true,
+      "variants": [
+        {
+          "variant": "images_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 1.99,
+            "torch_alloc_gb": 1.59,
+            "torch_reserved_gb": 1.69
+          },
+          "timing": {
+            "n_measured": 3,
+            "median_s": 2.89,
+            "mean_s": 2.91,
+            "p90_s": 3.19,
+            "min_s": 2.64,
+            "max_s": 3.19,
+            "runs_s": [
+              2.89,
+              2.64,
+              3.19
+            ],
+            "median_preprocess_s": 0.029,
+            "median_prefill_s": 0.409,
+            "median_decode_s": 2.485,
+            "median_out_tokens": 45
+          },
+          "vram": {
+            "device_peak_gb": 1.99,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "{\"is_anomaly\": true|false, \"event_type\": \"<Burglary>\", \"caption\": \"Two people are seen breaking into a car in a garage.\", \"confidence\": 0.99}"
+          },
+          "torch_alloc_peak_gb": 1.59,
+          "torch_reserved_peak_gb": 1.69
+        },
+        {
+          "variant": "images_cap448",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 1.99,
+            "torch_alloc_gb": 1.59,
+            "torch_reserved_gb": 1.69
+          },
+          "timing": {
+            "n_measured": 3,
+            "median_s": 3.0,
+            "mean_s": 2.92,
+            "p90_s": 3.11,
+            "min_s": 2.66,
+            "max_s": 3.11,
+            "runs_s": [
+              3.0,
+              2.66,
+              3.11
+            ],
+            "median_preprocess_s": 0.028,
+            "median_prefill_s": 0.424,
+            "median_decode_s": 2.577,
+            "median_out_tokens": 45
+          },
+          "vram": {
+            "device_peak_gb": 1.99,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "{\"is_anomaly\": true|false, \"event_type\": \"<Burglary>\", \"caption\": \"Two people are seen breaking into a car in a garage.\", \"confidence\": 0.99}"
+          },
+          "torch_alloc_peak_gb": 1.59,
+          "torch_reserved_peak_gb": 1.69
+        },
+        {
+          "variant": "video_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 322,
+            "worst_prompt_tokens": 125,
+            "worst_image_tokens": 197
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 322,
+            "device_peak_gb": 1.94,
+            "torch_alloc_gb": 1.58,
+            "torch_reserved_gb": 1.65
+          },
+          "timing": {
+            "n_measured": 3,
+            "median_s": 2.58,
+            "mean_s": 2.77,
+            "p90_s": 3.28,
+            "min_s": 2.45,
+            "max_s": 3.28,
+            "runs_s": [
+              2.45,
+              2.58,
+              3.28
+            ],
+            "median_preprocess_s": 0.022,
+            "median_prefill_s": 0.228,
+            "median_decode_s": 2.352,
+            "median_out_tokens": 42
+          },
+          "vram": {
+            "device_peak_gb": 1.94,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "{\"is_anomaly\": true, \"event_type\": \"Burglary\", \"caption\": \"Two individuals break into a car in a garage.\", \"confidence\": 0.9}"
+          },
+          "torch_alloc_peak_gb": 1.58,
+          "torch_reserved_peak_gb": 1.65
+        }
+      ],
+      "idle_device_mb": 169.0,
+      "load_seconds": 16.1,
+      "attn_implementation": "sdpa",
+      "clocks_sm_before": [
+        "585"
+      ],
+      "clocks_sm_after": [
+        "825"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "header": {
+    "gpu": "Tesla T4",
+    "gpu_total_vram_gb": 14.56,
+    "clocks_sm_max_temp": [
+      "585, 1590, 73"
+    ],
+    "python": "3.13.16",
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "bitsandbytes": "0.50.2",
+    "accelerate": "1.15.0",
+    "git_commit": "242cdf3",
+    "attn_implementation": "sdpa",
+    "quant": "nf4, fp16 compute (BitsAndBytesConfig)",
+    "prompt_hash": "3d71fdba",
+    "windows_hash": "556e8652",
+    "warmup": 2,
+    "runs": 3,
+    "max_new_tokens": 128,
+    "vram_cap_gb": 5.5,
+    "skip_quality": true,
+    "timestamp": "2026-10-30 01:26:14"
+  },
+  "results": [
+    {
+      "model_id": "Qwen/Qwen2.5-VL-3B-Instruct",
+      "class": "Qwen2_5_VLForConditionalGeneration",
+      "ok": true,
+      "variants": [
+        {
+          "variant": "images_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 2.93,
+            "torch_alloc_gb": 2.52,
+            "torch_reserved_gb": 2.63
+          },
+          "timing": {
+            "n_measured": 3,
+            "median_s": 4.32,
+            "mean_s": 4.35,
+            "p90_s": 4.56,
+            "min_s": 4.16,
+            "max_s": 4.56,
+            "runs_s": [
+              4.56,
+              4.32,
+              4.16
+            ],
+            "median_preprocess_s": 0.028,
+            "median_prefill_s": 0.629,
+            "median_decode_s": 3.689,
+            "median_out_tokens": 52
+          },
+          "vram": {
+            "device_peak_gb": 2.93,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen approaching a car and attempting to steal something from it.\",\n  \"confidence\": 0.95\n}\n```"
+          },
+          "torch_alloc_peak_gb": 2.52,
+          "torch_reserved_peak_gb": 2.63
+        },
+        {
+          "variant": "images_cap448",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 2.93,
+            "torch_alloc_gb": 2.52,
+            "torch_reserved_gb": 2.63
+          },
+          "timing": {
+            "n_measured": 3,
+            "median_s": 4.36,
+            "mean_s": 4.31,
+            "p90_s": 4.53,
+            "min_s": 4.05,
+            "max_s": 4.53,
+            "runs_s": [
+              4.53,
+              4.36,
+              4.05
+            ],
+            "median_preprocess_s": 0.029,
+            "median_prefill_s": 0.612,
+            "median_decode_s": 3.747,
+            "median_out_tokens": 52
+          },
+          "vram": {
+            "device_peak_gb": 2.93,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen approaching a car and attempting to steal something from it.\",\n  \"confidence\": 0.95\n}\n```"
+          },
+          "torch_alloc_peak_gb": 2.52,
+          "torch_reserved_peak_gb": 2.63
+        },
+        {
+          "variant": "video_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 322,
+            "worst_prompt_tokens": 125,
+            "worst_image_tokens": 197
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 322,
+            "device_peak_gb": 2.86,
+            "torch_alloc_gb": 2.49,
+            "torch_reserved_gb": 2.57
+          },
+          "timing": {
+            "n_measured": 3,
+            "median_s": 4.08,
+            "mean_s": 4.16,
+            "p90_s": 4.49,
+            "min_s": 3.89,
+            "max_s": 4.49,
+            "runs_s": [
+              4.49,
+              4.08,
+              3.89
+            ],
+            "median_preprocess_s": 0.022,
+            "median_prefill_s": 0.379,
+            "median_decode_s": 3.718,
+            "median_out_tokens": 52
+          },
+          "vram": {
+            "device_peak_gb": 2.86,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen approaching a car and then entering it, suggesting a potential robbery scenario.\",\n  \"confidence\": 0.95\n}\n```"
+          },
+          "torch_alloc_peak_gb": 2.49,
+          "torch_reserved_peak_gb": 2.57
+        }
+      ],
+      "idle_device_mb": 169.0,
+      "load_seconds": 30.5,
+      "attn_implementation": "sdpa",
+      "clocks_sm_before": [
+        "585"
+      ],
+      "clocks_sm_after": [
+        "945"
+      ]
+    }
+  ]
+}

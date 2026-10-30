@@ -1,0 +1,2491 @@
+﻿# A1redo T4 run — Colab T4, 2026-10-30, git 242cdf3, notebook notebooks/a1_vlm_bench_colab.ipynb
+# Ghép từ 8 file log trên Drive (mỗi model 1 process; capped = --vram-cap-gb 5.5 --runs 3 --skip-quality)
+# File gốc tải từ /content/drive/MyDrive/vlm_a1/
+
+===== log_dryrun.txt =====
+windows: 16 (8 anomaly / 8 normal), hash 556e8652; prompt hash 3d71fdba
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+[transformers] Qwen2VL video processing does not apply the per-frame pixel cap the reference implementation (qwen-vl-utils) applies, so some videos cost far more tokens than they would there. In v5.22 the capped behavior will become the default and `cap_pixels_per_frame` will be removed. Pass `cap_pixels_per_frame=True` to adopt the reference behavior now, or `False` to keep the current behavior and silence this warning.
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+=== DRY RUN (CPU, không sinh inference) ===
+prompt hash: 3d71fdba | windows hash: 556e8652
+prompt system: 'You are a surveillance analyst. Answer strictly in JSON.'
+prompt user (200 đầu): 'These frames come from one short surveillance clip. Does the clip show an abnormal or criminal event? Reply with JSON only: {"is_anomaly": true|false, "event_type": "<one of: Abuse, Arrest, Arson, Ass'
+windows OK: 16 cửa sổ, 4 frame mỗi cửa sổ, ảnh decode được
+  Qwen/Qwen2-VL-2B-Instruct                     images_native   worst=w01 prompt=134 image=392 total=526
+  Qwen/Qwen2-VL-2B-Instruct                     images_cap448   worst=w01 prompt=134 image=392 total=526
+  Qwen/Qwen2-VL-2B-Instruct                     video_native    worst=w01 prompt=125 image=197 total=322
+  Qwen/Qwen2.5-VL-3B-Instruct                   images_native   worst=w01 prompt=134 image=392 total=526
+  Qwen/Qwen2.5-VL-3B-Instruct                   images_cap448   worst=w01 prompt=134 image=392 total=526
+  Qwen/Qwen2.5-VL-3B-Instruct                   video_native    worst=w01 prompt=125 image=197 total=322
+  HuggingFaceTB/SmolVLM2-2.2B-instruct          images_nosplit  worst=w01 prompt=121 image=332 total=457
+  HuggingFaceTB/SmolVLM2-2.2B-instruct          images_split    worst=w01 prompt=121 image=4328 total=4453
+
+===== log_gpu_warmup.txt =====
+before: 750, 1590, 58
+
+===== log_qwen2vl2b.txt =====
+windows: 16 (8 anomaly / 8 normal), hash 556e8652; prompt hash 3d71fdba
+GPU: Tesla T4 (14.56 GB), torch 2.11.0+cu130, transformers 5.20.2
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]
+Fetching 2 files:  50%|█████     | 1/2 [00:09<00:09,  9.54s/it]
+Fetching 2 files: 100%|██████████| 2/2 [01:41<00:00, 57.97s/it]
+Fetching 2 files: 100%|██████████| 2/2 [01:41<00:00, 50.70s/it]
+
+Loading weights:   0%|          | 0/729 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/729 [00:02<25:18,  2.09s/it]
+Loading weights:   0%|          | 3/729 [00:02<07:23,  1.64it/s]
+Loading weights:   1%|          | 5/729 [00:02<04:07,  2.93it/s]
+Loading weights:   2%|▏         | 15/729 [00:02<00:59, 11.97it/s]
+Loading weights:   3%|▎         | 19/729 [00:02<00:52, 13.54it/s]
+Loading weights:   4%|▎         | 27/729 [00:02<00:33, 20.68it/s]
+Loading weights:   4%|▍         | 31/729 [00:03<00:31, 22.42it/s]
+Loading weights:   6%|▌         | 45/729 [00:03<00:16, 41.87it/s]
+Loading weights:   9%|▊         | 63/729 [00:03<00:10, 66.09it/s]
+Loading weights:  10%|█         | 76/729 [00:03<00:08, 76.33it/s]
+Loading weights:  12%|█▏        | 89/729 [00:03<00:07, 83.87it/s]
+Loading weights:  15%|█▍        | 107/729 [00:03<00:05, 105.98it/s]
+Loading weights:  17%|█▋        | 123/729 [00:03<00:06, 98.59it/s] 
+Loading weights:  19%|█▊        | 135/729 [00:04<00:08, 69.17it/s]
+Loading weights:  20%|█▉        | 144/729 [00:04<00:10, 57.31it/s]
+Loading weights:  21%|██        | 152/729 [00:04<00:13, 43.55it/s]
+Loading weights:  22%|██▏       | 159/729 [00:04<00:12, 44.26it/s]
+Loading weights:  23%|██▎       | 165/729 [00:05<00:14, 38.06it/s]
+Loading weights:  23%|██▎       | 171/729 [00:05<00:14, 39.60it/s]
+Loading weights:  24%|██▍       | 176/729 [00:05<00:14, 39.16it/s]
+Loading weights:  26%|██▌       | 191/729 [00:05<00:08, 60.08it/s]
+Loading weights:  27%|██▋       | 199/729 [00:05<00:10, 52.68it/s]
+Loading weights:  28%|██▊       | 207/729 [00:05<00:09, 54.90it/s]
+Loading weights:  29%|██▉       | 214/729 [00:06<00:10, 48.09it/s]
+Loading weights:  30%|███       | 220/729 [00:06<00:12, 40.58it/s]
+Loading weights:  31%|███       | 225/729 [00:06<00:12, 40.22it/s]
+Loading weights:  32%|███▏      | 231/729 [00:06<00:11, 41.51it/s]
+Loading weights:  32%|███▏      | 236/729 [00:06<00:14, 35.18it/s]
+Loading weights:  33%|███▎      | 243/729 [00:06<00:12, 38.94it/s]
+Loading weights:  34%|███▍      | 248/729 [00:07<00:14, 32.95it/s]
+Loading weights:  35%|███▍      | 255/729 [00:07<00:12, 36.58it/s]
+Loading weights:  36%|███▌      | 259/729 [00:07<00:15, 30.08it/s]
+Loading weights:  37%|███▋      | 267/729 [00:07<00:12, 35.88it/s]
+Loading weights:  37%|███▋      | 271/729 [00:07<00:15, 29.74it/s]
+Loading weights:  38%|███▊      | 279/729 [00:07<00:12, 35.35it/s]
+Loading weights:  39%|███▉      | 283/729 [00:08<00:15, 29.34it/s]
+Loading weights:  40%|███▉      | 291/729 [00:08<00:12, 35.29it/s]
+Loading weights:  40%|████      | 295/729 [00:08<00:14, 29.37it/s]
+Loading weights:  42%|████▏     | 303/729 [00:08<00:12, 35.09it/s]
+Loading weights:  42%|████▏     | 307/729 [00:08<00:14, 29.49it/s]
+Loading weights:  43%|████▎     | 315/729 [00:09<00:11, 35.29it/s]
+Loading weights:  44%|████▍     | 319/729 [00:09<00:13, 29.57it/s]
+Loading weights:  45%|████▍     | 327/729 [00:09<00:11, 35.52it/s]
+Loading weights:  45%|████▌     | 331/729 [00:09<00:13, 29.85it/s]
+Loading weights:  47%|████▋     | 344/729 [00:09<00:08, 44.92it/s]
+Loading weights:  49%|████▊     | 354/729 [00:09<00:06, 55.42it/s]
+Loading weights:  50%|████▉     | 361/729 [00:10<00:06, 57.89it/s]
+Loading weights:  50%|█████     | 368/729 [00:10<00:06, 59.71it/s]
+Loading weights:  53%|█████▎    | 390/729 [00:10<00:03, 98.87it/s]
+Loading weights:  57%|█████▋    | 418/729 [00:10<00:02, 145.20it/s]
+Loading weights:  62%|██████▏   | 452/729 [00:10<00:01, 195.05it/s]
+Loading weights:  65%|██████▍   | 473/729 [00:10<00:01, 167.09it/s]
+Loading weights:  67%|██████▋   | 492/729 [00:10<00:01, 123.97it/s]
+Loading weights:  70%|██████▉   | 507/729 [00:11<00:01, 121.09it/s]
+Loading weights:  71%|███████▏  | 521/729 [00:11<00:01, 109.11it/s]
+Loading weights:  73%|███████▎  | 534/729 [00:11<00:02, 94.50it/s] 
+Loading weights:  75%|███████▍  | 545/729 [00:11<00:01, 93.58it/s]
+Loading weights:  76%|███████▋  | 556/729 [00:11<00:01, 87.46it/s]
+Loading weights:  78%|███████▊  | 566/729 [00:11<00:01, 81.79it/s]
+Loading weights:  79%|███████▉  | 575/729 [00:11<00:02, 74.24it/s]
+Loading weights:  80%|████████  | 584/729 [00:12<00:01, 75.87it/s]
+Loading weights:  82%|████████▏ | 596/729 [00:12<00:01, 78.12it/s]
+Loading weights:  83%|████████▎ | 606/729 [00:12<00:01, 82.41it/s]
+Loading weights:  84%|████████▍ | 615/729 [00:12<00:01, 83.14it/s]
+Loading weights:  86%|████████▌ | 624/729 [00:12<00:01, 74.10it/s]
+Loading weights:  87%|████████▋ | 632/729 [00:12<00:01, 74.81it/s]
+Loading weights:  88%|████████▊ | 642/729 [00:12<00:01, 80.86it/s]
+Loading weights:  89%|████████▉ | 651/729 [00:12<00:00, 81.63it/s]
+Loading weights:  91%|█████████ | 660/729 [00:13<00:00, 73.27it/s]
+Loading weights:  92%|█████████▏| 668/729 [00:13<00:00, 73.68it/s]
+Loading weights:  93%|█████████▎| 678/729 [00:13<00:00, 80.34it/s]
+Loading weights:  94%|█████████▍| 687/729 [00:13<00:00, 81.62it/s]
+Loading weights:  95%|█████████▌| 696/729 [00:13<00:00, 72.73it/s]
+Loading weights:  97%|█████████▋| 704/729 [00:13<00:00, 73.85it/s]
+Loading weights:  98%|█████████▊| 714/729 [00:13<00:00, 80.02it/s]
+Loading weights:  99%|█████████▉| 723/729 [00:13<00:00, 81.63it/s]
+Loading weights: 100%|██████████| 729/729 [00:14<00:00, 51.68it/s]
+
+--- Qwen/Qwen2-VL-2B-Instruct :: images_native ---
+  images_native warmup: total 2.595s (prefill 4.241s, decode 0.0s, 40 tok)
+  images_native warmup: total 3.031s (prefill 0.349s, decode 2.683s, 48 tok)
+  images_native run 1/8: total 2.88s (prefill 0.344s, decode 2.536s, 45 tok)
+  images_native run 2/8: total 2.524s (prefill 0.35s, decode 2.174s, 38 tok)
+  images_native run 3/8: total 3.178s (prefill 0.35s, decode 2.828s, 50 tok)
+  images_native run 4/8: total 3.246s (prefill 0.359s, decode 2.887s, 50 tok)
+  images_native run 5/8: total 4.084s (prefill 0.349s, decode 3.734s, 65 tok)
+  images_native run 6/8: total 4.779s (prefill 0.364s, decode 4.415s, 76 tok)
+  images_native run 7/8: total 2.231s (prefill 0.371s, decode 1.86s, 32 tok)
+  images_native run 8/8: total 2.721s (prefill 0.374s, decode 2.347s, 42 tok)
+--- quality pass (16 cửa sổ, variant chính images_native) ---
+  parse first-try 2/16, consistency 1/2, TPR 0/0, FPR 1/2, type_match 0/0
+
+--- Qwen/Qwen2-VL-2B-Instruct :: images_cap448 ---
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 warmup: total 2.639s (prefill 0.409s, decode 2.23s, 40 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 warmup: total 3.092s (prefill 0.4s, decode 2.692s, 48 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 1/8: total 2.954s (prefill 0.397s, decode 2.557s, 45 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 2/8: total 2.549s (prefill 0.39s, decode 2.159s, 38 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 3/8: total 3.191s (prefill 0.392s, decode 2.799s, 50 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 4/8: total 3.14s (prefill 0.401s, decode 2.739s, 50 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 5/8: total 4.175s (prefill 0.391s, decode 3.784s, 65 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 6/8: total 4.741s (prefill 0.397s, decode 4.343s, 76 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 7/8: total 2.262s (prefill 0.398s, decode 1.864s, 32 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 8/8: total 2.788s (prefill 0.4s, decode 2.388s, 42 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+
+--- Qwen/Qwen2-VL-2B-Instruct :: video_native ---
+[transformers] Qwen2VL video processing does not apply the per-frame pixel cap the reference implementation (qwen-vl-utils) applies, so some videos cost far more tokens than they would there. In v5.22 the capped behavior will become the default and `cap_pixels_per_frame` will be removed. Pass `cap_pixels_per_frame=True` to adopt the reference behavior now, or `False` to keep the current behavior and silence this warning.
+  video_native warmup: total 2.674s (prefill 0.256s, decode 2.418s, 42 tok)
+  video_native warmup: total 3.338s (prefill 0.226s, decode 3.113s, 55 tok)
+  video_native run 1/8: total 2.395s (prefill 0.234s, decode 2.161s, 40 tok)
+  video_native run 2/8: total 2.681s (prefill 0.234s, decode 2.447s, 42 tok)
+  video_native run 3/8: total 2.892s (prefill 0.238s, decode 2.654s, 47 tok)
+  video_native run 4/8: total 2.358s (prefill 0.237s, decode 2.121s, 38 tok)
+  video_native run 5/8: total 2.568s (prefill 0.236s, decode 2.332s, 42 tok)
+  video_native run 6/8: total 2.67s (prefill 0.229s, decode 2.441s, 45 tok)
+  video_native run 7/8: total 2.048s (prefill 0.23s, decode 1.818s, 33 tok)
+  video_native run 8/8: total 2.248s (prefill 0.226s, decode 2.022s, 37 tok)
+
+=== TỔNG KẾT ===
+{
+  "header": {
+    "gpu": "Tesla T4",
+    "gpu_total_vram_gb": 14.56,
+    "clocks_sm_max_temp": [
+      "585, 1590, 57"
+    ],
+    "python": "3.13.16",
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "bitsandbytes": "0.50.2",
+    "accelerate": "1.15.0",
+    "git_commit": "242cdf3",
+    "attn_implementation": "sdpa",
+    "quant": "nf4, fp16 compute (BitsAndBytesConfig)",
+    "prompt_hash": "3d71fdba",
+    "windows_hash": "556e8652",
+    "warmup": 2,
+    "runs": 8,
+    "max_new_tokens": 128,
+    "vram_cap_gb": null,
+    "skip_quality": false,
+    "timestamp": "2026-10-30 01:06:31"
+  },
+  "results": [
+    {
+      "model_id": "Qwen/Qwen2-VL-2B-Instruct",
+      "class": "Qwen2VLForConditionalGeneration",
+      "ok": true,
+      "variants": [
+        {
+          "variant": "images_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 1.99,
+            "torch_alloc_gb": 1.59,
+            "torch_reserved_gb": 1.69
+          },
+          "timing": {
+            "n_measured": 8,
+            "median_s": 3.03,
+            "mean_s": 3.21,
+            "p90_s": 4.78,
+            "min_s": 2.23,
+            "max_s": 4.78,
+            "runs_s": [
+              2.88,
+              2.52,
+              3.18,
+              3.25,
+              4.08,
+              4.78,
+              2.23,
+              2.72
+            ],
+            "median_preprocess_s": 0.029,
+            "median_prefill_s": 0.354,
+            "median_decode_s": 2.682,
+            "median_out_tokens": 47
+          },
+          "vram": {
+            "device_peak_gb": 1.99,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "{\"is_anomaly\": true|false, \"event_type\": \"<Burglary>\", \"caption\": \"Two people are seen breaking into a car in a garage.\", \"confidence\": 0.99}"
+          },
+          "torch_alloc_peak_gb": 1.59,
+          "torch_reserved_peak_gb": 1.69
+        },
+        {
+          "variant": "images_cap448",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 1.99,
+            "torch_alloc_gb": 1.59,
+            "torch_reserved_gb": 1.69
+          },
+          "timing": {
+            "n_measured": 8,
+            "median_s": 3.05,
+            "mean_s": 3.23,
+            "p90_s": 4.74,
+            "min_s": 2.26,
+            "max_s": 4.74,
+            "runs_s": [
+              2.95,
+              2.55,
+              3.19,
+              3.14,
+              4.17,
+              4.74,
+              2.26,
+              2.79
+            ],
+            "median_preprocess_s": 0.029,
+            "median_prefill_s": 0.397,
+            "median_decode_s": 2.648,
+            "median_out_tokens": 47
+          },
+          "vram": {
+            "device_peak_gb": 1.99,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "{\"is_anomaly\": true|false, \"event_type\": \"<Burglary>\", \"caption\": \"Two people are seen breaking into a car in a garage.\", \"confidence\": 0.99}"
+          },
+          "torch_alloc_peak_gb": 1.59,
+          "torch_reserved_peak_gb": 1.69
+        },
+        {
+          "variant": "video_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 322,
+            "worst_prompt_tokens": 125,
+            "worst_image_tokens": 197
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 322,
+            "device_peak_gb": 1.94,
+            "torch_alloc_gb": 1.58,
+            "torch_reserved_gb": 1.65
+          },
+          "timing": {
+            "n_measured": 8,
+            "median_s": 2.48,
+            "mean_s": 2.48,
+            "p90_s": 2.89,
+            "min_s": 2.05,
+            "max_s": 2.89,
+            "runs_s": [
+              2.4,
+              2.68,
+              2.89,
+              2.36,
+              2.57,
+              2.67,
+              2.05,
+              2.25
+            ],
+            "median_preprocess_s": 0.022,
+            "median_prefill_s": 0.234,
+            "median_decode_s": 2.247,
+            "median_out_tokens": 41
+          },
+          "vram": {
+            "device_peak_gb": 1.94,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "{\"is_anomaly\": true, \"event_type\": \"Burglary\", \"caption\": \"Two individuals break into a car in a garage.\", \"confidence\": 0.9}"
+          },
+          "torch_alloc_peak_gb": 1.58,
+          "torch_reserved_peak_gb": 1.65
+        }
+      ],
+      "idle_device_mb": 169.0,
+      "load_seconds": 117.1,
+      "attn_implementation": "sdpa",
+      "quality": {
+        "variant": "images_native",
+        "n_windows": 16,
+        "parse_ok_first_try": "2/16",
+        "consistency": "1/2",
+        "tpr": "0/0",
+        "fpr": "1/2",
+        "type_match": "0/0",
+        "mean_conf_correct": 1.0,
+        "mean_conf_wrong": 0.9,
+        "outputs": [
+          {
+            "window_id": "w01",
+            "label": "anomaly",
+            "gt_event": "Arrest",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Arrest>\", \"caption\": \"A police officer is seen arresting a suspect.\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w02",
+            "label": "anomaly",
+            "gt_event": "Shoplifting",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Shoplifting>\", \"caption\": \"A man in an orange shirt is seen stealing a bottle of wine from a store.\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w03",
+            "label": "anomaly",
+            "gt_event": "Shooting",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Burglary>\", \"caption\": \"Two people are seen breaking into a car in a garage.\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w04",
+            "label": "anomaly",
+            "gt_event": "Explosion",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Arson>\", \"caption\": \"A fire breaks out in a room.\", \"confidence\": 0.9}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w05",
+            "label": "anomaly",
+            "gt_event": "Stealing",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Arrest>\", \"caption\": \"Two men in suits and a man in a blue shirt are standing next to a white truck.\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w06",
+            "label": "anomaly",
+            "gt_event": "Arson",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Robbery>\", \"caption\": \"A man in a hoodie and gloves is seen stealing a bag from a woman in a subway car.\", \"confidence\": 0.9}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w07",
+            "label": "anomaly",
+            "gt_event": "Assault",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Robbery>\", \"caption\": \"A man in a white shirt and black pants is seen walking into a store and grabbing a woman's purse. The man then walks out of the store with the purse.\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w08",
+            "label": "anomaly",
+            "gt_event": "RoadAccidents",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<one of: Abuse, Arrest, Arson, Assault, Burglary, Explosion, Fighting, RoadAccidents, Robbery, Shooting, Shoplifting, Stealing, Vandalism, Normal>\", \"caption\": \"a man is crossing the street\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w09",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "{\"is_anomaly\": false, \"event_type\": \"Normal\", \"caption\": \"People are working in an office.\", \"confidence\": 1}",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "People are working in an office.",
+              "confidence": 1.0
+            }
+          },
+          {
+            "window_id": "w10",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "{\"is_anomaly\": false|true, \"event_type\": \"<no events>\", \"caption\": \"The image shows a typical office environment with people working at their desks.\", \"confidence\": 1}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 21 (char 20)"
+          },
+          {
+            "window_id": "w11",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Arson>\", \"caption\": \"A man in a red jacket is seen walking into a restaurant and lighting it on fire.\", \"confidence\": 0.9}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w12",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<RoadAccidents>\", \"caption\": \"A car is seen crashing into another car on a street.\", \"confidence\": 0.9}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w13",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "{\"is_anomaly\": false|true, \"event_type\": \"<one of: Abuse, Arrest, Arson, Assault, Burglary, Explosion, Fighting, RoadAccidents, Robbery, Shooting, Shoplifting, Stealing, Vandalism, Normal>\", \"caption\": \"The chef is preparing food in the kitchen.\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 21 (char 20)"
+          },
+          {
+            "window_id": "w14",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A man on a motorbike drives past a small shop.\",\n  \"confidence\": 0.9\n}\n```",
+            "parsed": {
+              "is_anomaly": true,
+              "event_type": "Normal",
+              "caption": "A man on a motorbike drives past a small shop.",
+              "confidence": 0.9
+            }
+          },
+          {
+            "window_id": "w15",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "{\"is_anomaly\": false|true, \"event_type\": \"<no events>\", \"caption\": \"A man in a black shirt and glasses is standing behind a desk in a lobby, speaking to a woman at the desk.\", \"confidence\": 1}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 21 (char 20)"
+          },
+          {
+            "window_id": "w16",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "{\"is_anomaly\": false|true, \"event_type\": \"<one of: Abuse, Arrest, Arson, Assault, Burglary, Explosion, Fighting, RoadAccidents, Robbery, Shooting, Shoplifting, Stealing, Vandalism, Normal>\", \"caption\": \"<one factual sentence describing what happens>\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 21 (char 20)"
+          }
+        ]
+      },
+      "clocks_sm_before": [
+        "585"
+      ],
+      "clocks_sm_after": [
+        "945"
+      ]
+    }
+  ]
+}
+
+===== log_qwen25vl3b.txt =====
+windows: 16 (8 anomaly / 8 normal), hash 556e8652; prompt hash 3d71fdba
+GPU: Tesla T4 (14.56 GB), torch 2.11.0+cu130, transformers 5.20.2
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]
+Fetching 2 files:  50%|█████     | 1/2 [01:20<01:20, 80.41s/it]
+Fetching 2 files: 100%|██████████| 2/2 [02:03<00:00, 58.69s/it]
+Fetching 2 files: 100%|██████████| 2/2 [02:03<00:00, 61.95s/it]
+
+Loading weights:   0%|          | 0/824 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/824 [00:02<35:45,  2.61s/it]
+Loading weights:   0%|          | 3/824 [00:02<10:15,  1.33it/s]
+Loading weights:   0%|          | 4/824 [00:02<07:30,  1.82it/s]
+Loading weights:   1%|          | 5/824 [00:03<05:43,  2.38it/s]
+Loading weights:   2%|▏         | 15/824 [00:03<01:15, 10.79it/s]
+Loading weights:   2%|▏         | 17/824 [00:03<01:27,  9.17it/s]
+Loading weights:   3%|▎         | 27/824 [00:03<00:48, 16.35it/s]
+Loading weights:   4%|▎         | 30/824 [00:04<00:58, 13.69it/s]
+Loading weights:   5%|▍         | 39/824 [00:04<00:41, 18.92it/s]
+Loading weights:   5%|▌         | 42/824 [00:04<00:51, 15.31it/s]
+Loading weights:   6%|▌         | 51/824 [00:05<00:38, 20.25it/s]
+Loading weights:   7%|▋         | 54/824 [00:05<00:47, 16.13it/s]
+Loading weights:   8%|▊         | 63/824 [00:05<00:36, 20.85it/s]
+Loading weights:   8%|▊         | 66/824 [00:06<00:45, 16.48it/s]
+Loading weights:   9%|▉         | 75/824 [00:06<00:34, 21.41it/s]
+Loading weights:   9%|▉         | 78/824 [00:06<00:43, 17.03it/s]
+Loading weights:  11%|█         | 87/824 [00:07<00:33, 21.68it/s]
+Loading weights:  11%|█         | 90/824 [00:07<00:43, 16.96it/s]
+Loading weights:  12%|█▏        | 99/824 [00:07<00:32, 22.07it/s]
+Loading weights:  12%|█▏        | 102/824 [00:08<00:41, 17.34it/s]
+Loading weights:  13%|█▎        | 111/824 [00:08<00:32, 21.76it/s]
+Loading weights:  14%|█▍        | 114/824 [00:08<00:41, 17.22it/s]
+Loading weights:  15%|█▍        | 123/824 [00:08<00:32, 21.85it/s]
+Loading weights:  15%|█▌        | 126/824 [00:09<00:40, 17.27it/s]
+Loading weights:  16%|█▋        | 135/824 [00:09<00:31, 21.94it/s]
+Loading weights:  17%|█▋        | 138/824 [00:09<00:39, 17.30it/s]
+Loading weights:  18%|█▊        | 147/824 [00:10<00:30, 21.98it/s]
+Loading weights:  18%|█▊        | 150/824 [00:10<00:38, 17.34it/s]
+Loading weights:  19%|█▉        | 159/824 [00:10<00:30, 21.85it/s]
+Loading weights:  20%|█▉        | 162/824 [00:11<00:38, 17.17it/s]
+Loading weights:  21%|██        | 171/824 [00:11<00:29, 21.82it/s]
+Loading weights:  21%|██        | 174/824 [00:11<00:37, 17.14it/s]
+Loading weights:  22%|██▏       | 183/824 [00:12<00:29, 21.55it/s]
+Loading weights:  23%|██▎       | 186/824 [00:12<00:37, 17.07it/s]
+Loading weights:  24%|██▎       | 195/824 [00:12<00:29, 21.54it/s]
+Loading weights:  24%|██▍       | 198/824 [00:13<00:36, 17.03it/s]
+Loading weights:  25%|██▌       | 207/824 [00:13<00:28, 21.66it/s]
+Loading weights:  25%|██▌       | 210/824 [00:13<00:35, 17.06it/s]
+Loading weights:  27%|██▋       | 219/824 [00:13<00:28, 21.58it/s]
+Loading weights:  27%|██▋       | 222/824 [00:14<00:35, 17.00it/s]
+Loading weights:  28%|██▊       | 231/824 [00:14<00:27, 21.44it/s]
+Loading weights:  28%|██▊       | 234/824 [00:14<00:34, 16.97it/s]
+Loading weights:  29%|██▉       | 243/824 [00:15<00:27, 21.49it/s]
+Loading weights:  30%|██▉       | 246/824 [00:15<00:33, 17.12it/s]
+Loading weights:  31%|███       | 255/824 [00:15<00:26, 21.66it/s]
+Loading weights:  31%|███▏      | 258/824 [00:16<00:33, 17.09it/s]
+Loading weights:  32%|███▏      | 267/824 [00:16<00:25, 21.65it/s]
+Loading weights:  33%|███▎      | 270/824 [00:16<00:32, 17.05it/s]
+Loading weights:  34%|███▍      | 279/824 [00:17<00:25, 21.64it/s]
+Loading weights:  34%|███▍      | 282/824 [00:17<00:31, 17.06it/s]
+Loading weights:  35%|███▌      | 291/824 [00:17<00:25, 21.07it/s]
+Loading weights:  36%|███▌      | 294/824 [00:18<00:30, 17.19it/s]
+Loading weights:  37%|███▋      | 303/824 [00:18<00:23, 21.82it/s]
+Loading weights:  37%|███▋      | 306/824 [00:18<00:29, 17.27it/s]
+Loading weights:  38%|███▊      | 315/824 [00:18<00:23, 21.90it/s]
+Loading weights:  39%|███▊      | 318/824 [00:19<00:29, 17.32it/s]
+Loading weights:  40%|███▉      | 327/824 [00:19<00:22, 21.90it/s]
+Loading weights:  40%|████      | 330/824 [00:19<00:28, 17.34it/s]
+Loading weights:  41%|████      | 339/824 [00:20<00:22, 21.95it/s]
+Loading weights:  42%|████▏     | 342/824 [00:20<00:27, 17.33it/s]
+Loading weights:  43%|████▎     | 351/824 [00:20<00:21, 21.97it/s]
+Loading weights:  43%|████▎     | 354/824 [00:21<00:27, 17.33it/s]
+Loading weights:  44%|████▍     | 363/824 [00:21<00:20, 22.00it/s]
+Loading weights:  44%|████▍     | 366/824 [00:21<00:26, 17.31it/s]
+Loading weights:  46%|████▌     | 375/824 [00:21<00:20, 22.00it/s]
+Loading weights:  46%|████▌     | 378/824 [00:22<00:25, 17.35it/s]
+Loading weights:  47%|████▋     | 387/824 [00:22<00:20, 21.72it/s]
+Loading weights:  47%|████▋     | 390/824 [00:22<00:25, 17.23it/s]
+Loading weights:  48%|████▊     | 399/824 [00:23<00:19, 21.83it/s]
+Loading weights:  49%|████▉     | 402/824 [00:23<00:24, 17.29it/s]
+Loading weights:  50%|████▉     | 411/824 [00:23<00:18, 21.94it/s]
+Loading weights:  50%|█████     | 414/824 [00:24<00:23, 17.26it/s]
+Loading weights:  51%|█████▏    | 423/824 [00:24<00:18, 21.92it/s]
+Loading weights:  52%|█████▏    | 426/824 [00:24<00:23, 17.29it/s]
+Loading weights:  53%|█████▎    | 438/824 [00:24<00:13, 29.10it/s]
+Loading weights:  54%|█████▍    | 444/824 [00:24<00:11, 33.21it/s]
+Loading weights:  55%|█████▌    | 454/824 [00:25<00:08, 43.08it/s]
+Loading weights:  56%|█████▋    | 464/824 [00:25<00:06, 51.51it/s]
+Loading weights:  58%|█████▊    | 474/824 [00:25<00:05, 58.34it/s]
+Loading weights:  58%|█████▊    | 481/824 [00:25<00:05, 60.32it/s]
+Loading weights:  59%|█████▉    | 490/824 [00:25<00:05, 63.62it/s]
+Loading weights:  61%|██████    | 500/824 [00:25<00:04, 68.69it/s]
+Loading weights:  62%|██████▏   | 510/824 [00:25<00:04, 72.26it/s]
+Loading weights:  63%|██████▎   | 518/824 [00:25<00:04, 73.33it/s]
+Loading weights:  64%|██████▍   | 526/824 [00:26<00:04, 70.92it/s]
+Loading weights:  65%|██████▌   | 536/824 [00:26<00:03, 74.03it/s]
+Loading weights:  66%|██████▋   | 546/824 [00:26<00:03, 75.85it/s]
+Loading weights:  67%|██████▋   | 554/824 [00:26<00:03, 75.57it/s]
+Loading weights:  68%|██████▊   | 562/824 [00:26<00:03, 72.17it/s]
+Loading weights:  69%|██████▉   | 572/824 [00:26<00:03, 74.72it/s]
+Loading weights:  71%|███████   | 582/824 [00:26<00:03, 77.00it/s]
+Loading weights:  72%|███████▏  | 590/824 [00:26<00:03, 76.72it/s]
+Loading weights:  73%|███████▎  | 598/824 [00:27<00:03, 73.03it/s]
+Loading weights:  74%|███████▍  | 608/824 [00:27<00:02, 76.35it/s]
+Loading weights:  75%|███████▌  | 618/824 [00:27<00:02, 77.92it/s]
+Loading weights:  76%|███████▌  | 626/824 [00:27<00:02, 77.58it/s]
+Loading weights:  77%|███████▋  | 634/824 [00:27<00:02, 73.71it/s]
+Loading weights:  78%|███████▊  | 644/824 [00:27<00:02, 76.55it/s]
+Loading weights:  79%|███████▉  | 654/824 [00:27<00:02, 75.92it/s]
+Loading weights:  80%|████████  | 662/824 [00:27<00:02, 76.93it/s]
+Loading weights:  81%|████████▏ | 670/824 [00:27<00:02, 74.82it/s]
+Loading weights:  83%|████████▎ | 680/824 [00:28<00:01, 76.38it/s]
+Loading weights:  84%|████████▎ | 690/824 [00:28<00:01, 79.18it/s]
+Loading weights:  85%|████████▍ | 698/824 [00:28<00:01, 78.63it/s]
+Loading weights:  86%|████████▌ | 706/824 [00:28<00:01, 74.30it/s]
+Loading weights:  87%|████████▋ | 716/824 [00:28<00:01, 76.81it/s]
+Loading weights:  88%|████████▊ | 726/824 [00:28<00:01, 78.20it/s]
+Loading weights:  89%|████████▉ | 734/824 [00:28<00:01, 77.78it/s]
+Loading weights:  90%|█████████ | 742/824 [00:28<00:01, 74.19it/s]
+Loading weights:  91%|█████████▏| 752/824 [00:28<00:00, 76.72it/s]
+Loading weights:  92%|█████████▏| 762/824 [00:29<00:00, 78.04it/s]
+Loading weights:  93%|█████████▎| 770/824 [00:29<00:00, 77.77it/s]
+Loading weights:  94%|█████████▍| 778/824 [00:29<00:00, 74.24it/s]
+Loading weights:  96%|█████████▌| 788/824 [00:29<00:00, 76.59it/s]
+Loading weights:  97%|█████████▋| 798/824 [00:29<00:00, 78.80it/s]
+Loading weights:  98%|█████████▊| 806/824 [00:29<00:00, 78.39it/s]
+Loading weights:  99%|█████████▉| 814/824 [00:29<00:00, 74.49it/s]
+Loading weights: 100%|█████████▉| 822/824 [00:30<00:00, 53.23it/s]
+Loading weights: 100%|██████████| 824/824 [00:30<00:00, 27.32it/s]
+
+--- Qwen/Qwen2.5-VL-3B-Instruct :: images_native ---
+  images_native warmup: total 4.381s (prefill 3.52s, decode 0.861s, 52 tok)
+  images_native warmup: total 4.03s (prefill 0.623s, decode 3.406s, 48 tok)
+  images_native run 1/8: total 4.505s (prefill 0.634s, decode 3.871s, 54 tok)
+  images_native run 2/8: total 4.452s (prefill 0.651s, decode 3.801s, 54 tok)
+  images_native run 3/8: total 4.611s (prefill 0.65s, decode 3.961s, 56 tok)
+  images_native run 4/8: total 4.739s (prefill 0.639s, decode 4.1s, 57 tok)
+  images_native run 5/8: total 4.428s (prefill 0.62s, decode 3.808s, 54 tok)
+  images_native run 6/8: total 4.449s (prefill 0.62s, decode 3.829s, 54 tok)
+  images_native run 7/8: total 4.122s (prefill 0.609s, decode 3.513s, 49 tok)
+  images_native run 8/8: total 3.978s (prefill 0.607s, decode 3.371s, 48 tok)
+--- quality pass (16 cửa sổ, variant chính images_native) ---
+  parse first-try 16/16, consistency 16/16, TPR 6/8, FPR 0/8, type_match 0/8
+
+--- Qwen/Qwen2.5-VL-3B-Instruct :: images_cap448 ---
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 warmup: total 4.258s (prefill 0.606s, decode 3.653s, 52 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 warmup: total 3.998s (prefill 0.599s, decode 3.399s, 48 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 1/8: total 4.418s (prefill 0.605s, decode 3.813s, 54 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 2/8: total 4.426s (prefill 0.608s, decode 3.818s, 54 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 3/8: total 4.525s (prefill 0.604s, decode 3.92s, 56 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 4/8: total 4.897s (prefill 0.607s, decode 4.29s, 57 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 5/8: total 4.427s (prefill 0.61s, decode 3.817s, 54 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 6/8: total 4.467s (prefill 0.611s, decode 3.856s, 54 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 7/8: total 4.059s (prefill 0.61s, decode 3.449s, 49 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 8/8: total 4.051s (prefill 0.615s, decode 3.436s, 48 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+
+--- Qwen/Qwen2.5-VL-3B-Instruct :: video_native ---
+[transformers] Qwen2VL video processing does not apply the per-frame pixel cap the reference implementation (qwen-vl-utils) applies, so some videos cost far more tokens than they would there. In v5.22 the capped behavior will become the default and `cap_pixels_per_frame` will be removed. Pass `cap_pixels_per_frame=True` to adopt the reference behavior now, or `False` to keep the current behavior and silence this warning.
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native warmup: total 4.095s (prefill 0.414s, decode 3.681s, 52 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native warmup: total 3.808s (prefill 0.374s, decode 3.434s, 49 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native run 1/8: total 4.43s (prefill 0.378s, decode 4.052s, 57 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native run 2/8: total 4.483s (prefill 0.377s, decode 4.106s, 58 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native run 3/8: total 3.998s (prefill 0.37s, decode 3.628s, 51 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native run 4/8: total 4.003s (prefill 0.379s, decode 3.624s, 51 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native run 5/8: total 3.865s (prefill 0.378s, decode 3.487s, 48 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native run 6/8: total 4.064s (prefill 0.399s, decode 3.665s, 52 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native run 7/8: total 3.83s (prefill 0.378s, decode 3.452s, 49 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native run 8/8: total 3.681s (prefill 0.382s, decode 3.299s, 48 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+
+=== TỔNG KẾT ===
+{
+  "header": {
+    "gpu": "Tesla T4",
+    "gpu_total_vram_gb": 14.56,
+    "clocks_sm_max_temp": [
+      "585, 1590, 72"
+    ],
+    "python": "3.13.16",
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "bitsandbytes": "0.50.2",
+    "accelerate": "1.15.0",
+    "git_commit": "242cdf3",
+    "attn_implementation": "sdpa",
+    "quant": "nf4, fp16 compute (BitsAndBytesConfig)",
+    "prompt_hash": "3d71fdba",
+    "windows_hash": "556e8652",
+    "warmup": 2,
+    "runs": 8,
+    "max_new_tokens": 128,
+    "vram_cap_gb": null,
+    "skip_quality": false,
+    "timestamp": "2026-10-30 01:11:47"
+  },
+  "results": [
+    {
+      "model_id": "Qwen/Qwen2.5-VL-3B-Instruct",
+      "class": "Qwen2_5_VLForConditionalGeneration",
+      "ok": true,
+      "variants": [
+        {
+          "variant": "images_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 2.93,
+            "torch_alloc_gb": 2.52,
+            "torch_reserved_gb": 2.63
+          },
+          "timing": {
+            "n_measured": 8,
+            "median_s": 4.45,
+            "mean_s": 4.41,
+            "p90_s": 4.74,
+            "min_s": 3.98,
+            "max_s": 4.74,
+            "runs_s": [
+              4.5,
+              4.45,
+              4.61,
+              4.74,
+              4.43,
+              4.45,
+              4.12,
+              3.98
+            ],
+            "median_preprocess_s": 0.029,
+            "median_prefill_s": 0.627,
+            "median_decode_s": 3.819,
+            "median_out_tokens": 54
+          },
+          "vram": {
+            "device_peak_gb": 2.93,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen approaching a car and attempting to steal something from it.\",\n  \"confidence\": 0.95\n}\n```"
+          },
+          "torch_alloc_peak_gb": 2.52,
+          "torch_reserved_peak_gb": 2.63
+        },
+        {
+          "variant": "images_cap448",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 2.93,
+            "torch_alloc_gb": 2.52,
+            "torch_reserved_gb": 2.63
+          },
+          "timing": {
+            "n_measured": 8,
+            "median_s": 4.43,
+            "mean_s": 4.41,
+            "p90_s": 4.9,
+            "min_s": 4.05,
+            "max_s": 4.9,
+            "runs_s": [
+              4.42,
+              4.43,
+              4.53,
+              4.9,
+              4.43,
+              4.47,
+              4.06,
+              4.05
+            ],
+            "median_preprocess_s": 0.029,
+            "median_prefill_s": 0.609,
+            "median_decode_s": 3.817,
+            "median_out_tokens": 54
+          },
+          "vram": {
+            "device_peak_gb": 2.93,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen approaching a car and attempting to steal something from it.\",\n  \"confidence\": 0.95\n}\n```"
+          },
+          "torch_alloc_peak_gb": 2.52,
+          "torch_reserved_peak_gb": 2.63
+        },
+        {
+          "variant": "video_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 322,
+            "worst_prompt_tokens": 125,
+            "worst_image_tokens": 197
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 322,
+            "device_peak_gb": 2.86,
+            "torch_alloc_gb": 2.49,
+            "torch_reserved_gb": 2.57
+          },
+          "timing": {
+            "n_measured": 8,
+            "median_s": 4.0,
+            "mean_s": 4.04,
+            "p90_s": 4.48,
+            "min_s": 3.68,
+            "max_s": 4.48,
+            "runs_s": [
+              4.43,
+              4.48,
+              4.0,
+              4.0,
+              3.87,
+              4.06,
+              3.83,
+              3.68
+            ],
+            "median_preprocess_s": 0.022,
+            "median_prefill_s": 0.378,
+            "median_decode_s": 3.626,
+            "median_out_tokens": 51
+          },
+          "vram": {
+            "device_peak_gb": 2.86,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen approaching a car and then entering it, suggesting a potential robbery scenario.\",\n  \"confidence\": 0.95\n}\n```"
+          },
+          "torch_alloc_peak_gb": 2.49,
+          "torch_reserved_peak_gb": 2.57
+        }
+      ],
+      "idle_device_mb": 169.0,
+      "load_seconds": 155.6,
+      "attn_implementation": "sdpa",
+      "quality": {
+        "variant": "images_native",
+        "n_windows": 16,
+        "parse_ok_first_try": "16/16",
+        "consistency": "16/16",
+        "tpr": "6/8",
+        "fpr": "0/8",
+        "type_match": "0/8",
+        "mean_conf_correct": 0.95,
+        "mean_conf_wrong": 0.95,
+        "outputs": [
+          {
+            "window_id": "w01",
+            "label": "anomaly",
+            "gt_event": "Arrest",
+            "raw": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is being robbed by armed individuals on a city street.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": true,
+              "event_type": "Robbery",
+              "caption": "A person is being robbed by armed individuals on a city street.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w02",
+            "label": "anomaly",
+            "gt_event": "Shoplifting",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A cashier assists a customer at a checkout counter.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A cashier assists a customer at a checkout counter.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w03",
+            "label": "anomaly",
+            "gt_event": "Shooting",
+            "raw": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen approaching a car and attempting to steal something from it.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": true,
+              "event_type": "Robbery",
+              "caption": "A person is seen approaching a car and attempting to steal something from it.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w04",
+            "label": "anomaly",
+            "gt_event": "Explosion",
+            "raw": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Burglary\",\n  \"caption\": \"A person is seen breaking into a house and leaving with items.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": true,
+              "event_type": "Burglary",
+              "caption": "A person is seen breaking into a house and leaving with items.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w05",
+            "label": "anomaly",
+            "gt_event": "Stealing",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A person is seen walking towards a white van parked on the side of a dirt road.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A person is seen walking towards a white van parked on the side of a dirt road.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w06",
+            "label": "anomaly",
+            "gt_event": "Arson",
+            "raw": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen holding a green object and then a gun, indicating a robbery scenario.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": true,
+              "event_type": "Robbery",
+              "caption": "A person is seen holding a green object and then a gun, indicating a robbery scenario.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w07",
+            "label": "anomaly",
+            "gt_event": "Assault",
+            "raw": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A group of individuals is seen entering a store and engaging in a robbery.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": true,
+              "event_type": "Robbery",
+              "caption": "A group of individuals is seen entering a store and engaging in a robbery.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w08",
+            "label": "anomaly",
+            "gt_event": "RoadAccidents",
+            "raw": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A white pickup truck is being robbed by two individuals on a city street.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": true,
+              "event_type": "Robbery",
+              "caption": "A white pickup truck is being robbed by two individuals on a city street.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w09",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A person is working at their desk in an office.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A person is working at their desk in an office.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w10",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"An office environment with employees working at their desks.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "An office environment with employees working at their desks.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w11",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A person is sitting at a table in a restaurant.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A person is sitting at a table in a restaurant.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w12",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A black sports car is parked on the side of a busy street.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A black sports car is parked on the side of a busy street.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w13",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A chef is preparing food in a kitchen.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A chef is preparing food in a kitchen.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w14",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A person rides a motorcycle down a street next to a row of shops.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A person rides a motorcycle down a street next to a row of shops.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w15",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A man is demonstrating something to another man at a desk.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A man is demonstrating something to another man at a desk.",
+              "confidence": 0.95
+            }
+          },
+          {
+            "window_id": "w16",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": false,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A group of people working in an office with boxes stacked around them.\",\n  \"confidence\": 0.95\n}\n```",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "A group of people working in an office with boxes stacked around them.",
+              "confidence": 0.95
+            }
+          }
+        ]
+      },
+      "clocks_sm_before": [
+        "585"
+      ],
+      "clocks_sm_after": [
+        "960"
+      ]
+    }
+  ]
+}
+
+===== log_smolvlm2.txt =====
+windows: 16 (8 anomaly / 8 normal), hash 556e8652; prompt hash 3d71fdba
+GPU: Tesla T4 (14.56 GB), torch 2.11.0+cu130, transformers 5.20.2
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]
+Fetching 2 files:  50%|█████     | 1/2 [01:51<01:51, 111.72s/it]
+Fetching 2 files: 100%|██████████| 2/2 [04:12<00:00, 129.07s/it]
+Fetching 2 files: 100%|██████████| 2/2 [04:12<00:00, 126.47s/it]
+
+Loading weights:   0%|          | 0/657 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/657 [00:01<17:35,  1.61s/it]
+Loading weights:   0%|          | 2/657 [00:01<09:41,  1.13it/s]
+Loading weights:   0%|          | 3/657 [00:03<13:15,  1.22s/it]
+Loading weights:   1%|          | 5/657 [00:03<06:27,  1.68it/s]
+Loading weights:   1%|          | 6/657 [00:04<05:24,  2.01it/s]
+Loading weights:   1%|          | 7/657 [00:04<04:40,  2.32it/s]
+Loading weights:   2%|▏         | 10/657 [00:04<02:19,  4.65it/s]
+Loading weights:   2%|▏         | 12/657 [00:04<01:45,  6.09it/s]
+Loading weights:   2%|▏         | 14/657 [00:04<01:39,  6.45it/s]
+Loading weights:   2%|▏         | 16/657 [00:05<02:03,  5.20it/s]
+Loading weights:   3%|▎         | 19/657 [00:05<01:23,  7.61it/s]
+Loading weights:   3%|▎         | 21/657 [00:05<01:12,  8.78it/s]
+Loading weights:   4%|▎         | 23/657 [00:05<01:17,  8.20it/s]
+Loading weights:   4%|▍         | 25/657 [00:06<01:44,  6.04it/s]
+Loading weights:   4%|▍         | 28/657 [00:06<01:14,  8.44it/s]
+Loading weights:   5%|▍         | 30/657 [00:06<01:05,  9.56it/s]
+Loading weights:   5%|▍         | 32/657 [00:07<01:11,  8.71it/s]
+Loading weights:   5%|▌         | 34/657 [00:07<01:39,  6.27it/s]
+Loading weights:   6%|▌         | 37/657 [00:07<01:11,  8.66it/s]
+Loading weights:   6%|▌         | 39/657 [00:07<01:03,  9.71it/s]
+Loading weights:   6%|▌         | 41/657 [00:08<01:09,  8.86it/s]
+Loading weights:   7%|▋         | 43/657 [00:08<01:36,  6.35it/s]
+Loading weights:   7%|▋         | 46/657 [00:08<01:10,  8.72it/s]
+Loading weights:   7%|▋         | 48/657 [00:08<01:02,  9.80it/s]
+Loading weights:   8%|▊         | 50/657 [00:09<01:08,  8.87it/s]
+Loading weights:   8%|▊         | 52/657 [00:09<01:34,  6.37it/s]
+Loading weights:   8%|▊         | 55/657 [00:09<01:08,  8.78it/s]
+Loading weights:   9%|▊         | 57/657 [00:10<01:01,  9.80it/s]
+Loading weights:   9%|▉         | 59/657 [00:10<01:07,  8.87it/s]
+Loading weights:   9%|▉         | 61/657 [00:10<01:33,  6.35it/s]
+Loading weights:  10%|▉         | 64/657 [00:11<01:07,  8.76it/s]
+Loading weights:  10%|█         | 66/657 [00:11<01:00,  9.82it/s]
+Loading weights:  10%|█         | 68/657 [00:11<01:05,  8.93it/s]
+Loading weights:  11%|█         | 70/657 [00:11<01:32,  6.31it/s]
+Loading weights:  11%|█         | 73/657 [00:12<01:06,  8.79it/s]
+Loading weights:  11%|█▏        | 75/657 [00:12<00:59,  9.85it/s]
+Loading weights:  12%|█▏        | 77/657 [00:12<01:05,  8.88it/s]
+Loading weights:  12%|█▏        | 79/657 [00:13<01:29,  6.45it/s]
+Loading weights:  12%|█▏        | 82/657 [00:13<01:04,  8.92it/s]
+Loading weights:  13%|█▎        | 84/657 [00:13<00:57,  9.99it/s]
+Loading weights:  13%|█▎        | 86/657 [00:13<01:03,  9.06it/s]
+Loading weights:  13%|█▎        | 88/657 [00:14<01:27,  6.48it/s]
+Loading weights:  14%|█▍        | 91/657 [00:14<01:03,  8.94it/s]
+Loading weights:  14%|█▍        | 93/657 [00:14<00:56, 10.00it/s]
+Loading weights:  14%|█▍        | 95/657 [00:14<01:02,  9.04it/s]
+Loading weights:  15%|█▍        | 97/657 [00:15<01:27,  6.43it/s]
+Loading weights:  15%|█▌        | 100/657 [00:15<01:03,  8.84it/s]
+Loading weights:  16%|█▌        | 102/657 [00:15<00:56,  9.86it/s]
+Loading weights:  16%|█▌        | 104/657 [00:15<01:01,  9.00it/s]
+Loading weights:  16%|█▌        | 106/657 [00:16<01:25,  6.45it/s]
+Loading weights:  17%|█▋        | 109/657 [00:16<01:01,  8.90it/s]
+Loading weights:  17%|█▋        | 111/657 [00:16<00:54,  9.97it/s]
+Loading weights:  17%|█▋        | 113/657 [00:16<01:00,  9.04it/s]
+Loading weights:  18%|█▊        | 115/657 [00:17<01:23,  6.45it/s]
+Loading weights:  18%|█▊        | 118/657 [00:17<01:00,  8.87it/s]
+Loading weights:  18%|█▊        | 120/657 [00:17<00:54,  9.93it/s]
+Loading weights:  19%|█▊        | 122/657 [00:17<00:59,  8.96it/s]
+Loading weights:  19%|█▉        | 124/657 [00:18<01:23,  6.38it/s]
+Loading weights:  19%|█▉        | 127/657 [00:18<01:00,  8.78it/s]
+Loading weights:  20%|█▉        | 129/657 [00:18<00:53,  9.83it/s]
+Loading weights:  20%|█▉        | 131/657 [00:18<00:59,  8.89it/s]
+Loading weights:  20%|██        | 133/657 [00:19<01:21,  6.39it/s]
+Loading weights:  21%|██        | 136/657 [00:19<00:59,  8.82it/s]
+Loading weights:  21%|██        | 138/657 [00:19<00:52,  9.88it/s]
+Loading weights:  21%|██▏       | 140/657 [00:20<00:58,  8.86it/s]
+Loading weights:  22%|██▏       | 142/657 [00:20<01:20,  6.42it/s]
+Loading weights:  22%|██▏       | 145/657 [00:20<00:57,  8.89it/s]
+Loading weights:  22%|██▏       | 147/657 [00:20<00:51,  9.99it/s]
+Loading weights:  23%|██▎       | 149/657 [00:21<00:56,  9.01it/s]
+Loading weights:  23%|██▎       | 151/657 [00:21<01:18,  6.41it/s]
+Loading weights:  23%|██▎       | 154/657 [00:21<00:57,  8.81it/s]
+Loading weights:  24%|██▎       | 156/657 [00:21<00:51,  9.81it/s]
+Loading weights:  24%|██▍       | 158/657 [00:22<00:55,  8.96it/s]
+Loading weights:  24%|██▍       | 160/657 [00:22<01:17,  6.42it/s]
+Loading weights:  25%|██▍       | 163/657 [00:22<00:55,  8.86it/s]
+Loading weights:  25%|██▌       | 165/657 [00:23<00:49,  9.89it/s]
+Loading weights:  25%|██▌       | 167/657 [00:23<00:54,  8.94it/s]
+Loading weights:  26%|██▌       | 169/657 [00:23<01:15,  6.43it/s]
+Loading weights:  26%|██▌       | 172/657 [00:23<00:54,  8.86it/s]
+Loading weights:  26%|██▋       | 174/657 [00:24<00:48,  9.93it/s]
+Loading weights:  27%|██▋       | 176/657 [00:24<00:53,  9.01it/s]
+Loading weights:  27%|██▋       | 178/657 [00:24<01:14,  6.42it/s]
+Loading weights:  28%|██▊       | 181/657 [00:25<00:53,  8.86it/s]
+Loading weights:  28%|██▊       | 183/657 [00:25<00:47,  9.89it/s]
+Loading weights:  28%|██▊       | 185/657 [00:25<00:52,  8.94it/s]
+Loading weights:  28%|██▊       | 187/657 [00:25<01:13,  6.42it/s]
+Loading weights:  29%|██▉       | 190/657 [00:26<00:52,  8.83it/s]
+Loading weights:  29%|██▉       | 192/657 [00:26<00:47,  9.88it/s]
+Loading weights:  30%|██▉       | 194/657 [00:26<00:51,  8.98it/s]
+Loading weights:  30%|██▉       | 196/657 [00:27<01:12,  6.38it/s]
+Loading weights:  30%|███       | 199/657 [00:27<00:52,  8.78it/s]
+Loading weights:  31%|███       | 201/657 [00:27<00:46,  9.83it/s]
+Loading weights:  31%|███       | 203/657 [00:27<00:51,  8.89it/s]
+Loading weights:  31%|███       | 205/657 [00:28<01:11,  6.36it/s]
+Loading weights:  32%|███▏      | 208/657 [00:28<00:51,  8.76it/s]
+Loading weights:  32%|███▏      | 210/657 [00:28<00:45,  9.82it/s]
+Loading weights:  32%|███▏      | 212/657 [00:28<00:49,  8.91it/s]
+Loading weights:  33%|███▎      | 214/657 [00:29<01:09,  6.38it/s]
+Loading weights:  33%|███▎      | 217/657 [00:29<00:50,  8.79it/s]
+Loading weights:  33%|███▎      | 219/657 [00:29<00:44,  9.86it/s]
+Loading weights:  35%|███▍      | 229/657 [00:29<00:17, 23.79it/s]
+Loading weights:  36%|███▌      | 235/657 [00:29<00:14, 29.36it/s]
+Loading weights:  37%|███▋      | 245/657 [00:29<00:09, 41.62it/s]
+Loading weights:  38%|███▊      | 251/657 [00:29<00:09, 43.61it/s]
+Loading weights:  40%|███▉      | 261/657 [00:30<00:07, 53.44it/s]
+Loading weights:  41%|████      | 268/657 [00:30<00:07, 54.86it/s]
+Loading weights:  42%|████▏     | 277/657 [00:30<00:06, 59.51it/s]
+Loading weights:  43%|████▎     | 284/657 [00:30<00:06, 59.33it/s]
+Loading weights:  45%|████▍     | 293/657 [00:30<00:05, 63.43it/s]
+Loading weights:  46%|████▌     | 300/657 [00:30<00:05, 61.83it/s]
+Loading weights:  47%|████▋     | 309/657 [00:30<00:05, 64.94it/s]
+Loading weights:  48%|████▊     | 316/657 [00:30<00:05, 63.55it/s]
+Loading weights:  49%|████▉     | 325/657 [00:31<00:04, 66.44it/s]
+Loading weights:  51%|█████     | 332/657 [00:31<00:05, 64.02it/s]
+Loading weights:  52%|█████▏    | 341/657 [00:31<00:04, 66.65it/s]
+Loading weights:  53%|█████▎    | 348/657 [00:31<00:04, 64.49it/s]
+Loading weights:  54%|█████▍    | 357/657 [00:31<00:04, 66.23it/s]
+Loading weights:  55%|█████▌    | 364/657 [00:31<00:04, 64.67it/s]
+Loading weights:  57%|█████▋    | 373/657 [00:31<00:04, 67.35it/s]
+Loading weights:  58%|█████▊    | 380/657 [00:31<00:04, 63.48it/s]
+Loading weights:  59%|█████▉    | 389/657 [00:32<00:03, 67.96it/s]
+Loading weights:  60%|██████    | 396/657 [00:32<00:03, 65.27it/s]
+Loading weights:  62%|██████▏   | 405/657 [00:32<00:03, 67.52it/s]
+Loading weights:  63%|██████▎   | 412/657 [00:32<00:03, 65.02it/s]
+Loading weights:  64%|██████▍   | 421/657 [00:32<00:03, 67.35it/s]
+Loading weights:  65%|██████▌   | 428/657 [00:32<00:03, 64.94it/s]
+Loading weights:  67%|██████▋   | 437/657 [00:32<00:03, 67.23it/s]
+Loading weights:  68%|██████▊   | 444/657 [00:32<00:03, 64.79it/s]
+Loading weights:  69%|██████▉   | 453/657 [00:32<00:03, 67.40it/s]
+Loading weights:  70%|███████   | 460/657 [00:33<00:03, 64.91it/s]
+Loading weights:  71%|███████▏  | 469/657 [00:33<00:02, 67.21it/s]
+Loading weights:  72%|███████▏  | 476/657 [00:33<00:02, 64.89it/s]
+Loading weights:  74%|███████▍  | 485/657 [00:33<00:02, 67.34it/s]
+Loading weights:  75%|███████▍  | 492/657 [00:33<00:02, 64.68it/s]
+Loading weights:  76%|███████▋  | 501/657 [00:33<00:02, 67.31it/s]
+Loading weights:  77%|███████▋  | 508/657 [00:33<00:02, 64.86it/s]
+Loading weights:  79%|███████▊  | 517/657 [00:33<00:02, 66.78it/s]
+Loading weights:  80%|███████▉  | 524/657 [00:34<00:02, 64.02it/s]
+Loading weights:  81%|████████  | 533/657 [00:34<00:01, 66.57it/s]
+Loading weights:  82%|████████▏ | 540/657 [00:34<00:01, 64.49it/s]
+Loading weights:  84%|████████▎ | 549/657 [00:34<00:01, 67.66it/s]
+Loading weights:  85%|████████▍ | 556/657 [00:34<00:01, 64.89it/s]
+Loading weights:  86%|████████▌ | 565/657 [00:34<00:01, 67.34it/s]
+Loading weights:  87%|████████▋ | 572/657 [00:34<00:01, 64.86it/s]
+Loading weights:  88%|████████▊ | 581/657 [00:34<00:01, 67.47it/s]
+Loading weights:  89%|████████▉ | 588/657 [00:35<00:01, 64.63it/s]
+Loading weights:  91%|█████████ | 597/657 [00:35<00:00, 67.47it/s]
+Loading weights:  92%|█████████▏| 604/657 [00:35<00:00, 64.73it/s]
+Loading weights:  93%|█████████▎| 613/657 [00:35<00:00, 67.29it/s]
+Loading weights:  94%|█████████▍| 620/657 [00:35<00:00, 64.84it/s]
+Loading weights:  96%|█████████▌| 629/657 [00:35<00:00, 67.44it/s]
+Loading weights:  97%|█████████▋| 636/657 [00:35<00:00, 64.89it/s]
+Loading weights:  98%|█████████▊| 645/657 [00:35<00:00, 67.34it/s]
+Loading weights:  99%|█████████▉| 652/657 [00:36<00:00, 64.68it/s]
+Loading weights: 100%|██████████| 657/657 [00:36<00:00, 18.22it/s]
+
+--- HuggingFaceTB/SmolVLM2-2.2B-instruct :: images_nosplit ---
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+  VARIANT THẤT BẠI (images_nosplit): RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552
+--- quality pass (16 cửa sổ, variant chính images_nosplit) ---
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+  parse first-try 0/16, consistency 0/16, TPR 0/0, FPR 0/0, type_match 0/0
+
+--- HuggingFaceTB/SmolVLM2-2.2B-instruct :: images_split ---
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+  VARIANT THẤT BẠI (images_split): RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 8626176
+
+=== TỔNG KẾT ===
+{
+  "header": {
+    "gpu": "Tesla T4",
+    "gpu_total_vram_gb": 14.56,
+    "clocks_sm_max_temp": [
+      "585, 1590, 73"
+    ],
+    "python": "3.13.16",
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "bitsandbytes": "0.50.2",
+    "accelerate": "1.15.0",
+    "git_commit": "242cdf3",
+    "attn_implementation": "sdpa",
+    "quant": "nf4, fp16 compute (BitsAndBytesConfig)",
+    "prompt_hash": "3d71fdba",
+    "windows_hash": "556e8652",
+    "warmup": 2,
+    "runs": 8,
+    "max_new_tokens": 128,
+    "vram_cap_gb": null,
+    "skip_quality": false,
+    "timestamp": "2026-10-30 01:18:51"
+  },
+  "results": [
+    {
+      "model_id": "HuggingFaceTB/SmolVLM2-2.2B-instruct",
+      "class": "SmolVLMForConditionalGeneration",
+      "ok": true,
+      "variants": [
+        {
+          "variant": "images_nosplit",
+          "ok": false,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 457,
+            "worst_prompt_tokens": 121,
+            "worst_image_tokens": 332
+          },
+          "error": "RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552",
+          "torch_alloc_peak_gb": 1.55,
+          "torch_reserved_peak_gb": 1.63
+        },
+        {
+          "variant": "images_split",
+          "ok": false,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 4453,
+            "worst_prompt_tokens": 121,
+            "worst_image_tokens": 4328
+          },
+          "error": "RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 8626176",
+          "torch_alloc_peak_gb": 2.64,
+          "torch_reserved_peak_gb": 3.11
+        }
+      ],
+      "idle_device_mb": 169.0,
+      "load_seconds": 291.2,
+      "attn_implementation": "sdpa",
+      "quality": {
+        "variant": "images_nosplit",
+        "n_windows": 16,
+        "parse_ok_first_try": "0/16",
+        "consistency": "0/16",
+        "tpr": "0/0",
+        "fpr": "0/0",
+        "type_match": "0/0",
+        "mean_conf_correct": null,
+        "mean_conf_wrong": null,
+        "outputs": [
+          {
+            "window_id": "w01",
+            "label": "anomaly",
+            "gt_event": "Arrest",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w02",
+            "label": "anomaly",
+            "gt_event": "Shoplifting",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w03",
+            "label": "anomaly",
+            "gt_event": "Shooting",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w04",
+            "label": "anomaly",
+            "gt_event": "Explosion",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w05",
+            "label": "anomaly",
+            "gt_event": "Stealing",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w06",
+            "label": "anomaly",
+            "gt_event": "Arson",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w07",
+            "label": "anomaly",
+            "gt_event": "Assault",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w08",
+            "label": "anomaly",
+            "gt_event": "RoadAccidents",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w09",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w10",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w11",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w12",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w13",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w14",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w15",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w16",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          }
+        ]
+      },
+      "clocks_sm_before": [
+        "585"
+      ],
+      "clocks_sm_after": [
+        "705"
+      ]
+    }
+  ]
+}
+
+===== log_qwen2vl2b_capped.txt =====
+windows: 16 (8 anomaly / 8 normal), hash 556e8652; prompt hash 3d71fdba
+GPU: Tesla T4 (14.56 GB), torch 2.11.0+cu130, transformers 5.20.2
+  [cap] set_per_process_memory_fraction(0.378) = 5.5 GB / 14.6 GB
+
+Loading weights:   0%|          | 0/729 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/729 [00:01<23:19,  1.92s/it]
+Loading weights:   0%|          | 3/729 [00:02<06:42,  1.80it/s]
+Loading weights:   1%|          | 5/729 [00:02<03:46,  3.19it/s]
+Loading weights:   2%|▏         | 15/729 [00:02<00:55, 12.98it/s]
+Loading weights:   3%|▎         | 19/729 [00:02<00:49, 14.25it/s]
+Loading weights:   4%|▎         | 27/729 [00:02<00:32, 21.62it/s]
+Loading weights:   4%|▍         | 31/729 [00:02<00:33, 20.68it/s]
+Loading weights:   5%|▌         | 39/729 [00:03<00:25, 27.55it/s]
+Loading weights:   6%|▌         | 43/729 [00:03<00:27, 24.66it/s]
+Loading weights:   7%|▋         | 51/729 [00:03<00:21, 31.10it/s]
+Loading weights:   8%|▊         | 55/729 [00:03<00:24, 26.97it/s]
+Loading weights:   9%|▊         | 63/729 [00:03<00:20, 33.23it/s]
+Loading weights:   9%|▉         | 67/729 [00:04<00:23, 28.18it/s]
+Loading weights:  10%|█         | 75/729 [00:04<00:19, 34.25it/s]
+Loading weights:  11%|█         | 79/729 [00:04<00:22, 28.77it/s]
+Loading weights:  12%|█▏        | 87/729 [00:04<00:18, 34.61it/s]
+Loading weights:  12%|█▏        | 91/729 [00:04<00:21, 29.12it/s]
+Loading weights:  14%|█▎        | 99/729 [00:04<00:17, 35.02it/s]
+Loading weights:  14%|█▍        | 103/729 [00:05<00:21, 29.28it/s]
+Loading weights:  15%|█▌        | 111/729 [00:05<00:17, 35.14it/s]
+Loading weights:  16%|█▌        | 115/729 [00:05<00:20, 29.26it/s]
+Loading weights:  17%|█▋        | 123/729 [00:05<00:17, 35.28it/s]
+Loading weights:  17%|█▋        | 127/729 [00:05<00:20, 29.44it/s]
+Loading weights:  19%|█▊        | 135/729 [00:06<00:16, 35.19it/s]
+Loading weights:  19%|█▉        | 139/729 [00:06<00:20, 29.43it/s]
+Loading weights:  20%|██        | 147/729 [00:06<00:16, 35.27it/s]
+Loading weights:  21%|██        | 151/729 [00:06<00:19, 29.45it/s]
+Loading weights:  22%|██▏       | 159/729 [00:06<00:16, 35.31it/s]
+Loading weights:  22%|██▏       | 163/729 [00:07<00:19, 29.45it/s]
+Loading weights:  23%|██▎       | 171/729 [00:07<00:15, 35.23it/s]
+Loading weights:  24%|██▍       | 175/729 [00:07<00:18, 29.46it/s]
+Loading weights:  25%|██▌       | 183/729 [00:07<00:15, 35.30it/s]
+Loading weights:  26%|██▌       | 187/729 [00:07<00:18, 29.34it/s]
+Loading weights:  27%|██▋       | 195/729 [00:07<00:15, 35.18it/s]
+Loading weights:  27%|██▋       | 199/729 [00:08<00:18, 29.33it/s]
+Loading weights:  28%|██▊       | 207/729 [00:08<00:14, 35.20it/s]
+Loading weights:  29%|██▉       | 211/729 [00:08<00:17, 29.36it/s]
+Loading weights:  30%|███       | 219/729 [00:08<00:14, 35.25it/s]
+Loading weights:  31%|███       | 223/729 [00:08<00:17, 29.41it/s]
+Loading weights:  32%|███▏      | 231/729 [00:09<00:14, 35.17it/s]
+Loading weights:  32%|███▏      | 235/729 [00:09<00:16, 29.39it/s]
+Loading weights:  33%|███▎      | 243/729 [00:09<00:13, 35.62it/s]
+Loading weights:  34%|███▍      | 247/729 [00:09<00:15, 30.44it/s]
+Loading weights:  35%|███▍      | 255/729 [00:09<00:12, 36.60it/s]
+Loading weights:  36%|███▌      | 259/729 [00:09<00:15, 30.99it/s]
+Loading weights:  37%|███▋      | 267/729 [00:10<00:12, 36.91it/s]
+Loading weights:  37%|███▋      | 271/729 [00:10<00:15, 30.44it/s]
+Loading weights:  38%|███▊      | 279/729 [00:10<00:12, 35.89it/s]
+Loading weights:  39%|███▉      | 283/729 [00:10<00:15, 29.51it/s]
+Loading weights:  40%|███▉      | 291/729 [00:10<00:12, 35.56it/s]
+Loading weights:  40%|████      | 295/729 [00:11<00:14, 29.54it/s]
+Loading weights:  42%|████▏     | 303/729 [00:11<00:12, 35.42it/s]
+Loading weights:  42%|████▏     | 307/729 [00:11<00:14, 29.58it/s]
+Loading weights:  43%|████▎     | 315/729 [00:11<00:11, 35.43it/s]
+Loading weights:  44%|████▍     | 319/729 [00:11<00:13, 29.55it/s]
+Loading weights:  45%|████▍     | 327/729 [00:11<00:11, 35.60it/s]
+Loading weights:  45%|████▌     | 331/729 [00:12<00:13, 29.84it/s]
+Loading weights:  47%|████▋     | 344/729 [00:12<00:08, 45.38it/s]
+Loading weights:  49%|████▊     | 354/729 [00:12<00:06, 54.51it/s]
+Loading weights:  50%|████▉     | 361/729 [00:12<00:06, 55.91it/s]
+Loading weights:  50%|█████     | 368/729 [00:12<00:06, 55.76it/s]
+Loading weights:  52%|█████▏    | 380/729 [00:12<00:05, 63.35it/s]
+Loading weights:  54%|█████▍    | 392/729 [00:12<00:04, 70.74it/s]
+Loading weights:  55%|█████▌    | 404/729 [00:13<00:04, 76.20it/s]
+Loading weights:  57%|█████▋    | 414/729 [00:13<00:03, 81.68it/s]
+Loading weights:  58%|█████▊    | 424/729 [00:13<00:03, 85.89it/s]
+Loading weights:  59%|█████▉    | 433/729 [00:13<00:03, 80.08it/s]
+Loading weights:  61%|██████    | 442/729 [00:13<00:03, 72.09it/s]
+Loading weights:  62%|██████▏   | 452/729 [00:13<00:03, 78.20it/s]
+Loading weights:  63%|██████▎   | 462/729 [00:13<00:03, 83.60it/s]
+Loading weights:  65%|██████▌   | 476/729 [00:13<00:02, 97.92it/s]
+Loading weights:  69%|██████▊   | 500/729 [00:14<00:01, 132.79it/s]
+Loading weights:  71%|███████   | 514/729 [00:14<00:01, 133.36it/s]
+Loading weights:  75%|███████▌  | 548/729 [00:14<00:00, 186.88it/s]
+Loading weights:  80%|███████▉  | 582/729 [00:14<00:00, 224.37it/s]
+Loading weights:  83%|████████▎ | 606/729 [00:14<00:00, 218.32it/s]
+Loading weights:  86%|████████▌ | 628/729 [00:14<00:00, 191.25it/s]
+Loading weights:  90%|████████▉ | 654/729 [00:14<00:00, 207.42it/s]
+Loading weights:  93%|█████████▎| 676/729 [00:14<00:00, 208.14it/s]
+Loading weights:  96%|█████████▌| 698/729 [00:14<00:00, 210.47it/s]
+Loading weights: 100%|█████████▉| 726/729 [00:15<00:00, 195.63it/s]
+Loading weights: 100%|██████████| 729/729 [00:15<00:00, 48.21it/s] 
+
+--- Qwen/Qwen2-VL-2B-Instruct :: images_native ---
+  images_native warmup: total 2.612s (prefill 3.27s, decode 0.0s, 40 tok)
+  images_native warmup: total 3.158s (prefill 0.4s, decode 2.758s, 48 tok)
+  images_native run 1/3: total 2.893s (prefill 0.408s, decode 2.485s, 45 tok)
+  images_native run 2/3: total 2.64s (prefill 0.409s, decode 2.231s, 40 tok)
+  images_native run 3/3: total 3.189s (prefill 0.413s, decode 2.776s, 48 tok)
+
+--- Qwen/Qwen2-VL-2B-Instruct :: images_cap448 ---
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 warmup: total 2.651s (prefill 0.432s, decode 2.219s, 40 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 warmup: total 3.219s (prefill 0.428s, decode 2.791s, 48 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 1/3: total 3.001s (prefill 0.424s, decode 2.577s, 45 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 2/3: total 2.66s (prefill 0.424s, decode 2.236s, 40 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 3/3: total 3.108s (prefill 0.408s, decode 2.7s, 48 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+
+--- Qwen/Qwen2-VL-2B-Instruct :: video_native ---
+[transformers] Qwen2VL video processing does not apply the per-frame pixel cap the reference implementation (qwen-vl-utils) applies, so some videos cost far more tokens than they would there. In v5.22 the capped behavior will become the default and `cap_pixels_per_frame` will be removed. Pass `cap_pixels_per_frame=True` to adopt the reference behavior now, or `False` to keep the current behavior and silence this warning.
+  video_native warmup: total 2.572s (prefill 0.247s, decode 2.325s, 42 tok)
+  video_native warmup: total 3.303s (prefill 0.228s, decode 3.075s, 55 tok)
+  video_native run 1/3: total 2.447s (prefill 0.228s, decode 2.219s, 40 tok)
+  video_native run 2/3: total 2.576s (prefill 0.223s, decode 2.352s, 42 tok)
+  video_native run 3/3: total 3.282s (prefill 0.239s, decode 3.044s, 55 tok)
+
+=== TỔNG KẾT ===
+{
+  "header": {
+    "gpu": "Tesla T4",
+    "gpu_total_vram_gb": 14.56,
+    "clocks_sm_max_temp": [
+      "585, 1590, 73"
+    ],
+    "python": "3.13.16",
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "bitsandbytes": "0.50.2",
+    "accelerate": "1.15.0",
+    "git_commit": "242cdf3",
+    "attn_implementation": "sdpa",
+    "quant": "nf4, fp16 compute (BitsAndBytesConfig)",
+    "prompt_hash": "3d71fdba",
+    "windows_hash": "556e8652",
+    "warmup": 2,
+    "runs": 3,
+    "max_new_tokens": 128,
+    "vram_cap_gb": 5.5,
+    "skip_quality": true,
+    "timestamp": "2026-10-30 01:24:33"
+  },
+  "results": [
+    {
+      "model_id": "Qwen/Qwen2-VL-2B-Instruct",
+      "class": "Qwen2VLForConditionalGeneration",
+      "ok": true,
+      "variants": [
+        {
+          "variant": "images_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 1.99,
+            "torch_alloc_gb": 1.59,
+            "torch_reserved_gb": 1.69
+          },
+          "timing": {
+            "n_measured": 3,
+            "median_s": 2.89,
+            "mean_s": 2.91,
+            "p90_s": 3.19,
+            "min_s": 2.64,
+            "max_s": 3.19,
+            "runs_s": [
+              2.89,
+              2.64,
+              3.19
+            ],
+            "median_preprocess_s": 0.029,
+            "median_prefill_s": 0.409,
+            "median_decode_s": 2.485,
+            "median_out_tokens": 45
+          },
+          "vram": {
+            "device_peak_gb": 1.99,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "{\"is_anomaly\": true|false, \"event_type\": \"<Burglary>\", \"caption\": \"Two people are seen breaking into a car in a garage.\", \"confidence\": 0.99}"
+          },
+          "torch_alloc_peak_gb": 1.59,
+          "torch_reserved_peak_gb": 1.69
+        },
+        {
+          "variant": "images_cap448",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 1.99,
+            "torch_alloc_gb": 1.59,
+            "torch_reserved_gb": 1.69
+          },
+          "timing": {
+            "n_measured": 3,
+            "median_s": 3.0,
+            "mean_s": 2.92,
+            "p90_s": 3.11,
+            "min_s": 2.66,
+            "max_s": 3.11,
+            "runs_s": [
+              3.0,
+              2.66,
+              3.11
+            ],
+            "median_preprocess_s": 0.028,
+            "median_prefill_s": 0.424,
+            "median_decode_s": 2.577,
+            "median_out_tokens": 45
+          },
+          "vram": {
+            "device_peak_gb": 1.99,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "{\"is_anomaly\": true|false, \"event_type\": \"<Burglary>\", \"caption\": \"Two people are seen breaking into a car in a garage.\", \"confidence\": 0.99}"
+          },
+          "torch_alloc_peak_gb": 1.59,
+          "torch_reserved_peak_gb": 1.69
+        },
+        {
+          "variant": "video_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 322,
+            "worst_prompt_tokens": 125,
+            "worst_image_tokens": 197
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 322,
+            "device_peak_gb": 1.94,
+            "torch_alloc_gb": 1.58,
+            "torch_reserved_gb": 1.65
+          },
+          "timing": {
+            "n_measured": 3,
+            "median_s": 2.58,
+            "mean_s": 2.77,
+            "p90_s": 3.28,
+            "min_s": 2.45,
+            "max_s": 3.28,
+            "runs_s": [
+              2.45,
+              2.58,
+              3.28
+            ],
+            "median_preprocess_s": 0.022,
+            "median_prefill_s": 0.228,
+            "median_decode_s": 2.352,
+            "median_out_tokens": 42
+          },
+          "vram": {
+            "device_peak_gb": 1.94,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "{\"is_anomaly\": true, \"event_type\": \"Burglary\", \"caption\": \"Two individuals break into a car in a garage.\", \"confidence\": 0.9}"
+          },
+          "torch_alloc_peak_gb": 1.58,
+          "torch_reserved_peak_gb": 1.65
+        }
+      ],
+      "idle_device_mb": 169.0,
+      "load_seconds": 16.1,
+      "attn_implementation": "sdpa",
+      "clocks_sm_before": [
+        "585"
+      ],
+      "clocks_sm_after": [
+        "825"
+      ]
+    }
+  ]
+}
+
+===== log_qwen25vl3b_capped.txt =====
+windows: 16 (8 anomaly / 8 normal), hash 556e8652; prompt hash 3d71fdba
+GPU: Tesla T4 (14.56 GB), torch 2.11.0+cu130, transformers 5.20.2
+  [cap] set_per_process_memory_fraction(0.378) = 5.5 GB / 14.6 GB
+
+Loading weights:   0%|          | 0/824 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/824 [00:02<34:51,  2.54s/it]
+Loading weights:   0%|          | 3/824 [00:02<09:56,  1.38it/s]
+Loading weights:   0%|          | 4/824 [00:02<07:10,  1.90it/s]
+Loading weights:   1%|          | 5/824 [00:03<05:26,  2.51it/s]
+Loading weights:   2%|▏         | 15/824 [00:03<01:13, 11.04it/s]
+Loading weights:   2%|▏         | 17/824 [00:03<01:26,  9.31it/s]
+Loading weights:   3%|▎         | 27/824 [00:03<00:48, 16.60it/s]
+Loading weights:   4%|▎         | 30/824 [00:04<00:57, 13.87it/s]
+Loading weights:   5%|▍         | 39/824 [00:04<00:40, 19.49it/s]
+Loading weights:   5%|▌         | 42/824 [00:04<00:50, 15.54it/s]
+Loading weights:   6%|▌         | 51/824 [00:05<00:36, 21.09it/s]
+Loading weights:   7%|▋         | 54/824 [00:05<00:45, 16.94it/s]
+Loading weights:   8%|▊         | 63/824 [00:05<00:34, 21.86it/s]
+Loading weights:   8%|▊         | 66/824 [00:06<00:43, 17.30it/s]
+Loading weights:   9%|▉         | 75/824 [00:06<00:34, 22.00it/s]
+Loading weights:   9%|▉         | 78/824 [00:06<00:42, 17.46it/s]
+Loading weights:  11%|█         | 87/824 [00:06<00:33, 22.14it/s]
+Loading weights:  11%|█         | 90/824 [00:07<00:42, 17.44it/s]
+Loading weights:  12%|█▏        | 99/824 [00:07<00:32, 22.09it/s]
+Loading weights:  12%|█▏        | 102/824 [00:07<00:41, 17.48it/s]
+Loading weights:  13%|█▎        | 111/824 [00:08<00:32, 22.18it/s]
+Loading weights:  14%|█▍        | 114/824 [00:08<00:40, 17.53it/s]
+Loading weights:  15%|█▍        | 123/824 [00:08<00:31, 22.27it/s]
+Loading weights:  15%|█▌        | 126/824 [00:09<00:39, 17.50it/s]
+Loading weights:  16%|█▋        | 135/824 [00:09<00:31, 22.05it/s]
+Loading weights:  17%|█▋        | 138/824 [00:09<00:39, 17.43it/s]
+Loading weights:  18%|█▊        | 147/824 [00:09<00:30, 22.07it/s]
+Loading weights:  18%|█▊        | 150/824 [00:10<00:38, 17.42it/s]
+Loading weights:  19%|█▉        | 159/824 [00:10<00:30, 22.14it/s]
+Loading weights:  20%|█▉        | 162/824 [00:10<00:37, 17.52it/s]
+Loading weights:  21%|██        | 171/824 [00:11<00:29, 22.29it/s]
+Loading weights:  21%|██        | 174/824 [00:11<00:37, 17.54it/s]
+Loading weights:  22%|██▏       | 183/824 [00:11<00:28, 22.31it/s]
+Loading weights:  23%|██▎       | 186/824 [00:12<00:36, 17.65it/s]
+Loading weights:  24%|██▎       | 195/824 [00:12<00:28, 22.39it/s]
+Loading weights:  24%|██▍       | 198/824 [00:12<00:35, 17.62it/s]
+Loading weights:  25%|██▌       | 207/824 [00:12<00:27, 22.35it/s]
+Loading weights:  25%|██▌       | 210/824 [00:13<00:34, 17.67it/s]
+Loading weights:  27%|██▋       | 219/824 [00:13<00:27, 22.35it/s]
+Loading weights:  27%|██▋       | 222/824 [00:13<00:33, 17.72it/s]
+Loading weights:  28%|██▊       | 231/824 [00:14<00:26, 22.43it/s]
+Loading weights:  28%|██▊       | 234/824 [00:14<00:33, 17.78it/s]
+Loading weights:  29%|██▉       | 243/824 [00:14<00:25, 22.46it/s]
+Loading weights:  30%|██▉       | 246/824 [00:15<00:32, 17.58it/s]
+Loading weights:  31%|███       | 255/824 [00:15<00:25, 22.52it/s]
+Loading weights:  31%|███▏      | 258/824 [00:15<00:32, 17.64it/s]
+Loading weights:  32%|███▏      | 267/824 [00:15<00:24, 22.55it/s]
+Loading weights:  33%|███▎      | 270/824 [00:16<00:31, 17.81it/s]
+Loading weights:  34%|███▍      | 279/824 [00:16<00:23, 23.36it/s]
+Loading weights:  34%|███▍      | 282/824 [00:16<00:29, 18.13it/s]
+Loading weights:  35%|███▌      | 291/824 [00:17<00:23, 22.85it/s]
+Loading weights:  36%|███▌      | 294/824 [00:17<00:29, 17.83it/s]
+Loading weights:  37%|███▋      | 303/824 [00:17<00:23, 22.46it/s]
+Loading weights:  37%|███▋      | 306/824 [00:18<00:29, 17.58it/s]
+Loading weights:  38%|███▊      | 315/824 [00:18<00:22, 22.19it/s]
+Loading weights:  39%|███▊      | 318/824 [00:18<00:28, 17.45it/s]
+Loading weights:  40%|███▉      | 327/824 [00:18<00:22, 22.10it/s]
+Loading weights:  40%|████      | 330/824 [00:19<00:28, 17.39it/s]
+Loading weights:  41%|████      | 339/824 [00:19<00:21, 22.06it/s]
+Loading weights:  42%|████▏     | 342/824 [00:19<00:27, 17.35it/s]
+Loading weights:  43%|████▎     | 351/824 [00:20<00:21, 21.99it/s]
+Loading weights:  43%|████▎     | 354/824 [00:20<00:27, 17.36it/s]
+Loading weights:  44%|████▍     | 363/824 [00:20<00:21, 21.95it/s]
+Loading weights:  44%|████▍     | 366/824 [00:21<00:26, 17.36it/s]
+Loading weights:  46%|████▌     | 375/824 [00:21<00:20, 21.96it/s]
+Loading weights:  46%|████▌     | 378/824 [00:21<00:25, 17.36it/s]
+Loading weights:  47%|████▋     | 387/824 [00:22<00:19, 21.99it/s]
+Loading weights:  47%|████▋     | 390/824 [00:22<00:25, 17.34it/s]
+Loading weights:  48%|████▊     | 399/824 [00:22<00:19, 21.59it/s]
+Loading weights:  49%|████▉     | 402/824 [00:22<00:24, 17.43it/s]
+Loading weights:  50%|████▉     | 411/824 [00:23<00:18, 22.02it/s]
+Loading weights:  50%|█████     | 414/824 [00:23<00:23, 17.37it/s]
+Loading weights:  51%|█████▏    | 423/824 [00:23<00:18, 22.02it/s]
+Loading weights:  52%|█████▏    | 426/824 [00:24<00:22, 17.34it/s]
+Loading weights:  53%|█████▎    | 438/824 [00:24<00:13, 29.16it/s]
+Loading weights:  54%|█████▍    | 444/824 [00:24<00:11, 33.43it/s]
+Loading weights:  55%|█████▌    | 454/824 [00:24<00:08, 43.15it/s]
+Loading weights:  56%|█████▋    | 464/824 [00:24<00:07, 51.40it/s]
+Loading weights:  58%|█████▊    | 474/824 [00:24<00:05, 58.45it/s]
+Loading weights:  58%|█████▊    | 481/824 [00:24<00:05, 60.51it/s]
+Loading weights:  59%|█████▉    | 490/824 [00:25<00:05, 62.03it/s]
+Loading weights:  61%|██████    | 500/824 [00:25<00:04, 66.54it/s]
+Loading weights:  62%|██████▏   | 510/824 [00:25<00:04, 73.31it/s]
+Loading weights:  63%|██████▎   | 520/824 [00:25<00:03, 78.32it/s]
+Loading weights:  64%|██████▍   | 529/824 [00:25<00:04, 72.96it/s]
+Loading weights:  65%|██████▌   | 538/824 [00:25<00:03, 73.49it/s]
+Loading weights:  67%|██████▋   | 548/824 [00:25<00:03, 76.66it/s]
+Loading weights:  68%|██████▊   | 558/824 [00:25<00:03, 78.32it/s]
+Loading weights:  69%|██████▊   | 566/824 [00:25<00:03, 78.75it/s]
+Loading weights:  70%|██████▉   | 574/824 [00:26<00:03, 74.54it/s]
+Loading weights:  71%|███████   | 584/824 [00:26<00:03, 77.15it/s]
+Loading weights:  72%|███████▏  | 594/824 [00:26<00:02, 78.34it/s]
+Loading weights:  73%|███████▎  | 602/824 [00:26<00:02, 78.28it/s]
+Loading weights:  74%|███████▍  | 610/824 [00:26<00:02, 74.42it/s]
+Loading weights:  75%|███████▌  | 620/824 [00:26<00:02, 76.79it/s]
+Loading weights:  76%|███████▋  | 630/824 [00:26<00:02, 78.25it/s]
+Loading weights:  77%|███████▋  | 638/824 [00:26<00:02, 77.75it/s]
+Loading weights:  78%|███████▊  | 646/824 [00:27<00:02, 74.00it/s]
+Loading weights:  80%|███████▉  | 656/824 [00:27<00:02, 76.48it/s]
+Loading weights:  81%|████████  | 666/824 [00:27<00:02, 78.28it/s]
+Loading weights:  82%|████████▏ | 674/824 [00:27<00:01, 78.05it/s]
+Loading weights:  83%|████████▎ | 682/824 [00:27<00:01, 74.27it/s]
+Loading weights:  84%|████████▍ | 692/824 [00:27<00:01, 76.99it/s]
+Loading weights:  85%|████████▌ | 702/824 [00:27<00:01, 78.47it/s]
+Loading weights:  86%|████████▌ | 710/824 [00:27<00:01, 78.04it/s]
+Loading weights:  87%|████████▋ | 718/824 [00:27<00:01, 74.11it/s]
+Loading weights:  88%|████████▊ | 728/824 [00:28<00:01, 76.51it/s]
+Loading weights:  90%|████████▉ | 738/824 [00:28<00:01, 78.19it/s]
+Loading weights:  91%|█████████ | 746/824 [00:28<00:01, 77.78it/s]
+Loading weights:  92%|█████████▏| 754/824 [00:28<00:00, 74.29it/s]
+Loading weights:  93%|█████████▎| 764/824 [00:28<00:00, 76.57it/s]
+Loading weights:  94%|█████████▍| 774/824 [00:28<00:00, 78.28it/s]
+Loading weights:  95%|█████████▍| 782/824 [00:28<00:00, 77.81it/s]
+Loading weights:  96%|█████████▌| 790/824 [00:28<00:00, 74.05it/s]
+Loading weights:  97%|█████████▋| 800/824 [00:29<00:00, 77.36it/s]
+Loading weights:  98%|█████████▊| 810/824 [00:29<00:00, 78.94it/s]
+Loading weights:  99%|█████████▉| 818/824 [00:29<00:00, 78.21it/s]
+Loading weights: 100%|██████████| 824/824 [00:29<00:00, 27.88it/s]
+
+--- Qwen/Qwen2.5-VL-3B-Instruct :: images_native ---
+  images_native warmup: total 4.403s (prefill 3.39s, decode 1.014s, 52 tok)
+  images_native warmup: total 4.037s (prefill 0.605s, decode 3.432s, 48 tok)
+  images_native run 1/3: total 4.564s (prefill 0.62s, decode 3.945s, 54 tok)
+  images_native run 2/3: total 4.317s (prefill 0.629s, decode 3.689s, 52 tok)
+  images_native run 3/3: total 4.155s (prefill 0.632s, decode 3.522s, 48 tok)
+
+--- Qwen/Qwen2.5-VL-3B-Instruct :: images_cap448 ---
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 warmup: total 4.404s (prefill 0.656s, decode 3.748s, 52 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 warmup: total 4.095s (prefill 0.63s, decode 3.465s, 48 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 1/3: total 4.529s (prefill 0.614s, decode 3.915s, 54 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 2/3: total 4.359s (prefill 0.612s, decode 3.747s, 52 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+  images_cap448 run 3/3: total 4.051s (prefill 0.604s, decode 3.447s, 48 tok)
+/usr/local/lib/python3.13/dist-packages/transformers/models/qwen2_vl/image_processing_qwen2_vl.py:129: FutureWarning: Passing `min_pixels` and `max_pixels` to a processor call is deprecated and will be removed in v5.23. Pass in `size={'longest_edge': xxx, 'shortest_edge': xxx} to override the target size.`
+  warnings.warn(
+
+--- Qwen/Qwen2.5-VL-3B-Instruct :: video_native ---
+[transformers] Qwen2VL video processing does not apply the per-frame pixel cap the reference implementation (qwen-vl-utils) applies, so some videos cost far more tokens than they would there. In v5.22 the capped behavior will become the default and `cap_pixels_per_frame` will be removed. Pass `cap_pixels_per_frame=True` to adopt the reference behavior now, or `False` to keep the current behavior and silence this warning.
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native warmup: total 4.072s (prefill 0.404s, decode 3.668s, 52 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native warmup: total 3.846s (prefill 0.368s, decode 3.478s, 49 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native run 1/3: total 4.493s (prefill 0.39s, decode 4.103s, 57 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native run 2/3: total 4.085s (prefill 0.367s, decode 3.718s, 52 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+  video_native run 3/3: total 3.891s (prefill 0.379s, decode 3.512s, 49 tok)
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+/usr/local/lib/python3.13/dist-packages/bitsandbytes/backends/cuda/ops.py:957: UserWarning: inner dimension (3420) is not aligned for fast kernel with blocksize=64, falling back to slower implementation.
+  warn(
+
+=== TỔNG KẾT ===
+{
+  "header": {
+    "gpu": "Tesla T4",
+    "gpu_total_vram_gb": 14.56,
+    "clocks_sm_max_temp": [
+      "585, 1590, 73"
+    ],
+    "python": "3.13.16",
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "bitsandbytes": "0.50.2",
+    "accelerate": "1.15.0",
+    "git_commit": "242cdf3",
+    "attn_implementation": "sdpa",
+    "quant": "nf4, fp16 compute (BitsAndBytesConfig)",
+    "prompt_hash": "3d71fdba",
+    "windows_hash": "556e8652",
+    "warmup": 2,
+    "runs": 3,
+    "max_new_tokens": 128,
+    "vram_cap_gb": 5.5,
+    "skip_quality": true,
+    "timestamp": "2026-10-30 01:26:14"
+  },
+  "results": [
+    {
+      "model_id": "Qwen/Qwen2.5-VL-3B-Instruct",
+      "class": "Qwen2_5_VLForConditionalGeneration",
+      "ok": true,
+      "variants": [
+        {
+          "variant": "images_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 2.93,
+            "torch_alloc_gb": 2.52,
+            "torch_reserved_gb": 2.63
+          },
+          "timing": {
+            "n_measured": 3,
+            "median_s": 4.32,
+            "mean_s": 4.35,
+            "p90_s": 4.56,
+            "min_s": 4.16,
+            "max_s": 4.56,
+            "runs_s": [
+              4.56,
+              4.32,
+              4.16
+            ],
+            "median_preprocess_s": 0.028,
+            "median_prefill_s": 0.629,
+            "median_decode_s": 3.689,
+            "median_out_tokens": 52
+          },
+          "vram": {
+            "device_peak_gb": 2.93,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen approaching a car and attempting to steal something from it.\",\n  \"confidence\": 0.95\n}\n```"
+          },
+          "torch_alloc_peak_gb": 2.52,
+          "torch_reserved_peak_gb": 2.63
+        },
+        {
+          "variant": "images_cap448",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 2.93,
+            "torch_alloc_gb": 2.52,
+            "torch_reserved_gb": 2.63
+          },
+          "timing": {
+            "n_measured": 3,
+            "median_s": 4.36,
+            "mean_s": 4.31,
+            "p90_s": 4.53,
+            "min_s": 4.05,
+            "max_s": 4.53,
+            "runs_s": [
+              4.53,
+              4.36,
+              4.05
+            ],
+            "median_preprocess_s": 0.029,
+            "median_prefill_s": 0.612,
+            "median_decode_s": 3.747,
+            "median_out_tokens": 52
+          },
+          "vram": {
+            "device_peak_gb": 2.93,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen approaching a car and attempting to steal something from it.\",\n  \"confidence\": 0.95\n}\n```"
+          },
+          "torch_alloc_peak_gb": 2.52,
+          "torch_reserved_peak_gb": 2.63
+        },
+        {
+          "variant": "video_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 322,
+            "worst_prompt_tokens": 125,
+            "worst_image_tokens": 197
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 322,
+            "device_peak_gb": 2.86,
+            "torch_alloc_gb": 2.49,
+            "torch_reserved_gb": 2.57
+          },
+          "timing": {
+            "n_measured": 3,
+            "median_s": 4.08,
+            "mean_s": 4.16,
+            "p90_s": 4.49,
+            "min_s": 3.89,
+            "max_s": 4.49,
+            "runs_s": [
+              4.49,
+              4.08,
+              3.89
+            ],
+            "median_preprocess_s": 0.022,
+            "median_prefill_s": 0.379,
+            "median_decode_s": 3.718,
+            "median_out_tokens": 52
+          },
+          "vram": {
+            "device_peak_gb": 2.86,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Robbery\",\n  \"caption\": \"A person is seen approaching a car and then entering it, suggesting a potential robbery scenario.\",\n  \"confidence\": 0.95\n}\n```"
+          },
+          "torch_alloc_peak_gb": 2.49,
+          "torch_reserved_peak_gb": 2.57
+        }
+      ],
+      "idle_device_mb": 169.0,
+      "load_seconds": 30.5,
+      "attn_implementation": "sdpa",
+      "clocks_sm_before": [
+        "585"
+      ],
+      "clocks_sm_after": [
+        "945"
+      ]
+    }
+  ]
+}
+
+===== log_smolvlm2_capped.txt =====
+windows: 16 (8 anomaly / 8 normal), hash 556e8652; prompt hash 3d71fdba
+GPU: Tesla T4 (14.56 GB), torch 2.11.0+cu130, transformers 5.20.2
+  [cap] set_per_process_memory_fraction(0.378) = 5.5 GB / 14.6 GB
+
+Loading weights:   0%|          | 0/657 [00:00<?, ?it/s]
+Loading weights:   0%|          | 1/657 [00:01<17:17,  1.58s/it]
+Loading weights:   0%|          | 2/657 [00:01<09:24,  1.16it/s]
+Loading weights:   0%|          | 3/657 [00:03<12:52,  1.18s/it]
+Loading weights:   1%|          | 5/657 [00:03<06:13,  1.75it/s]
+Loading weights:   1%|          | 6/657 [00:03<05:14,  2.07it/s]
+Loading weights:   1%|          | 7/657 [00:04<04:33,  2.38it/s]
+Loading weights:   2%|▏         | 10/657 [00:04<02:15,  4.79it/s]
+Loading weights:   2%|▏         | 12/657 [00:04<01:43,  6.26it/s]
+Loading weights:   2%|▏         | 14/657 [00:04<01:38,  6.56it/s]
+Loading weights:   2%|▏         | 16/657 [00:05<02:00,  5.32it/s]
+Loading weights:   3%|▎         | 19/657 [00:05<01:21,  7.84it/s]
+Loading weights:   3%|▎         | 21/657 [00:05<01:10,  9.08it/s]
+Loading weights:   4%|▎         | 23/657 [00:05<01:15,  8.42it/s]
+Loading weights:   4%|▍         | 25/657 [00:06<01:43,  6.10it/s]
+Loading weights:   4%|▍         | 28/657 [00:06<01:13,  8.57it/s]
+Loading weights:   5%|▍         | 30/657 [00:06<01:04,  9.67it/s]
+Loading weights:   5%|▍         | 32/657 [00:06<01:11,  8.78it/s]
+Loading weights:   5%|▌         | 34/657 [00:07<01:38,  6.29it/s]
+Loading weights:   6%|▌         | 37/657 [00:07<01:11,  8.69it/s]
+Loading weights:   6%|▌         | 39/657 [00:07<01:03,  9.75it/s]
+Loading weights:   6%|▌         | 41/657 [00:08<01:09,  8.89it/s]
+Loading weights:   7%|▋         | 43/657 [00:08<01:36,  6.37it/s]
+Loading weights:   7%|▋         | 46/657 [00:08<01:09,  8.78it/s]
+Loading weights:   7%|▋         | 48/657 [00:08<01:02,  9.82it/s]
+Loading weights:   8%|▊         | 50/657 [00:09<01:08,  8.89it/s]
+Loading weights:   8%|▊         | 52/657 [00:09<01:33,  6.46it/s]
+Loading weights:   8%|▊         | 55/657 [00:09<01:07,  8.94it/s]
+Loading weights:   9%|▊         | 57/657 [00:09<00:59, 10.05it/s]
+Loading weights:   9%|▉         | 59/657 [00:10<01:05,  9.17it/s]
+Loading weights:   9%|▉         | 61/657 [00:10<01:30,  6.56it/s]
+Loading weights:  10%|▉         | 64/657 [00:10<01:05,  9.00it/s]
+Loading weights:  10%|█         | 66/657 [00:10<00:58, 10.14it/s]
+Loading weights:  10%|█         | 68/657 [00:11<01:04,  9.19it/s]
+Loading weights:  11%|█         | 70/657 [00:11<01:29,  6.56it/s]
+Loading weights:  11%|█         | 73/657 [00:11<01:04,  9.01it/s]
+Loading weights:  11%|█▏        | 75/657 [00:11<00:56, 10.30it/s]
+Loading weights:  12%|█▏        | 77/657 [00:12<01:05,  8.90it/s]
+Loading weights:  12%|█▏        | 79/657 [00:12<01:25,  6.76it/s]
+Loading weights:  12%|█▏        | 82/657 [00:12<01:01,  9.34it/s]
+Loading weights:  13%|█▎        | 84/657 [00:12<00:53, 10.69it/s]
+Loading weights:  13%|█▎        | 86/657 [00:13<01:00,  9.47it/s]
+Loading weights:  13%|█▎        | 88/657 [00:13<01:25,  6.63it/s]
+Loading weights:  14%|█▍        | 91/657 [00:13<01:02,  9.12it/s]
+Loading weights:  14%|█▍        | 93/657 [00:14<00:55, 10.19it/s]
+Loading weights:  14%|█▍        | 95/657 [00:14<01:01,  9.15it/s]
+Loading weights:  15%|█▍        | 97/657 [00:14<01:26,  6.49it/s]
+Loading weights:  15%|█▌        | 100/657 [00:14<01:02,  8.91it/s]
+Loading weights:  16%|█▌        | 102/657 [00:15<00:55,  9.92it/s]
+Loading weights:  16%|█▌        | 104/657 [00:15<01:01,  9.03it/s]
+Loading weights:  16%|█▌        | 106/657 [00:15<01:25,  6.48it/s]
+Loading weights:  17%|█▋        | 109/657 [00:16<01:01,  8.95it/s]
+Loading weights:  17%|█▋        | 111/657 [00:16<00:54,  9.99it/s]
+Loading weights:  17%|█▋        | 113/657 [00:16<00:59,  9.07it/s]
+Loading weights:  18%|█▊        | 115/657 [00:16<01:23,  6.51it/s]
+Loading weights:  18%|█▊        | 118/657 [00:17<00:59,  8.99it/s]
+Loading weights:  18%|█▊        | 120/657 [00:17<00:53, 10.09it/s]
+Loading weights:  19%|█▊        | 122/657 [00:17<00:58,  9.16it/s]
+Loading weights:  19%|█▉        | 124/657 [00:18<01:20,  6.59it/s]
+Loading weights:  19%|█▉        | 127/657 [00:18<00:58,  9.09it/s]
+Loading weights:  20%|█▉        | 129/657 [00:18<00:51, 10.19it/s]
+Loading weights:  20%|█▉        | 131/657 [00:18<00:56,  9.26it/s]
+Loading weights:  20%|██        | 133/657 [00:19<01:19,  6.58it/s]
+Loading weights:  21%|██        | 136/657 [00:19<00:57,  9.05it/s]
+Loading weights:  21%|██        | 138/657 [00:19<00:51, 10.11it/s]
+Loading weights:  21%|██▏       | 140/657 [00:19<00:56,  9.22it/s]
+Loading weights:  22%|██▏       | 142/657 [00:20<01:17,  6.63it/s]
+Loading weights:  22%|██▏       | 145/657 [00:20<00:55,  9.15it/s]
+Loading weights:  22%|██▏       | 147/657 [00:20<00:49, 10.23it/s]
+Loading weights:  23%|██▎       | 149/657 [00:20<00:55,  9.20it/s]
+Loading weights:  23%|██▎       | 151/657 [00:21<01:18,  6.47it/s]
+Loading weights:  23%|██▎       | 154/657 [00:21<00:56,  8.89it/s]
+Loading weights:  24%|██▎       | 156/657 [00:21<00:50,  9.95it/s]
+Loading weights:  24%|██▍       | 158/657 [00:21<00:55,  8.99it/s]
+Loading weights:  24%|██▍       | 160/657 [00:22<01:17,  6.40it/s]
+Loading weights:  25%|██▍       | 163/657 [00:22<00:55,  8.89it/s]
+Loading weights:  25%|██▌       | 165/657 [00:22<00:49,  9.91it/s]
+Loading weights:  25%|██▌       | 167/657 [00:22<00:54,  8.95it/s]
+Loading weights:  26%|██▌       | 169/657 [00:23<01:15,  6.44it/s]
+Loading weights:  26%|██▌       | 172/657 [00:23<00:54,  8.86it/s]
+Loading weights:  26%|██▋       | 174/657 [00:23<00:48,  9.95it/s]
+Loading weights:  27%|██▋       | 176/657 [00:23<00:53,  9.03it/s]
+Loading weights:  27%|██▋       | 178/657 [00:24<01:14,  6.43it/s]
+Loading weights:  28%|██▊       | 181/657 [00:24<00:53,  8.87it/s]
+Loading weights:  28%|██▊       | 183/657 [00:24<00:47,  9.90it/s]
+Loading weights:  28%|██▊       | 185/657 [00:24<00:52,  8.95it/s]
+Loading weights:  28%|██▊       | 187/657 [00:25<01:13,  6.42it/s]
+Loading weights:  29%|██▉       | 190/657 [00:25<00:52,  8.83it/s]
+Loading weights:  29%|██▉       | 192/657 [00:25<00:47,  9.87it/s]
+Loading weights:  30%|██▉       | 194/657 [00:26<00:51,  8.96it/s]
+Loading weights:  30%|██▉       | 196/657 [00:26<01:12,  6.38it/s]
+Loading weights:  30%|███       | 199/657 [00:26<00:52,  8.79it/s]
+Loading weights:  31%|███       | 201/657 [00:26<00:46,  9.83it/s]
+Loading weights:  31%|███       | 203/657 [00:27<00:51,  8.90it/s]
+Loading weights:  31%|███       | 205/657 [00:27<01:11,  6.36it/s]
+Loading weights:  32%|███▏      | 208/657 [00:27<00:51,  8.77it/s]
+Loading weights:  32%|███▏      | 210/657 [00:27<00:45,  9.81it/s]
+Loading weights:  32%|███▏      | 212/657 [00:28<00:49,  8.91it/s]
+Loading weights:  33%|███▎      | 214/657 [00:28<01:09,  6.37it/s]
+Loading weights:  33%|███▎      | 217/657 [00:28<00:50,  8.79it/s]
+Loading weights:  33%|███▎      | 219/657 [00:29<00:44,  9.86it/s]
+Loading weights:  35%|███▍      | 229/657 [00:29<00:18, 23.72it/s]
+Loading weights:  36%|███▌      | 235/657 [00:29<00:14, 29.40it/s]
+Loading weights:  37%|███▋      | 245/657 [00:29<00:09, 41.62it/s]
+Loading weights:  38%|███▊      | 251/657 [00:29<00:09, 43.82it/s]
+Loading weights:  40%|███▉      | 261/657 [00:29<00:07, 53.42it/s]
+Loading weights:  41%|████      | 268/657 [00:29<00:07, 54.85it/s]
+Loading weights:  42%|████▏     | 277/657 [00:29<00:06, 59.40it/s]
+Loading weights:  43%|████▎     | 284/657 [00:29<00:06, 59.42it/s]
+Loading weights:  45%|████▍     | 293/657 [00:30<00:05, 63.43it/s]
+Loading weights:  46%|████▌     | 300/657 [00:30<00:05, 61.87it/s]
+Loading weights:  47%|████▋     | 309/657 [00:30<00:05, 65.24it/s]
+Loading weights:  48%|████▊     | 316/657 [00:30<00:05, 63.34it/s]
+Loading weights:  49%|████▉     | 325/657 [00:30<00:05, 66.37it/s]
+Loading weights:  51%|█████     | 332/657 [00:30<00:05, 64.03it/s]
+Loading weights:  52%|█████▏    | 341/657 [00:30<00:04, 66.75it/s]
+Loading weights:  53%|█████▎    | 348/657 [00:30<00:04, 64.43it/s]
+Loading weights:  54%|█████▍    | 357/657 [00:31<00:04, 67.13it/s]
+Loading weights:  55%|█████▌    | 364/657 [00:31<00:04, 64.47it/s]
+Loading weights:  57%|█████▋    | 373/657 [00:31<00:04, 67.07it/s]
+Loading weights:  58%|█████▊    | 380/657 [00:31<00:04, 64.65it/s]
+Loading weights:  59%|█████▉    | 389/657 [00:31<00:03, 67.31it/s]
+Loading weights:  60%|██████    | 396/657 [00:31<00:04, 64.97it/s]
+Loading weights:  62%|██████▏   | 405/657 [00:31<00:03, 67.29it/s]
+Loading weights:  63%|██████▎   | 412/657 [00:31<00:03, 64.77it/s]
+Loading weights:  64%|██████▍   | 421/657 [00:32<00:03, 67.40it/s]
+Loading weights:  65%|██████▌   | 428/657 [00:32<00:03, 64.82it/s]
+Loading weights:  67%|██████▋   | 437/657 [00:32<00:03, 67.06it/s]
+Loading weights:  68%|██████▊   | 444/657 [00:32<00:03, 62.72it/s]
+Loading weights:  69%|██████▉   | 453/657 [00:32<00:02, 68.09it/s]
+Loading weights:  70%|███████   | 460/657 [00:32<00:03, 65.42it/s]
+Loading weights:  71%|███████▏  | 469/657 [00:32<00:02, 67.51it/s]
+Loading weights:  72%|███████▏  | 476/657 [00:32<00:02, 64.62it/s]
+Loading weights:  74%|███████▍  | 485/657 [00:33<00:02, 67.73it/s]
+Loading weights:  75%|███████▍  | 492/657 [00:33<00:02, 65.02it/s]
+Loading weights:  76%|███████▋  | 501/657 [00:33<00:02, 67.34it/s]
+Loading weights:  77%|███████▋  | 508/657 [00:33<00:02, 64.88it/s]
+Loading weights:  79%|███████▊  | 517/657 [00:33<00:02, 67.46it/s]
+Loading weights:  80%|███████▉  | 524/657 [00:33<00:02, 63.37it/s]
+Loading weights:  81%|████████  | 533/657 [00:33<00:01, 67.78it/s]
+Loading weights:  82%|████████▏ | 540/657 [00:33<00:01, 65.12it/s]
+Loading weights:  84%|████████▎ | 549/657 [00:33<00:01, 68.14it/s]
+Loading weights:  85%|████████▍ | 556/657 [00:34<00:01, 65.04it/s]
+Loading weights:  86%|████████▌ | 565/657 [00:34<00:01, 67.68it/s]
+Loading weights:  87%|████████▋ | 572/657 [00:34<00:01, 64.98it/s]
+Loading weights:  88%|████████▊ | 581/657 [00:34<00:01, 67.67it/s]
+Loading weights:  89%|████████▉ | 588/657 [00:34<00:01, 64.86it/s]
+Loading weights:  91%|█████████ | 597/657 [00:34<00:00, 67.46it/s]
+Loading weights:  92%|█████████▏| 604/657 [00:34<00:00, 64.78it/s]
+Loading weights:  93%|█████████▎| 613/657 [00:34<00:00, 67.51it/s]
+Loading weights:  94%|█████████▍| 620/657 [00:35<00:00, 64.04it/s]
+Loading weights:  96%|█████████▌| 629/657 [00:35<00:00, 67.65it/s]
+Loading weights:  97%|█████████▋| 636/657 [00:35<00:00, 65.07it/s]
+Loading weights:  98%|█████████▊| 645/657 [00:35<00:00, 66.60it/s]
+Loading weights:  99%|█████████▉| 652/657 [00:35<00:00, 65.19it/s]
+Loading weights: 100%|██████████| 657/657 [00:35<00:00, 18.46it/s]
+
+--- HuggingFaceTB/SmolVLM2-2.2B-instruct :: images_nosplit ---
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+  VARIANT THẤT BẠI (images_nosplit): RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552
+
+--- HuggingFaceTB/SmolVLM2-2.2B-instruct :: images_split ---
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+[transformers] Kwargs passed to `processor.__call__` have to be in `processor_kwargs` dict, not in `**kwargs`
+  VARIANT THẤT BẠI (images_split): RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 8626176
+
+=== TỔNG KẾT ===
+{
+  "header": {
+    "gpu": "Tesla T4",
+    "gpu_total_vram_gb": 14.56,
+    "clocks_sm_max_temp": [
+      "585, 1590, 75"
+    ],
+    "python": "3.13.16",
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "bitsandbytes": "0.50.2",
+    "accelerate": "1.15.0",
+    "git_commit": "242cdf3",
+    "attn_implementation": "sdpa",
+    "quant": "nf4, fp16 compute (BitsAndBytesConfig)",
+    "prompt_hash": "3d71fdba",
+    "windows_hash": "556e8652",
+    "warmup": 2,
+    "runs": 3,
+    "max_new_tokens": 128,
+    "vram_cap_gb": 5.5,
+    "skip_quality": true,
+    "timestamp": "2026-10-30 01:28:38"
+  },
+  "results": [
+    {
+      "model_id": "HuggingFaceTB/SmolVLM2-2.2B-instruct",
+      "class": "SmolVLMForConditionalGeneration",
+      "ok": true,
+      "variants": [
+        {
+          "variant": "images_nosplit",
+          "ok": false,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 457,
+            "worst_prompt_tokens": 121,
+            "worst_image_tokens": 332
+          },
+          "error": "RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552",
+          "torch_alloc_peak_gb": 1.55,
+          "torch_reserved_peak_gb": 1.63
+        },
+        {
+          "variant": "images_split",
+          "ok": false,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 4453,
+            "worst_prompt_tokens": 121,
+            "worst_image_tokens": 4328
+          },
+          "error": "RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 8626176",
+          "torch_alloc_peak_gb": 2.64,
+          "torch_reserved_peak_gb": 3.11
+        }
+      ],
+      "idle_device_mb": 169.0,
+      "load_seconds": 36.6,
+      "attn_implementation": "sdpa",
+      "clocks_sm_before": [
+        "585"
+      ],
+      "clocks_sm_after": [
+        "510"
+      ]
+    }
+  ]
+}
+

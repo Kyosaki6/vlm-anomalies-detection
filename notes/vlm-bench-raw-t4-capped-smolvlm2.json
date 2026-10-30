@@ -1,0 +1,69 @@
+{
+  "header": {
+    "gpu": "Tesla T4",
+    "gpu_total_vram_gb": 14.56,
+    "clocks_sm_max_temp": [
+      "585, 1590, 75"
+    ],
+    "python": "3.13.16",
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "bitsandbytes": "0.50.2",
+    "accelerate": "1.15.0",
+    "git_commit": "242cdf3",
+    "attn_implementation": "sdpa",
+    "quant": "nf4, fp16 compute (BitsAndBytesConfig)",
+    "prompt_hash": "3d71fdba",
+    "windows_hash": "556e8652",
+    "warmup": 2,
+    "runs": 3,
+    "max_new_tokens": 128,
+    "vram_cap_gb": 5.5,
+    "skip_quality": true,
+    "timestamp": "2026-10-30 01:28:38"
+  },
+  "results": [
+    {
+      "model_id": "HuggingFaceTB/SmolVLM2-2.2B-instruct",
+      "class": "SmolVLMForConditionalGeneration",
+      "ok": true,
+      "variants": [
+        {
+          "variant": "images_nosplit",
+          "ok": false,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 457,
+            "worst_prompt_tokens": 121,
+            "worst_image_tokens": 332
+          },
+          "error": "RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552",
+          "torch_alloc_peak_gb": 1.55,
+          "torch_reserved_peak_gb": 1.63
+        },
+        {
+          "variant": "images_split",
+          "ok": false,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 4453,
+            "worst_prompt_tokens": 121,
+            "worst_image_tokens": 4328
+          },
+          "error": "RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 8626176",
+          "torch_alloc_peak_gb": 2.64,
+          "torch_reserved_peak_gb": 3.11
+        }
+      ],
+      "idle_device_mb": 169.0,
+      "load_seconds": 36.6,
+      "attn_implementation": "sdpa",
+      "clocks_sm_before": [
+        "585"
+      ],
+      "clocks_sm_after": [
+        "510"
+      ]
+    }
+  ]
+}
