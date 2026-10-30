@@ -17,6 +17,7 @@ File này chỉ nói **cái gì đã chạy thật, cái gì còn là việc c�
 | `vad/embed/siglip.py` | Thịnh (T1) | **xong + test (PR #8)** | Model thật, lazy load, fp32. **Model-generic**: cùng class chạy SigLIP 2 (padding 64) và OpenAI CLIP B/32 (77 token) cho baseline A0. Đo GTX 1060: **~14 ảnh/s**, VRAM 1.7–2.25 GB, dim 768, `logit_scale` thật **112.85**. Bẫy 5.x: `get_*_features` trả object → lấy `.pooler_output`; text không có `attention_mask`; bs=64 sụp còn 1.8 ảnh/s. |
 | `scripts/precompute_embeddings.py` | Thịnh (T1) | **chạy thật (PR #8)** | `process_video` stream theo lô, lỗi 1 video không làm sập shard, resume theo cache. **`--model` lặp lại được**: SigLIP 2 + CLIP B/32 trong MỘT lượt giải mã video (cache ghi sau khi mọi model xong, không lệch nhau). Đã chạy end-to-end: video 10s → 20 khung → `.npy` (20, 768). Video hỏng báo lỗi, không nạp model. |
 | `scripts/sanity_embedder.py` | Nam (T4 hỗ trợ) | **mới + chạy được** | Ảnh trong `data/` → text score + hạng lớp. Bắt lỗi plumbing trong 1 phút, không cần dataset. KHÔNG phải số liệu báo cáo. |
+| `scripts/run_verify.py` | Huy (A3) | **xong + test** | Đọc `results/windows/*.json`, cắt `k` frame cách đều bằng MỘT lượt decode, ghi `results/verify/<video_id>/window_<i>.json`; resume theo fingerprint. `--fake` bắt buộc `--out-dir` khác `results/verify`. VLM thật cắm qua protocol `Verifier`. |
 | `vad/score/text.py` | Thịnh (T1) | **xong + test** | Điểm text (ensemble prompt) + điểm memory, thuần numpy. |
 | `vad/temporal/ops.py` | Thịnh (T1) | **xong + test** | normalize / EMA / median / top-k pool / candidate windows / căn frame. |
 | `vad/eval/metrics.py` | Thịnh (T1) | **xong + test** | AUC frame-level micro + bootstrap CI theo **video**. Chưa có `run_benchmark.py`. |
@@ -32,9 +33,11 @@ File này chỉ nói **cái gì đã chạy thật, cái gì còn là việc c�
 ```bash
 pip install -r requirements-dev.txt            # test (CI cũng dùng)
 pip install -r requirements-app.txt            # thêm streamlit cho dashboard
-python -m pytest -q                            # 364 test, không cần GPU, không tải model
+python -m pytest -q                            # 508 test, không cần GPU, không tải model
 streamlit run app/streamlit_app.py             # dashboard demo (dữ liệu giả)
 python scripts/precompute_embeddings.py --manifest manifests/<file>.csv --shard 2/4 --dry-run
+python scripts/run_verify.py --manifest manifests/<file>.csv --windows-dir results/windows \
+    --out-dir results/verify --k 4
 ```
 
 ## GPU từng máy (dùng để chia shard `--shard i/N`)
