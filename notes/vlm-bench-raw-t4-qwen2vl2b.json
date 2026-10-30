@@ -1,0 +1,316 @@
+{
+  "header": {
+    "gpu": "Tesla T4",
+    "gpu_total_vram_gb": 14.56,
+    "clocks_sm_max_temp": [
+      "585, 1590, 57"
+    ],
+    "python": "3.13.16",
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "bitsandbytes": "0.50.2",
+    "accelerate": "1.15.0",
+    "git_commit": "242cdf3",
+    "attn_implementation": "sdpa",
+    "quant": "nf4, fp16 compute (BitsAndBytesConfig)",
+    "prompt_hash": "3d71fdba",
+    "windows_hash": "556e8652",
+    "warmup": 2,
+    "runs": 8,
+    "max_new_tokens": 128,
+    "vram_cap_gb": null,
+    "skip_quality": false,
+    "timestamp": "2026-10-30 01:06:31"
+  },
+  "results": [
+    {
+      "model_id": "Qwen/Qwen2-VL-2B-Instruct",
+      "class": "Qwen2VLForConditionalGeneration",
+      "ok": true,
+      "variants": [
+        {
+          "variant": "images_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 1.99,
+            "torch_alloc_gb": 1.59,
+            "torch_reserved_gb": 1.69
+          },
+          "timing": {
+            "n_measured": 8,
+            "median_s": 3.03,
+            "mean_s": 3.21,
+            "p90_s": 4.78,
+            "min_s": 2.23,
+            "max_s": 4.78,
+            "runs_s": [
+              2.88,
+              2.52,
+              3.18,
+              3.25,
+              4.08,
+              4.78,
+              2.23,
+              2.72
+            ],
+            "median_preprocess_s": 0.029,
+            "median_prefill_s": 0.354,
+            "median_decode_s": 2.682,
+            "median_out_tokens": 47
+          },
+          "vram": {
+            "device_peak_gb": 1.99,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "{\"is_anomaly\": true|false, \"event_type\": \"<Burglary>\", \"caption\": \"Two people are seen breaking into a car in a garage.\", \"confidence\": 0.99}"
+          },
+          "torch_alloc_peak_gb": 1.59,
+          "torch_reserved_peak_gb": 1.69
+        },
+        {
+          "variant": "images_cap448",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 526,
+            "worst_prompt_tokens": 134,
+            "worst_image_tokens": 392
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 526,
+            "device_peak_gb": 1.99,
+            "torch_alloc_gb": 1.59,
+            "torch_reserved_gb": 1.69
+          },
+          "timing": {
+            "n_measured": 8,
+            "median_s": 3.05,
+            "mean_s": 3.23,
+            "p90_s": 4.74,
+            "min_s": 2.26,
+            "max_s": 4.74,
+            "runs_s": [
+              2.95,
+              2.55,
+              3.19,
+              3.14,
+              4.17,
+              4.74,
+              2.26,
+              2.79
+            ],
+            "median_preprocess_s": 0.029,
+            "median_prefill_s": 0.397,
+            "median_decode_s": 2.648,
+            "median_out_tokens": 47
+          },
+          "vram": {
+            "device_peak_gb": 1.99,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "{\"is_anomaly\": true|false, \"event_type\": \"<Burglary>\", \"caption\": \"Two people are seen breaking into a car in a garage.\", \"confidence\": 0.99}"
+          },
+          "torch_alloc_peak_gb": 1.59,
+          "torch_reserved_peak_gb": 1.69
+        },
+        {
+          "variant": "video_native",
+          "ok": true,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 322,
+            "worst_prompt_tokens": 125,
+            "worst_image_tokens": 197
+          },
+          "worst_case_probe": {
+            "window_id": "w01",
+            "total_tokens": 322,
+            "device_peak_gb": 1.94,
+            "torch_alloc_gb": 1.58,
+            "torch_reserved_gb": 1.65
+          },
+          "timing": {
+            "n_measured": 8,
+            "median_s": 2.48,
+            "mean_s": 2.48,
+            "p90_s": 2.89,
+            "min_s": 2.05,
+            "max_s": 2.89,
+            "runs_s": [
+              2.4,
+              2.68,
+              2.89,
+              2.36,
+              2.57,
+              2.67,
+              2.05,
+              2.25
+            ],
+            "median_preprocess_s": 0.022,
+            "median_prefill_s": 0.234,
+            "median_decode_s": 2.247,
+            "median_out_tokens": 41
+          },
+          "vram": {
+            "device_peak_gb": 1.94,
+            "device_peak_note": "nvidia-smi memory.used (gồm CUDA context) — số quyết định 'fits in 6 GB'",
+            "sample_output": "{\"is_anomaly\": true, \"event_type\": \"Burglary\", \"caption\": \"Two individuals break into a car in a garage.\", \"confidence\": 0.9}"
+          },
+          "torch_alloc_peak_gb": 1.58,
+          "torch_reserved_peak_gb": 1.65
+        }
+      ],
+      "idle_device_mb": 169.0,
+      "load_seconds": 117.1,
+      "attn_implementation": "sdpa",
+      "quality": {
+        "variant": "images_native",
+        "n_windows": 16,
+        "parse_ok_first_try": "2/16",
+        "consistency": "1/2",
+        "tpr": "0/0",
+        "fpr": "1/2",
+        "type_match": "0/0",
+        "mean_conf_correct": 1.0,
+        "mean_conf_wrong": 0.9,
+        "outputs": [
+          {
+            "window_id": "w01",
+            "label": "anomaly",
+            "gt_event": "Arrest",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Arrest>\", \"caption\": \"A police officer is seen arresting a suspect.\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w02",
+            "label": "anomaly",
+            "gt_event": "Shoplifting",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Shoplifting>\", \"caption\": \"A man in an orange shirt is seen stealing a bottle of wine from a store.\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w03",
+            "label": "anomaly",
+            "gt_event": "Shooting",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Burglary>\", \"caption\": \"Two people are seen breaking into a car in a garage.\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w04",
+            "label": "anomaly",
+            "gt_event": "Explosion",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Arson>\", \"caption\": \"A fire breaks out in a room.\", \"confidence\": 0.9}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w05",
+            "label": "anomaly",
+            "gt_event": "Stealing",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Arrest>\", \"caption\": \"Two men in suits and a man in a blue shirt are standing next to a white truck.\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w06",
+            "label": "anomaly",
+            "gt_event": "Arson",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Robbery>\", \"caption\": \"A man in a hoodie and gloves is seen stealing a bag from a woman in a subway car.\", \"confidence\": 0.9}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w07",
+            "label": "anomaly",
+            "gt_event": "Assault",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Robbery>\", \"caption\": \"A man in a white shirt and black pants is seen walking into a store and grabbing a woman's purse. The man then walks out of the store with the purse.\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w08",
+            "label": "anomaly",
+            "gt_event": "RoadAccidents",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<one of: Abuse, Arrest, Arson, Assault, Burglary, Explosion, Fighting, RoadAccidents, Robbery, Shooting, Shoplifting, Stealing, Vandalism, Normal>\", \"caption\": \"a man is crossing the street\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w09",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "{\"is_anomaly\": false, \"event_type\": \"Normal\", \"caption\": \"People are working in an office.\", \"confidence\": 1}",
+            "parsed": {
+              "is_anomaly": false,
+              "event_type": "Normal",
+              "caption": "People are working in an office.",
+              "confidence": 1.0
+            }
+          },
+          {
+            "window_id": "w10",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "{\"is_anomaly\": false|true, \"event_type\": \"<no events>\", \"caption\": \"The image shows a typical office environment with people working at their desks.\", \"confidence\": 1}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 21 (char 20)"
+          },
+          {
+            "window_id": "w11",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<Arson>\", \"caption\": \"A man in a red jacket is seen walking into a restaurant and lighting it on fire.\", \"confidence\": 0.9}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w12",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "{\"is_anomaly\": true|false, \"event_type\": \"<RoadAccidents>\", \"caption\": \"A car is seen crashing into another car on a street.\", \"confidence\": 0.9}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 20 (char 19)"
+          },
+          {
+            "window_id": "w13",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "{\"is_anomaly\": false|true, \"event_type\": \"<one of: Abuse, Arrest, Arson, Assault, Burglary, Explosion, Fighting, RoadAccidents, Robbery, Shooting, Shoplifting, Stealing, Vandalism, Normal>\", \"caption\": \"The chef is preparing food in the kitchen.\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 21 (char 20)"
+          },
+          {
+            "window_id": "w14",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "```json\n{\n  \"is_anomaly\": true,\n  \"event_type\": \"Normal\",\n  \"caption\": \"A man on a motorbike drives past a small shop.\",\n  \"confidence\": 0.9\n}\n```",
+            "parsed": {
+              "is_anomaly": true,
+              "event_type": "Normal",
+              "caption": "A man on a motorbike drives past a small shop.",
+              "confidence": 0.9
+            }
+          },
+          {
+            "window_id": "w15",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "{\"is_anomaly\": false|true, \"event_type\": \"<no events>\", \"caption\": \"A man in a black shirt and glasses is standing behind a desk in a lobby, speaking to a woman at the desk.\", \"confidence\": 1}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 21 (char 20)"
+          },
+          {
+            "window_id": "w16",
+            "label": "normal",
+            "gt_event": "Normal",
+            "raw": "{\"is_anomaly\": false|true, \"event_type\": \"<one of: Abuse, Arrest, Arson, Assault, Burglary, Explosion, Fighting, RoadAccidents, Robbery, Shooting, Shoplifting, Stealing, Vandalism, Normal>\", \"caption\": \"<one factual sentence describing what happens>\", \"confidence\": 0.99}",
+            "error": "parse: JSON hỏng: Expecting ',' delimiter: line 1 column 21 (char 20)"
+          }
+        ]
+      },
+      "clocks_sm_before": [
+        "585"
+      ],
+      "clocks_sm_after": [
+        "945"
+      ]
+    }
+  ]
+}

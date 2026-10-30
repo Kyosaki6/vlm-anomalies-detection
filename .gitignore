@@ -36,6 +36,7 @@ Thumbs.db
 # --- Dữ liệu benchmark & kết quả tính sẵn (lớn, tải/tính lại được) ---
 /datasets/
 /cache/
+/bench_windows/
 manifests/*.local.csv
 results/**/*.npy
 results/**/*.mp4

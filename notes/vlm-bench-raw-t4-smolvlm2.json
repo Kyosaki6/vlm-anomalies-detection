@@ -1,0 +1,178 @@
+{
+  "header": {
+    "gpu": "Tesla T4",
+    "gpu_total_vram_gb": 14.56,
+    "clocks_sm_max_temp": [
+      "585, 1590, 73"
+    ],
+    "python": "3.13.16",
+    "torch": "2.11.0+cu130",
+    "transformers": "5.20.2",
+    "bitsandbytes": "0.50.2",
+    "accelerate": "1.15.0",
+    "git_commit": "242cdf3",
+    "attn_implementation": "sdpa",
+    "quant": "nf4, fp16 compute (BitsAndBytesConfig)",
+    "prompt_hash": "3d71fdba",
+    "windows_hash": "556e8652",
+    "warmup": 2,
+    "runs": 8,
+    "max_new_tokens": 128,
+    "vram_cap_gb": null,
+    "skip_quality": false,
+    "timestamp": "2026-10-30 01:18:51"
+  },
+  "results": [
+    {
+      "model_id": "HuggingFaceTB/SmolVLM2-2.2B-instruct",
+      "class": "SmolVLMForConditionalGeneration",
+      "ok": true,
+      "variants": [
+        {
+          "variant": "images_nosplit",
+          "ok": false,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 457,
+            "worst_prompt_tokens": 121,
+            "worst_image_tokens": 332
+          },
+          "error": "RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552",
+          "torch_alloc_peak_gb": 1.55,
+          "torch_reserved_peak_gb": 1.63
+        },
+        {
+          "variant": "images_split",
+          "ok": false,
+          "tokens": {
+            "worst_window": "w01",
+            "worst_total_tokens": 4453,
+            "worst_prompt_tokens": 121,
+            "worst_image_tokens": 4328
+          },
+          "error": "RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 8626176",
+          "torch_alloc_peak_gb": 2.64,
+          "torch_reserved_peak_gb": 3.11
+        }
+      ],
+      "idle_device_mb": 169.0,
+      "load_seconds": 291.2,
+      "attn_implementation": "sdpa",
+      "quality": {
+        "variant": "images_nosplit",
+        "n_windows": 16,
+        "parse_ok_first_try": "0/16",
+        "consistency": "0/16",
+        "tpr": "0/0",
+        "fpr": "0/0",
+        "type_match": "0/0",
+        "mean_conf_correct": null,
+        "mean_conf_wrong": null,
+        "outputs": [
+          {
+            "window_id": "w01",
+            "label": "anomaly",
+            "gt_event": "Arrest",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w02",
+            "label": "anomaly",
+            "gt_event": "Shoplifting",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w03",
+            "label": "anomaly",
+            "gt_event": "Shooting",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w04",
+            "label": "anomaly",
+            "gt_event": "Explosion",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w05",
+            "label": "anomaly",
+            "gt_event": "Stealing",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w06",
+            "label": "anomaly",
+            "gt_event": "Arson",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w07",
+            "label": "anomaly",
+            "gt_event": "Assault",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w08",
+            "label": "anomaly",
+            "gt_event": "RoadAccidents",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w09",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w10",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w11",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w12",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w13",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w14",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w15",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          },
+          {
+            "window_id": "w16",
+            "label": "normal",
+            "gt_event": "Normal",
+            "error": "generate: RuntimeError: shape '[-1, 14, 2048]' is invalid for input of size 663552"
+          }
+        ]
+      },
+      "clocks_sm_before": [
+        "585"
+      ],
+      "clocks_sm_after": [
+        "705"
+      ]
+    }
+  ]
+}
