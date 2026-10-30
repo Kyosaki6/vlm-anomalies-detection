@@ -11,7 +11,7 @@ chọn xác định giữa các máy. Không chọn tay, không re-roll sau khi 
 
 Kết quả:
     notes/vlm-bench-windows.json   (spec cửa sổ: video_id, label, gt_event, frame_indices, frame_paths)
-    bench_windows/<window_id>/frame_<i>.jpg  (khung 320x240 gốc, JPEG q95 — CHỈ commit zip, không commit thư mục)
+    bench_windows/<window_id>/frame_<i>.jpg  (khung 320x240 gốc, JPEG q95 — CHỈ commit zip `notes/bench_windows.zip`, không commit thư mục)
 
 Chỉ tải đúng 16 video cần (vài trăm MB), KHÔNG tải 9.2 GB cả bộ.
 """

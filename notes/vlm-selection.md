@@ -82,7 +82,7 @@ Lý do (từng bước rule §4):
 - Video mode chưa có quality table (chỉ 1 sample sạch) — cần A6 xác nhận trước khi đổi A2 sang video.
 - Confidence 3B ~ hằng số 0.95: không dùng làm tín hiệu (không threshold trên confidence).
 - Prompt của 2B-echo: thất bại gắn với prompt hash `3d71fdba` này; đổi prompt = re-test.
-- Số đo 3050 cũ (`notes/vlm-bench-raw.json`, `vlm-bench-log.txt`): ảnh tĩnh 4 bức KHÁC KÍCH THƯỚC, mean gồm run warmup (F2/F3 trong review) — chỉ giữ làm lịch sử, không so sánh tốc độ với số T4.
+- Số đo 3050 cũ (`notes/vlm-bench-raw-3050-legacy.json`, `notes/vlm-bench-log-3050-legacy.txt`): ảnh tĩnh 4 bức KHÁC KÍCH THƯỚC, mean gồm run warmup (F2/F3 trong review) — chỉ giữ làm lịch sử, không so sánh tốc độ với số T4.
 
 ## 8. Handoff cho A2 (copy nguyên vào `vad/verify/vlm.py`)
 
@@ -103,4 +103,4 @@ known quirks:
 
 ## 9. Số đo 3050 cũ (lịch sử, đã bị thay bằng số T4 ở trên)
 
-Ngày 2026-10-29 trên RTX 3050 6 GB: Qwen2-VL-2B peak 1.92 GB, 3 run 4.22/3.61/3.74 s (post-warmup mean 3.68), nhưng input là **4 ảnh tĩnh kích thước khác nhau** và prompt viết tay trong script — không so được với số T4 ở trên. Raw: `notes/vlm-bench-raw.json`, log: `notes/vlm-bench-log.txt`. Kết luận cũ "local GO" đã bị rút: VLM chạy trên Colab T4 (quyết định redo plan).
+Ngày 2026-10-29 trên RTX 3050 6 GB: Qwen2-VL-2B peak 1.92 GB, 3 run 4.22/3.61/3.74 s (post-warmup mean 3.68), nhưng input là **4 ảnh tĩnh kích thước khác nhau** và prompt viết tay trong script — không so được với số T4 ở trên. Raw: `notes/vlm-bench-raw-3050-legacy.json`, log: `notes/vlm-bench-log-3050-legacy.txt`. Kết luận cũ "local GO" đã bị rút: VLM chạy trên Colab T4 (quyết định redo plan).
