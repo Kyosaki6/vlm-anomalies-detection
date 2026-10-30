@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "video_id": "Shooting046_x264",
+  "sample_fps": 1.0,
+  "candidate_windows": [
+    {
+      "video_id": "Shooting046_x264",
+      "start_s": 6.0,
+      "end_s": 18.0,
+      "score": 1.2875302262341521
+    },
+    {
+      "video_id": "Shooting046_x264",
+      "start_s": 48.0,
+      "end_s": 95.0,
+      "score": 1.316960219219798
+    },
+    {
+      "video_id": "Shooting046_x264",
+      "start_s": 118.0,
+      "end_s": 123.0,
+      "score": 1.1956356749251806
+    },
+    {
+      "video_id": "Shooting046_x264",
+      "start_s": 127.0,
+      "end_s": 170.0,
+      "score": 1.4255032890699357
+    }
+  ],
+  "verify_results": [],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "1849ed5",
+    "timestamp": "2026-10-30T08:12:32+00:00",
+    "schema_version": 1,
+    "tier": "1",
+    "ablation": "A4c",
+    "threshold": 1.1685914439041403,
+    "fps": 30.0,
+    "n_frames": 5088
+  }
+}

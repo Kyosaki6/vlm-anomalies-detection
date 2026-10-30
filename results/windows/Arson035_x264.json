@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "video_id": "Arson035_x264",
+  "sample_fps": 1.0,
+  "candidate_windows": [
+    {
+      "video_id": "Arson035_x264",
+      "start_s": 2.0,
+      "end_s": 5.0,
+      "score": 1.2629054527100931
+    },
+    {
+      "video_id": "Arson035_x264",
+      "start_s": 16.0,
+      "end_s": 20.0,
+      "score": 1.1916017384006201
+    },
+    {
+      "video_id": "Arson035_x264",
+      "start_s": 28.0,
+      "end_s": 29.0,
+      "score": 1.1775176875240114
+    },
+    {
+      "video_id": "Arson035_x264",
+      "start_s": 46.0,
+      "end_s": 48.0,
+      "score": 1.2555371365591548
+    }
+  ],
+  "verify_results": [],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "1849ed5",
+    "timestamp": "2026-10-30T08:12:30+00:00",
+    "schema_version": 1,
+    "tier": "1",
+    "ablation": "A4c",
+    "threshold": 1.1685914439041403,
+    "fps": 30.0,
+    "n_frames": 1437
+  }
+}

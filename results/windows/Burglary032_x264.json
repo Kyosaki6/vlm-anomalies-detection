@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "video_id": "Burglary032_x264",
+  "sample_fps": 1.0,
+  "candidate_windows": [
+    {
+      "video_id": "Burglary032_x264",
+      "start_s": 41.0,
+      "end_s": 49.0,
+      "score": 1.2804308959324189
+    },
+    {
+      "video_id": "Burglary032_x264",
+      "start_s": 60.0,
+      "end_s": 64.0,
+      "score": 1.1969299040764916
+    },
+    {
+      "video_id": "Burglary032_x264",
+      "start_s": 78.0,
+      "end_s": 90.0,
+      "score": 1.2200625689623696
+    },
+    {
+      "video_id": "Burglary032_x264",
+      "start_s": 134.0,
+      "end_s": 135.0,
+      "score": 1.1687730715609526
+    },
+    {
+      "video_id": "Burglary032_x264",
+      "start_s": 159.0,
+      "end_s": 163.0,
+      "score": 1.2374810499856304
+    },
+    {
+      "video_id": "Burglary032_x264",
+      "start_s": 191.0,
+      "end_s": 198.0,
+      "score": 1.2081192928484743
+    },
+    {
+      "video_id": "Burglary032_x264",
+      "start_s": 389.0,
+      "end_s": 397.0,
+      "score": 1.2211668011298673
+    },
+    {
+      "video_id": "Burglary032_x264",
+      "start_s": 420.0,
+      "end_s": 426.0,
+      "score": 1.2676932223605988
+    }
+  ],
+  "verify_results": [],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "1849ed5",
+    "timestamp": "2026-10-30T08:12:30+00:00",
+    "schema_version": 1,
+    "tier": "1",
+    "ablation": "A4c",
+    "threshold": 1.1685914439041403,
+    "fps": 30.0,
+    "n_frames": 15795
+  }
+}

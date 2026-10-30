@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion007_x264",
+  "sample_fps": 1.0,
+  "candidate_windows": [
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 57.0,
+      "end_s": 60.0,
+      "score": 1.172829826329584
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 68.0,
+      "end_s": 88.0,
+      "score": 1.2897515794281005
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 141.0,
+      "end_s": 149.0,
+      "score": 1.2012785531011856
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 172.0,
+      "end_s": 182.0,
+      "score": 1.2111957688023496
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 192.0,
+      "end_s": 197.0,
+      "score": 1.2046392901297067
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 201.0,
+      "end_s": 203.0,
+      "score": 1.171560411607816
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 211.0,
+      "end_s": 222.0,
+      "score": 1.2777604928953157
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 258.0,
+      "end_s": 282.0,
+      "score": 1.3032809871713555
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 288.0,
+      "end_s": 300.0,
+      "score": 1.1979362773772833
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 313.0,
+      "end_s": 543.0,
+      "score": 1.3735776544523792
+    }
+  ],
+  "verify_results": [],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "1849ed5",
+    "timestamp": "2026-10-30T08:12:30+00:00",
+    "schema_version": 1,
+    "tier": "1",
+    "ablation": "A4c",
+    "threshold": 1.1685914439041403,
+    "fps": 30.0,
+    "n_frames": 16289
+  }
+}

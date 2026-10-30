@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "video_id": "Arrest007_x264",
+  "sample_fps": 1.0,
+  "candidate_windows": [
+    {
+      "video_id": "Arrest007_x264",
+      "start_s": 5.0,
+      "end_s": 10.0,
+      "score": 1.2802494961148196
+    },
+    {
+      "video_id": "Arrest007_x264",
+      "start_s": 25.0,
+      "end_s": 31.0,
+      "score": 1.235843310909052
+    },
+    {
+      "video_id": "Arrest007_x264",
+      "start_s": 50.0,
+      "end_s": 78.0,
+      "score": 1.3868057510574403
+    },
+    {
+      "video_id": "Arrest007_x264",
+      "start_s": 95.0,
+      "end_s": 97.0,
+      "score": 1.1855382813069144
+    }
+  ],
+  "verify_results": [],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "1849ed5",
+    "timestamp": "2026-10-30T08:12:30+00:00",
+    "schema_version": 1,
+    "tier": "1",
+    "ablation": "A4c",
+    "threshold": 1.1685914439041403,
+    "fps": 30.0,
+    "n_frames": 3144
+  }
+}
