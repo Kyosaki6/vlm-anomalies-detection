@@ -84,12 +84,12 @@ Khác với tác vụ phát hiện nhị phân, bộ phân loại sự kiện ze
 3. **Tỉ lệ bao phủ sự cố (Incident-level Recall):**
    Tỉ lệ phần trăm các sự kiện thực tế có ít nhất một cảnh báo chính xác rơi vào khoảng thời gian xảy ra sự cố.
 
-<!-- TODO(TH8): Cập nhật số liệu vận hành từ nhiệm vụ TH7 -->
+Ngưỡng $\tau$ = 1.1686 chọn bằng phân vị 95% của điểm A4c gộp trên 60 video `calib_normal` (`scripts/calibrate_threshold.py`, `results/threshold_A4c.json`), FPR đạt được trên calib là 4.99%. Trên các khung hình bình thường của tập test, cùng ngưỡng cho FPR 10.57%, gấp đôi ngân sách: `calib_normal` lấy từ tập huấn luyện nên khác camera và cảnh so với tập test (lệch phân phối), không phải lỗi tính toán. Các số liệu dưới đây là của riêng tầng 1; tầng 2 chỉ có thể loại bớt cửa sổ nên cải thiện FA/hour chứ không tăng recall.
 
 | Chỉ số vận hành | Ngưỡng hiệu chỉnh $\tau$ (tại FPR calib = 5%) | Giá trị đo được | Đơn vị tính | Nguồn đo kiểm |
 |---|---|---|---|---|
-| Báo động giả mỗi giờ (FA/hour) | TBD <!-- TODO(TH8): TH5 --> | TBD <!-- TODO(TH8): TH7 --> | sự cố / giờ | Đo trên 150 video bình thường tập test |
-| Độ trễ phát hiện trung bình (Mean Latency) | TBD <!-- TODO(TH8): TH5 --> | TBD <!-- TODO(TH8): TH7 --> | giây | Đo trên 140 video bất thường tập test |
-| Tỉ lệ phát hiện sự cố (Incident Recall) | TBD <!-- TODO(TH8): TH5 --> | TBD <!-- TODO(TH8): TH7 --> | % | Cửa sổ cảnh báo giao với nhãn mặt đất |
-| Tỉ lệ cửa sổ chuyển tiếp lên Tầng 2 | TBD <!-- TODO(TH8): TH5 --> | TBD <!-- TODO(TH8): A5 --> | % tổng số cửa sổ | Đo tải suy luận chuyển lên VLM |
+| Báo động giả mỗi giờ (FA/hour) | 1.1686 (A4c, tier 1) | 20.64 (tier 1, chưa có VLM) <!-- TODO(TH8): cập nhật sau tầng 2 (TH7) --> | sự cố / giờ | Đo trên 150 video bình thường tập test |
+| Độ trễ phát hiện trung bình (Mean Latency) | 1.1686 | 2.03 (chỉ tính 81 sự cố được phát hiện; trung vị 0.0) | giây | Đo trên 140 video bất thường tập test |
+| Tỉ lệ phát hiện sự cố (Incident Recall) | 1.1686 | 51.9 (81/156, tier 1) | % | Cửa sổ cảnh báo giao với nhãn mặt đất |
+| Tỉ lệ cửa sổ chuyển tiếp lên Tầng 2 | 1.1686 (307 cửa sổ, 1.06/video) | TBD <!-- TODO(TH8): A5 --> | % tổng số cửa sổ | Đo tải suy luận chuyển lên VLM |
 | Thời gian xử lý trung bình mỗi cửa sổ VLM | - | TBD <!-- TODO(TH8): A1, A5 --> | giây / cửa sổ | Đo trên GPU RTX 3050 6GB (4-bit) |

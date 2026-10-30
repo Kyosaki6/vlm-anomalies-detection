@@ -76,3 +76,25 @@ Per-video variants A3/A4/A5 stay as controls.
 - A5c: normal memory hurts (-8.1 vs A4c). Report as a negative result; do not tune it on test.
 - Memory stats for calib are leave-one-video-out (a video inside its own bank scores 0 and collapses the MAD).
 - Best tier-1 candidate for threshold calibration and tier-2 windows: **A4c**.
+
+## Threshold calibration (TH5), A4c, tier 1 only
+
+`python scripts/calibrate_threshold.py --manifest manifests/ucf_test.csv --calib-manifest manifests/ucf_calib_normal.csv --ablation A4c --target-fpr 0.05`
+-> `results/threshold_A4c.json`. Threshold = (1 - FPR) quantile of pooled A4c scores over the 60 `calib_normal` videos (5569 samples). Test is only READ at the chosen threshold.
+
+| | value |
+|---|---|
+| tau (normalised A4c score) | 1.1686 |
+| FPR on calib (target 5%) | 4.99% |
+| **FPR on test normal samples** | **10.57%** (2x the calib budget) |
+| Test anomalous-sample TPR | 39.07% |
+| Windows over the 150 test normal videos (6.01 h) | 124 -> **FA/hour 20.64** |
+| Incidents (156 GT segments in 140 videos) detected | 81 = **recall 51.9%** |
+| Latency, detected incidents only | mean 2.03 s, median 0.0 s |
+| Windows total / per video | 307 / 1.06 (tier-2 load is small: this is good news for Colab) |
+
+Caveats to state in the report:
+- Calib is TRAIN-normal, test normals are different cameras/scenes. The FPR doubling is distribution shift, not a bug (calib achieved 4.99%). A 5% budget on calib is ~10% on test.
+- Latency covers only the 81 detected incidents and is clipped at 0 when a window starts before the GT start (median 0). It says nothing about the 75 missed ones.
+- Recall counts an incident as hit when any window overlaps its GT segment. Tier 1 only; tier 2 can only REMOVE windows, so it can lift precision/FA-per-hour but not recall.
+- A5/A5c refused: per-video norm has no fixed-threshold meaning, memory needs leave-one-video-out calib scores.
