@@ -2,8 +2,12 @@
 
 Trạng thái: **code + test xong; đã chạy end-to-end trên cache GIẢ trong thư mục tạm, CHƯA chạy trên
 video/cache UCF thật** (máy Nam không có `cache/embeddings/` — cache nằm ở máy Thịnh/Colab).
-`python -m pytest -q` → **523 passed, 1 skipped** (trước file này: 495 passed; 28 test mới). Không GPU,
+`python -m pytest -q` → **525 passed, 1 skipped** (trước file này: 495 passed; 30 test mới). Không GPU,
 không tải model, không cần file video.
+
+**Sửa sau review của Thịnh (30/10):** hai lỗ đã đóng, mỗi lỗ có test viết TRƯỚC (chạy trên code cũ thấy
+`DID NOT RAISE`), rồi mới sửa — xem bảng chốt chặn bên dưới. Bài học: "số lượng khớp" không phải "cặp
+khớp"; muốn chắc thì phải so cả mốc thời gian.
 
 ## Vì sao có script này
 
@@ -50,6 +54,8 @@ Mẫu log của lần chạy thử (cache giả, 3 video):
 | Tự chọn/đoán ngưỡng | `--threshold` là tham số bắt buộc-thủ-công; phải khai `--threshold-source`. `placeholder` → ghi `metadata.note`, dashboard hiện banner. `calib_normal` → **bắt buộc** kèm `--calib-manifest` làm chứng cứ. Không có lựa chọn nào lấy ngưỡng từ tập test. |
 | Bịa tier-2 | Không có `--verifier fake` / `--verify-dir` thì `verify_results` và `alerts` rỗng, metadata ghi `tier="1"`. Dùng `--verifier fake` thì mọi file mang câu "TIER-2 GIẢ: … FakeVerifier sinh, KHÔNG phải VLM". |
 | Bỏ qua video im lặng | Thiếu cache → một lỗi liệt kê **mọi** video thiếu. Cache lệch quá ±2 mẫu so với `n_frames/fps` → lỗi. Số kết quả tier-2 ≠ số cửa sổ → lỗi "lệch cặp". `video_id` kiểu đường dẫn (`../x`) → bị `vad/results.py` từ chối, không ghi ra ngoài `results/`. |
+| Ghép tier-2 sai cửa sổ | `check_pairs_match`: từng cặp phải trùng `start_s`/`end_s` (dung sai 1e-3 s). Cùng số cửa sổ nhưng khác mốc giây → lỗi. |
+| Nhận file tier-2 rỗng | `tier2_source="json"` mà video có cửa sổ nhưng 0 kết quả → lỗi, để metadata không ghi `tier2=json` khi thực ra không có tier-2. |
 
 Chi tiết thiết kế đáng nhớ:
 

@@ -46,13 +46,16 @@ from vad.graph.alerts import build_alert_feed  # noqa: E402
 from vad.graph.policy import DEFAULT_POLICY, GraphPolicy  # noqa: E402
 from vad.pipeline import ABLATIONS, DEFAULT_PROMPTS, PipelineConfig, build_memory_bank, score_cached_video  # noqa: E402
 from vad.results import DEFAULT_RESULTS_DIR, RunResult, make_metadata  # noqa: E402
-from vad.types import Alert, VerifyResult  # noqa: E402
+from vad.types import Alert, VerifyResult, Window  # noqa: E402
 
 DEFAULT_PROMPT_CACHE = ROOT / "cache" / "prompts"
 LENGTH_TOLERANCE = 2                    # số mẫu lệch cho phép (làm tròn fps), giống run_benchmark
+PAIR_TOLERANCE = 1e-3                   # sai số giây khi đối chiếu cửa sổ tính lại vs cửa sổ trong file tier-2
 THRESHOLD_SOURCES = ("placeholder", "calib_normal")
 TIER2_SOURCES = ("none", "fake", "json")
 PLACEHOLDER_TIER2_NOTE = ("TIER-2 GIẢ: nhãn sự kiện do FakeVerifier sinh, KHÔNG phải VLM. "
+                          "FakeVerifier luôn trả cùng một nhãn (Fighting, 0.9) nên MỌI cảnh báo trong "
+                          "file này đều là Fighting — không đọc như kết quả. "
                           "Chỉ dùng để dựng hình dạng file cho dashboard.")
 
 
@@ -111,11 +114,15 @@ def verify_windows(windows: Sequence[Any], verifier: Any, video_id: str) -> tupl
     return tuple(out)
 
 
-def load_verify_results(path: str | Path, video_id: str) -> tuple[VerifyResult, ...]:
-    """Đọc kết quả tier-2 của một video từ file ĐÚNG định dạng `results/windows/<video_id>.json`.
+def load_verify_results(path: str | Path,
+                        video_id: str) -> tuple[tuple[Window, ...], tuple[VerifyResult, ...]]:
+    """Đọc file tier-2 -> (cửa sổ đã lưu, kết quả). Trả CẢ cửa sổ để lát nữa đối chiếu từng cặp.
 
     Dùng lại `RunResult.from_dict` thay vì tự parse: file sai `schema_version` hay sai kiểu thì lỗi
     ở đúng một chỗ (hợp đồng ở `vad/results.py`), không phải hai chỗ lệch nhau.
+
+    Trả cả cửa sổ là điểm sửa từ review PR #20: chỉ so số lượng thì file tier-2 của ngưỡng/ablation
+    khác (cùng số cửa sổ nhưng mốc thời gian khác) vẫn lọt, và nhãn của cửa sổ cũ bị dán sang cửa sổ mới.
     """
     p = Path(path)
     if not p.is_file():
@@ -128,12 +135,29 @@ def load_verify_results(path: str | Path, video_id: str) -> tuple[VerifyResult, 
     payload = {**data, "anomaly_scores": []}
     payload.setdefault("sample_fps", 1.0)
     try:
-        return RunResult.from_dict(payload).verify_results
+        saved = RunResult.from_dict(payload)
     except (KeyError, TypeError, ValueError) as e:
         raise BuildResultsError(f"{p.name}: không đọc được tier-2 ({e})") from e
+    return saved.candidate_windows, saved.verify_results
 
 
 # --- dựng một video -------------------------------------------------------------------
+
+def check_pairs_match(video_id: str, windows: Sequence[Window],
+                      saved: Sequence[Window]) -> None:
+    """Từng cặp cửa sổ phải cùng mốc thời gian; lệch quá `PAIR_TOLERANCE` giây -> lỗi.
+
+    Bắt đúng lỗ mà review PR #20 phát hiện: file tier-2 của ngưỡng/ablation khác có thể cùng SỐ cửa sổ
+    nhưng khác mốc giây, và nhãn VLM của cửa sổ cũ sẽ bị dán sang cửa sổ mới mà không ai biết.
+    """
+    if len(saved) != len(windows):
+        raise BuildResultsError(
+            f"{video_id}: file tier-2 có {len(saved)} cửa sổ nhưng tính lại được {len(windows)} — lệch cặp.")
+    for i, (w, s) in enumerate(zip(windows, saved)):
+        if abs(w.start_s - s.start_s) > PAIR_TOLERANCE or abs(w.end_s - s.end_s) > PAIR_TOLERANCE:
+            raise BuildResultsError(
+                f"{video_id}: cửa sổ #{i} tính lại là [{w.start_s:g}, {w.end_s:g}] nhưng file tier-2 ghi "
+                f"[{s.start_s:g}, {s.end_s:g}] — tier-2 chạy trên ngưỡng/ablation khác, không ghép bừa.")
 
 def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.ndarray,
                        abnormal_embs: np.ndarray, cache_dir: str | Path = DEFAULT_CACHE_DIR,
@@ -142,11 +166,15 @@ def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.nd
                        zone: str | None = None, hour: int | None = None, ablation: str = "",
                        commit: str = "", extra_note: str = "", tier2_source: str = "none",
                        threshold_source: str = "placeholder", calib_manifest: str = "",
-                       normal_bank: np.ndarray | None = None) -> RunResult:
+                       normal_bank: np.ndarray | None = None,
+                       saved_windows: Sequence[Window] | None = None) -> RunResult:
     """Một video -> RunResult đầy đủ (điểm, cửa sổ, tier-2 nếu có, cảnh báo, metadata).
 
     `config.threshold` quyết định có cắt cửa sổ hay không: None = chỉ có đường điểm (dashboard vẫn vẽ
     được timeline), không có cửa sổ nên cũng không có cảnh báo.
+
+    `saved_windows` = cửa sổ ghi trong file tier-2 (`--verify-dir`). Có nó thì từng cặp cửa sổ ↔ kết quả
+    được đối chiếu mốc thời gian; `None` (FakeVerifier) thì bỏ qua vì cửa sổ tính từ chính config.
     """
     if tier2_source not in TIER2_SOURCES:
         raise BuildResultsError(f"tier2_source phải thuộc {TIER2_SOURCES}, nhận {tier2_source!r}")
@@ -156,12 +184,24 @@ def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.nd
     windows = tier1.windows
     verify = tuple(verify_results or ())
 
+    if tier2_source == "json" and windows and not verify:
+        # file tier-2 rỗng trong khi video CÓ cửa sổ -> metadata "tier2=json" sẽ nói dối.
+        # Video thật sự 0 cửa sổ thì file rỗng là hợp lệ, nên điều kiện `windows` là cần.
+        raise BuildResultsError(
+            f"{video_id}: có {len(windows)} cửa sổ nhưng file tier-2 không có kết quả nào — "
+            "metadata sẽ ghi tier2=json trong khi không có tier-2. Sửa file hoặc bỏ --verify-dir."
+        )
+
     if verify and len(verify) != len(windows):
         # tier-2 dựng bằng ngưỡng khác -> số cửa sổ lệch -> ghép bừa sẽ gán nhãn sai cửa sổ
         raise BuildResultsError(
             f"{video_id}: {len(verify)} kết quả tier-2 nhưng {len(windows)} cửa sổ — lệch cặp. "
             "Chạy lại tier-2 trên đúng ngưỡng hiện tại, không ghép bừa."
         )
+
+    if verify and saved_windows is not None:
+        # cùng SỐ cửa sổ chưa đủ: mốc thời gian phải trùng, nếu không là tier-2 của lần chạy khác.
+        check_pairs_match(video_id, windows, saved_windows)
 
     alerts: tuple[Alert, ...] = ()
     if verify:
@@ -228,19 +268,20 @@ def build_from_manifest(rows: Sequence[dict[str, Any]], config: PipelineConfig, 
     for row in rows:
         vid = row["video_id"]
         verify: Sequence[VerifyResult] | None = None
+        saved_windows: Sequence[Window] | None = None
         if verifier is not None:
             # cắt cửa sổ trước bằng chính config, rồi mới gọi verifier -> hai bên chắc chắn cùng số cửa sổ
             probe = score_cached_video(vid, config, normal_embs, abnormal_embs, cache_dir,
                                        normal_bank=normal_bank)
             verify = verify_windows(probe.windows, verifier, vid)
         elif verify_dir is not None:
-            verify = load_verify_results(Path(verify_dir) / f"{vid}.json", vid)
+            saved_windows, verify = load_verify_results(Path(verify_dir) / f"{vid}.json", vid)
 
         res = build_video_result(vid, config, normal_embs, abnormal_embs, cache_dir, verify_results=verify,
                                  policy=policy, camera=camera, zone=zone, hour=hour, ablation=ablation,
                                  commit=commit, extra_note=extra_note, tier2_source=tier2_source,
                                  threshold_source=threshold_source, calib_manifest=calib_manifest,
-                                 normal_bank=normal_bank)
+                                 normal_bank=normal_bank, saved_windows=saved_windows)
         check_lengths(vid, np.asarray(res.anomaly_scores), row, res.sample_fps)
         if write:
             res.to_json(root=out_dir)

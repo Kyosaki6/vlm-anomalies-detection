@@ -176,6 +176,47 @@ def test_verify_dir_roundtrip_and_pair_mismatch(world):
         _build(world, limit=1, verify_dir=vdir)
 
 
+def test_verify_dir_same_count_shifted_windows_raises(world):
+    """Số lượng khớp nhưng cửa sổ đã dịch (+100 s) -> phải lỗi, không được gán nhãn cho cửa sổ khác.
+
+    Đây là lỗ mà review PR #20 bắt được: kiểm `len(verify) == len(windows)` thôi thì file tier-2 của
+    ngưỡng/ablation khác (hoặc cửa sổ đã sửa tay) vẫn lọt, và caption VLM của cửa sổ cũ dán sang cửa sổ mới.
+    """
+    _build(world, limit=1)                                        # tạo results/windows/<id>.json (1 cửa sổ)
+    saved = json.loads((world["tmp"] / "results" / "windows" / "Abuse028_x264.json").read_text(encoding="utf-8"))
+    assert len(saved["candidate_windows"]) == 1
+
+    shifted = json.loads(json.dumps(saved))
+    for w in shifted["candidate_windows"]:
+        w["start_s"] += 100.0
+        w["end_s"] += 100.0
+    shifted["verify_results"] = [{"is_anomaly": True, "event_type": "RoadAccidents",
+                                  "caption": "a car crash", "confidence": 0.8}]
+    vdir = world["tmp"] / "tier2_shifted"
+    vdir.mkdir()
+    (vdir / "Abuse028_x264.json").write_text(json.dumps(shifted), encoding="utf-8")
+
+    with pytest.raises(br.BuildResultsError, match="cửa sổ"):
+        _build(world, limit=1, verify_dir=vdir)
+
+
+def test_verify_dir_empty_verify_with_windows_raises(world):
+    """File windows của lần chạy tier-1-only (có cửa sổ, 0 kết quả) không được nhận làm tier-2.
+
+    Trước đây script chạy "thành công" và ghi metadata `tier2="json"` dù không có kết quả tier-2 nào —
+    metadata nói dối. Phải lỗi, để dashboard không hiện file không cảnh báo mà không rõ lý do.
+    """
+    _build(world, limit=1)                                        # windows/<id>.json: 1 cửa sổ, 0 verify
+    vdir = world["tmp"] / "tier2_empty"
+    vdir.mkdir()
+    (vdir / "Abuse028_x264.json").write_text(
+        (world["tmp"] / "results" / "windows" / "Abuse028_x264.json").read_text(encoding="utf-8"),
+        encoding="utf-8")
+
+    with pytest.raises(br.BuildResultsError, match="không có kết quả nào"):
+        _build(world, limit=1, verify_dir=vdir)
+
+
 def test_verify_dir_missing_file_is_an_error(world):
     with pytest.raises(br.BuildResultsError, match="Chưa có file tier-2"):
         _build(world, limit=1, verify_dir=world["tmp"] / "nope")
