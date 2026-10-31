@@ -32,7 +32,12 @@ class Verifier(Protocol):
     """Tier-2: VLM sinh ngôn ngữ xác minh một cửa sổ nghi ngờ."""
 
     def verify(self, frames: Sequence[Any], context: dict) -> VerifyResult:
-        """frames: vài khung đại diện của Window. context: {'video_id', 'start_s', 'end_s', ...}."""
+        """frames: vài khung đại diện của Window. context: {'video_id', 'start_s', 'end_s', ...}.
+
+        Đường thật (VLMVerifier) yêu cầu frames THẬT (PIL/image) — list rỗng -> ValueError.
+        Bản fake/replay (FakeVerifier) có thể nhận list rỗng; đó là đường hợp lệ của fake,
+        không phải lỗi của verifier thật.
+        """
         ...
 
 

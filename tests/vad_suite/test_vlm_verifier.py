@@ -13,7 +13,6 @@ import torch
 import yaml
 
 from vad.verify.vlm import (
-    DEFAULT_MODEL_ID,
     VLMVerifier,
     load_verifier_prompt,
     parse_verifier_json,
@@ -85,7 +84,7 @@ def make_runner(outputs: list[str | Exception]):
     return run
 
 
-def test_verify_returns_result_and_passes_prompt(tmp_path: Path):
+def test_verify_returns_result_and_passes_prompt():
     """JSON hợp lệ từ lần 1 -> VerifyResult đúng; runner nhận system+user từ prompts.yaml."""
     runner = make_runner([GOOD_JSON])
     v = VLMVerifier(runner=runner)
@@ -107,6 +106,30 @@ def test_verify_retries_once_on_bad_json():
     r = VLMVerifier(runner=runner).verify(FRAMES, CONTEXT)
     assert r.is_anomaly is True
     assert len(runner.calls) == 2
+
+
+def test_retry_is_not_a_noop():
+    """Greedy + cùng prompt = y hệt lần 1; retry PHẢI đổi prompt (nudge) hoặc sampling params.
+
+    Đây là test bắt bug 'retry no-op' trong review A2: nếu attempt 2 gửi y hệt attempt 1
+    thì retry chỉ nhân đôi thời gian, không tăng xác suất parse được.
+    """
+    runner = make_runner(["hong lan 1", GOOD_JSON])
+    VLMVerifier(runner=runner).verify(FRAMES, CONTEXT)
+    assert len(runner.calls) == 2
+    assert runner.calls[0] != runner.calls[1], (
+        "attempt 2 giống hệt attempt 1 — retry là no-op với greedy decoding"
+    )
+
+
+def test_retry_nudge_accumulates_only_once():
+    """max_attempts=3: prompt lần 3 chỉ có 1 nudge (không cộng dồn qua các lần)."""
+    runner = make_runner(["hong"])
+    with pytest.raises(RuntimeError):
+        VLMVerifier(runner=runner, max_attempts=3).verify(FRAMES, CONTEXT)
+    p1, p2, p3 = (u for _, u in runner.calls)
+    assert p2.count("not valid JSON") == 1
+    assert p3.count("not valid JSON") == 1          # không nhân lên
 
 
 def test_verify_raises_after_two_failures():
@@ -154,15 +177,118 @@ def test_prompt_file_without_verifier_block(tmp_path: Path):
         VLMVerifier(runner=lambda *_: GOOD_JSON, prompts_path=bad).verify(FRAMES, CONTEXT)
 
 
-def test_default_model_id_is_the_a1redo_choice():
-    """A1redo đã chốt model; verifier mặc định phải là model đo được (notes/vlm-selection.md)."""
-    assert DEFAULT_MODEL_ID == "Qwen/Qwen2.5-VL-3B-Instruct"
-
-
 def test_quantization_is_validated():
     """Tham số lạ ('8bit') phải raise ngay, không âm thầm rơi xuống nhánh fp16."""
     with pytest.raises(ValueError, match="quantization"):
         VLMVerifier(runner=lambda *_: GOOD_JSON, quantization="8bit")
+
+
+# ---------- đường _load_model (monkeypatch transformers: KHÔNG tải weight, KHÔNG cần GPU) ----------
+
+class FakeEvalModel:
+    """Model giả có .eval() — đúng những gì _load_model gọi sau from_pretrained."""
+
+    def eval(self):
+        self.eval_called = True
+        return self
+
+
+def _patch_family(monkeypatch, model_id_cls_name, device_available=True):
+    """Patch transformers: AutoProcessor + class gia đình, trả (kwargs_gọi, fake_model)."""
+    import transformers
+    import torch as _torch
+
+    captured: dict = {}
+    fake_model = FakeEvalModel()
+
+    def fake_processor(mid):
+        captured["processor_mid"] = mid
+        return _FakeProcMarker()
+
+    monkeypatch.setattr(transformers.AutoProcessor, "from_pretrained", fake_processor)
+    target_cls = getattr(transformers, model_id_cls_name)
+
+    def fake_from_pretrained(mid, **kwargs):
+        captured["model_cls"] = model_id_cls_name
+        captured["kwargs"] = kwargs
+        return fake_model
+
+    monkeypatch.setattr(target_cls, "from_pretrained", fake_from_pretrained)
+    monkeypatch.setattr(_torch.cuda, "is_available", lambda: device_available)
+    return captured, fake_model
+
+
+class _FakeProcMarker:
+    pass
+
+
+def test_load_model_quantization_none_falls_to_fp32_on_cpu(monkeypatch):
+    """quantization='none' + không CUDA -> device_map='cpu', torch_dtype float32, không 4-bit."""
+    captured, _ = _patch_family(monkeypatch, "Qwen2_5_VLForConditionalGeneration",
+                                device_available=False)
+    v = VLMVerifier(quantization="none")
+    v._load_model()
+    kw = captured["kwargs"]
+    assert kw["device_map"] == "cpu"
+    assert kw["torch_dtype"] is torch.float32
+    assert "quantization_config" not in kw
+
+
+def test_load_model_honours_explicit_device(monkeypatch):
+    """device='cuda:1' phải nối thẳng vào device_map (bug half-wired trong review A2)."""
+    captured, _ = _patch_family(monkeypatch, "Qwen2_5_VLForConditionalGeneration",
+                                device_available=True)
+    v = VLMVerifier(device="cuda:1", quantization="none")
+    v._load_model()
+    assert captured["kwargs"]["device_map"] == "cuda:1"
+
+
+def test_load_model_4bit_without_cuda_fails_before_processor_download(monkeypatch):
+    """4-bit trên máy không CUDA -> RuntimeError TRƯỚC khi tải processor (network fetch)."""
+    import transformers
+    import torch as _torch
+
+    def _boom(mid):
+        raise AssertionError("processor không được tải khi đã biết 4-bit sẽ fail")
+
+    monkeypatch.setattr(transformers.AutoProcessor, "from_pretrained", _boom)
+    monkeypatch.setattr(_torch.cuda, "is_available", lambda: False)
+    v = VLMVerifier(quantization="4bit")
+    with pytest.raises(RuntimeError, match="4bit"):
+        v._load_model()
+
+
+def test_load_model_family_mapping_uses_explicit_class(monkeypatch):
+    """Model id không khớp gia đình đã biết -> rơi xuống AutoModelForImageTextToText."""
+    import transformers
+
+    captured: dict = {}
+
+    def fake_auto(mid, **kw):
+        captured["cls"] = "auto"
+        return FakeEvalModel()
+
+    monkeypatch.setattr(
+        transformers.AutoProcessor, "from_pretrained", lambda mid: _FakeProcMarker()
+    )
+    monkeypatch.setattr(transformers.AutoModelForImageTextToText, "from_pretrained", fake_auto)
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    v = VLMVerifier(model_id="unknown/org-model", quantization="none")
+    v._load_model()
+    assert captured["cls"] == "auto"
+
+
+def test_parse_verifier_json_reads_string_false_as_false():
+    """VLM thường trả 'is_anomaly': 'false' (chuỗi) — bool('false') == True là bẫy thật."""
+    raw = '{"is_anomaly": "false", "event_type": "Normal", "caption": "c", "confidence": 0.9}'
+    assert parse_verifier_json(raw).is_anomaly is False
+
+
+def test_parse_verifier_json_rejects_garbage_is_anomaly():
+    """is_anomaly là giá trị không phải bool/true/false -> ValueError, không đoán bừa."""
+    raw = '{"is_anomaly": "maybe", "event_type": "Normal", "caption": "c", "confidence": 0.9}'
+    with pytest.raises(ValueError, match="is_anomaly"):
+        parse_verifier_json(raw)
 
 
 def test_default_runner_uses_chat_template_and_crops_prompt_tokens():
