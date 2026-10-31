@@ -15,6 +15,13 @@ Danh sách video đi theo MANIFEST: với mỗi `video_id` mở đúng `<windows
 để kết quả giả không lẫn vào kết quả thật.
 
 `--continue-on-error`: một window/video lỗi thì ghi nhận, chạy tiếp; exit code 2 nếu có lỗi.
+
+A3b (quyết định D-1): window dài hơn `--max-chunk-s` (mặc định 30 s) được chia đều thành các chunk
+<= 30 s, mỗi chunk lấy `k` frame riêng và gọi VLM riêng; verdict của window = OR của các chunk
+(caption/type/confidence lấy từ chunk dị thường mạnh nhất). Vẫn MỘT file JSON cho mỗi window,
+chi tiết chunk nằm trong `metadata["chunks"]`. Mỗi file có `metadata["elapsed_s"]` (tổng thời gian
+gọi VLM của window). `--shard i/N` chia danh sách window phẳng theo hash `video_id:window_index`
+để hai máy/tài khoản Colab cùng chạy không trùng, không sót.
 """
 from __future__ import annotations
 
@@ -23,8 +30,10 @@ import csv
 import hashlib
 import json
 import math
+import statistics
 import subprocess
 import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Sequence
@@ -36,6 +45,7 @@ try:
 except ImportError as e:  # pragma: no cover
     raise ImportError("Thiếu opencv: pip install -r requirements.txt") from e
 
+from vad.datasets.sharding import parse_shard_spec, shard_of  # noqa: E402
 from vad.fakes import FakeVerifier  # noqa: E402
 from vad.interfaces import Verifier  # noqa: E402
 from vad.io.video import probe_video  # noqa: E402
@@ -45,6 +55,7 @@ from vad.types import VerifyResult, Window  # noqa: E402
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_WINDOWS_DIR = DEFAULT_RESULTS_DIR / "windows"
 DEFAULT_VERIFY_DIR = DEFAULT_RESULTS_DIR / "verify"
+DEFAULT_MAX_CHUNK_S = 30.0  # D-1: window dài hơn mức này bị chia đều thành chunk <= mức này
 
 
 @dataclass
@@ -56,6 +67,20 @@ class VerifySummary:
     skipped: int = 0
     failed: int = 0
     errors: list[str] = field(default_factory=list)
+    chunk_calls: int = 0  # số lần gọi VLM thật (dry-run: số lần SẼ gọi)
+    chunked: int = 0  # số window bị chia thành >= 2 chunk
+    elapsed_s: list[float] = field(default_factory=list)  # thời gian VLM mỗi window verify lần này
+
+    def timing_report(self) -> str:
+        """Dòng log cho A5: median/p90 s/window, % window bị chia chunk, số chunk-call."""
+        done = len(self.elapsed_s)
+        if not done:
+            return f"chunk-call: {self.chunk_calls}; chưa có window nào được đo thời gian"
+        ordered = sorted(self.elapsed_s)
+        p90 = ordered[min(done - 1, math.ceil(0.9 * done) - 1)]
+        return (f"s/window: median {statistics.median(ordered):.2f}, p90 {p90:.2f} (n={done}); "
+                f"chunked: {self.chunked}/{done} = {100.0 * self.chunked / done:.1f}%; "
+                f"chunk-call: {self.chunk_calls}")
 
 
 def _check_video_id(video_id: str) -> str:
@@ -109,6 +134,50 @@ def pick_frame_times(start_s: float, end_s: float, k: int) -> list[float]:
         raise ValueError(f"Cửa sổ không hợp lệ (cần 0 <= start_s < end_s): ({start_s}, {end_s})")
     duration = end_s - start_s
     return [start_s + (i + 0.5) * duration / k for i in range(k)]
+
+
+def split_into_chunks(start_s: float, end_s: float,
+                      max_chunk_s: float = DEFAULT_MAX_CHUNK_S) -> list[tuple[float, float]]:
+    """Chia đều (start_s, end_s) thành n chunk, n = ceil(độ dài / max_chunk_s), mỗi chunk <= max_chunk_s.
+
+    Window <= max_chunk_s (kể cả đúng 30.0 s) -> 1 chunk là chính nó. 31 s -> 2 chunk 15.5 s.
+    Chunk liền nhau, không chồng, biên cuối đúng bằng `end_s` (không trôi do làm tròn float).
+    """
+    if not (math.isfinite(max_chunk_s) and max_chunk_s > 0):
+        raise ValueError(f"max_chunk_s phải hữu hạn và > 0, nhận {max_chunk_s!r}")
+    if not (math.isfinite(start_s) and math.isfinite(end_s)):
+        raise ValueError(f"start_s/end_s phải hữu hạn, nhận ({start_s!r}, {end_s!r})")
+    if start_s < 0 or end_s <= start_s:
+        raise ValueError(f"Cửa sổ không hợp lệ (cần 0 <= start_s < end_s): ({start_s}, {end_s})")
+    duration = end_s - start_s
+    n = max(1, math.ceil(duration / max_chunk_s - 1e-9))
+    bounds = [start_s + i * duration / n for i in range(n)] + [end_s]
+    return list(zip(bounds[:-1], bounds[1:]))
+
+
+def merge_chunk_results(results: Sequence[VerifyResult]) -> VerifyResult:
+    """Gộp verdict các chunk của một window (D-1): is_anomaly = OR của các chunk.
+
+    Có chunk dị thường -> caption/type/confidence lấy từ chunk dị thường tự tin nhất (hòa: chunk
+    đứng trước). Không chunk nào dị thường -> lấy chunk tự tin nhất (hòa: chunk đứng trước).
+    """
+    if not results:
+        raise ValueError("Cần ít nhất một VerifyResult để gộp")
+    anomalous = [r for r in results if r.is_anomaly]
+    pool = anomalous or list(results)
+    best = max(pool, key=lambda r: r.confidence)  # max() giữ phần tử đầu khi hòa
+    return VerifyResult(is_anomaly=bool(anomalous), event_type=best.event_type,
+                        caption=best.caption, confidence=best.confidence)
+
+
+def in_shard(video_id: str, window_index: int, shard: tuple[int, int] | None) -> bool:
+    """`shard` = (index 0-based, N). Hash `video_id:window_index` -> hai máy không trùng, không sót."""
+    if shard is None:
+        return True
+    index, n = shard
+    if n < 1 or not 0 <= index < n:
+        raise ValueError(f"shard không hợp lệ: (index={index}, n={n})")
+    return shard_of(f"{video_id}:{window_index}", n) == index
 
 
 def frame_indices_for_times(times: Sequence[float], fps: float, n_frames: int) -> list[int]:
@@ -166,18 +235,24 @@ def read_frames_at(video_path: str | Path, frame_indices: Sequence[int]) -> dict
         cap.release()
 
 
-def plan_window_frames(video_path: str | Path, windows: Sequence[Window],
-                       k: int) -> list[tuple[list[float], list[int]] | ValueError]:
-    """Mỗi window -> (mốc thời gian, chỉ số frame) hoặc ValueError nếu window không lấy được k frame.
+ChunkPlan = list[tuple[tuple[float, float], list[float], list[int]]]
+
+
+def plan_window_frames(video_path: str | Path, windows: Sequence[Window], k: int,
+                       max_chunk_s: float = DEFAULT_MAX_CHUNK_S) -> list[ChunkPlan | ValueError]:
+    """Mỗi window -> danh sách chunk [((start, end), mốc thời gian, chỉ số frame)] hoặc ValueError.
 
     Lỗi từng window được TRẢ VỀ (không raise) để người gọi chọn dừng hay đi tiếp.
     """
     n_frames, fps = probe_video(video_path)
-    plans: list[tuple[list[float], list[int]] | ValueError] = []
+    plans: list[ChunkPlan | ValueError] = []
     for w in windows:
         try:
-            times = pick_frame_times(w.start_s, w.end_s, k)
-            plans.append((times, frame_indices_for_times(times, fps, n_frames)))
+            chunks: ChunkPlan = []
+            for c_start, c_end in split_into_chunks(w.start_s, w.end_s, max_chunk_s):
+                times = pick_frame_times(c_start, c_end, k)
+                chunks.append(((c_start, c_end), times, frame_indices_for_times(times, fps, n_frames)))
+            plans.append(chunks)
         except ValueError as e:
             plans.append(e)
     return plans
@@ -213,7 +288,8 @@ def verifier_config(verifier: Verifier | None) -> dict[str, Any]:
 
 
 def make_fingerprint(window: Window, k: int, name: str,
-                     config: dict[str, Any] | None = None) -> str:
+                     config: dict[str, Any] | None = None,
+                     max_chunk_s: float = DEFAULT_MAX_CHUNK_S) -> str:
     """Hash cấu hình + window để quyết định resume có hợp lệ hay không."""
     payload = {
         "video_id": window.video_id,
@@ -223,6 +299,7 @@ def make_fingerprint(window: Window, k: int, name: str,
         "k": int(k),
         "verifier": str(name),
         "verifier_config": dict(config or {}),
+        "max_chunk_s": float(max_chunk_s),  # D-1: đổi mức chia chunk = đổi giao thức -> verify lại
     }
     raw = json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
@@ -297,14 +374,21 @@ def run_verify(manifest_path: str | Path, windows_dir: str | Path = DEFAULT_WIND
                out_dir: str | Path = DEFAULT_VERIFY_DIR, verifier: Verifier | None = None,
                k: int = 4, limit: int | None = None, force: bool = False,
                dry_run: bool = False, video_ids: Sequence[str] | None = None,
-               continue_on_error: bool = False) -> VerifySummary:
+               continue_on_error: bool = False, max_chunk_s: float = DEFAULT_MAX_CHUNK_S,
+               shard: tuple[int, int] | None = None) -> VerifySummary:
     """Chạy verify cho mọi window của các video trong manifest; trả thống kê.
 
     Mặc định lỗi đầu tiên dừng cả lượt (resume cứu được lần sau). Với `continue_on_error=True`
     lỗi của một window/video được ghi vào `summary.errors` + `summary.failed` rồi chạy tiếp.
+    `shard=(index, n)` chỉ xét window có hash(`video_id:window_index`) % n == index; window ngoài
+    shard không tính vào `examined`.
     """
     if not isinstance(k, int) or k < 1:
         raise ValueError(f"k phải là số nguyên >= 1, nhận {k!r}")
+    if not (math.isfinite(max_chunk_s) and max_chunk_s > 0):
+        raise ValueError(f"max_chunk_s phải hữu hạn và > 0, nhận {max_chunk_s!r}")
+    if shard is not None and (shard[1] < 1 or not 0 <= shard[0] < shard[1]):
+        raise ValueError(f"shard không hợp lệ: {shard!r}")
     if limit is not None and (not isinstance(limit, int) or limit < 0):
         raise ValueError(f"limit phải là số nguyên >= 0 hoặc None, nhận {limit!r}")
     if not dry_run and verifier is None:
@@ -354,6 +438,8 @@ def run_verify(manifest_path: str | Path, windows_dir: str | Path = DEFAULT_WIND
 
         pending: list[tuple[int, Window, str, Path]] = []
         for index, window in enumerate(source.candidate_windows):
+            if not in_shard(video_id, index, shard):
+                continue
             if limit is not None and summary.examined >= limit:
                 break
             summary.examined += 1
@@ -362,7 +448,7 @@ def run_verify(manifest_path: str | Path, windows_dir: str | Path = DEFAULT_WIND
             except ValueError as e:
                 fail(f"{video_id}[{index}]: {e}", e)
                 continue
-            fingerprint = make_fingerprint(window, k, name, config)
+            fingerprint = make_fingerprint(window, k, name, config, max_chunk_s)
             target = output_path(out_dir, video_id, index)
             if not force and is_completed(target, video_id, index, window, fingerprint):
                 summary.skipped += 1
@@ -372,7 +458,10 @@ def run_verify(manifest_path: str | Path, windows_dir: str | Path = DEFAULT_WIND
         if not pending:
             continue
         if dry_run:
-            print(f"[dry-run] {video_id}: {len(pending)} window cần verify")
+            n_calls = sum(len(split_into_chunks(w.start_s, w.end_s, max_chunk_s))
+                          for _, w, _, _ in pending if w.end_s > w.start_s)
+            summary.chunk_calls += n_calls
+            print(f"[dry-run] {video_id}: {len(pending)} window cần verify ({n_calls} chunk-call)")
             continue
 
         # Chỉ cần file video khi còn window phải verify (máy chỉ giữ cache verify vẫn resume được).
@@ -381,7 +470,7 @@ def run_verify(manifest_path: str | Path, windows_dir: str | Path = DEFAULT_WIND
                  FileNotFoundError(f"Không tìm thấy video của {video_id!r}: {video_path}"))
             continue
         try:
-            plans = plan_window_frames(video_path, [w for _, w, _, _ in pending], k)
+            plans = plan_window_frames(video_path, [w for _, w, _, _ in pending], k, max_chunk_s)
         except (OSError, RuntimeError) as e:
             fail(f"{video_id}: không probe được video ({e})", e)
             continue
@@ -395,42 +484,66 @@ def run_verify(manifest_path: str | Path, windows_dir: str | Path = DEFAULT_WIND
             continue
         try:
             frame_by_index = read_frames_at(
-                video_path, [i for _, (_, indices) in usable for i in indices])
+                video_path, [i for _, chunks in usable for _, _, idxs in chunks for i in idxs])
         except (OSError, RuntimeError) as e:
             fail(f"{video_id}: không đọc được frame ({e})", e)
             continue
 
-        for (index, window, fingerprint, target), (times, indices) in usable:
-            context = {
-                "video_id": video_id,
-                "start_s": window.start_s,
-                "end_s": window.end_s,
-                "score": window.score,
-                "window_index": index,
-            }
+        for (index, window, fingerprint, target), chunks in usable:
             try:
-                result = verifier.verify([frame_by_index[i] for i in indices], context)
-                if not isinstance(result, VerifyResult):
-                    raise TypeError(
-                        f"Verifier phải trả VerifyResult, nhận {type(result).__name__}"
-                    )
+                chunk_results: list[VerifyResult] = []
+                chunk_info: list[dict[str, Any]] = []
+                started = time.perf_counter()
+                for (c_start, c_end), c_times, c_indices in chunks:
+                    context = {
+                        "video_id": video_id,
+                        "start_s": c_start,
+                        "end_s": c_end,
+                        "score": window.score,
+                        "window_index": index,
+                        "window_start_s": window.start_s,
+                        "window_end_s": window.end_s,
+                    }
+                    result = verifier.verify([frame_by_index[i] for i in c_indices], context)
+                    if not isinstance(result, VerifyResult):
+                        raise TypeError(
+                            f"Verifier phải trả VerifyResult, nhận {type(result).__name__}"
+                        )
+                    summary.chunk_calls += 1
+                    chunk_results.append(result)
+                    chunk_info.append({
+                        "start_s": c_start, "end_s": c_end, "frame_times_s": list(c_times),
+                        "is_anomaly": bool(result.is_anomaly),
+                        "event_type": result.event_type.value,
+                        "confidence": float(result.confidence),
+                        "caption": result.caption,
+                    })
+                elapsed = time.perf_counter() - started
+                merged = merge_chunk_results(chunk_results)
                 metadata = make_metadata(
                     model=name,
                     commit=commit,
                     window_index=index,
                     k=k,
-                    frame_times_s=list(times),
+                    frame_times_s=[t for _, c_times, _ in chunks for t in c_times],
                     source_windows=str(windows_file),
                     fingerprint=fingerprint,
                     fake=isinstance(verifier, FakeVerifier),
                     verifier_config=config,
+                    max_chunk_s=max_chunk_s,
+                    n_chunks=len(chunks),
+                    chunks=chunk_info,
+                    elapsed_s=elapsed,
                 )
-                _build_result(video_id, source.sample_fps, window, result,
+                _build_result(video_id, source.sample_fps, window, merged,
                               metadata).to_json(target)
             except Exception as e:  # noqa: BLE001 - ghi nhận từng window, không nuốt im
                 fail(f"{video_id}[{index}]: {type(e).__name__}: {e}", e)
                 continue
             summary.verified += 1
+            summary.elapsed_s.append(elapsed)
+            if len(chunks) > 1:
+                summary.chunked += 1
 
     return summary
 
@@ -449,6 +562,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--fake", action="store_true", help="dùng FakeVerifier (chỉ dev/test)")
     parser.add_argument("--verifier-model", default="", help="HF id của VLM thật")
     parser.add_argument("--dry-run", action="store_true", help="chỉ in việc sẽ làm")
+    parser.add_argument("--max-chunk-s", type=float, default=DEFAULT_MAX_CHUNK_S,
+                        help="window dài hơn mức này (giây) bị chia chunk, verdict = OR (mặc định 30)")
+    parser.add_argument("--shard", default=None, metavar="i/N",
+                        help="chỉ chạy shard i trong N (đếm từ 1) của danh sách window, ví dụ 2/2")
     parser.add_argument("--continue-on-error", action="store_true",
                         help="window/video lỗi thì ghi nhận rồi chạy tiếp (exit 2 nếu có lỗi)")
     args = parser.parse_args(argv)
@@ -457,6 +574,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         parser.error("--k phải >= 1")
     if args.limit is not None and args.limit < 0:
         parser.error("--limit phải >= 0")
+    if not (math.isfinite(args.max_chunk_s) and args.max_chunk_s > 0):
+        parser.error("--max-chunk-s phải hữu hạn và > 0")
+    shard: tuple[int, int] | None = None
+    if args.shard is not None:
+        try:
+            shard = parse_shard_spec(args.shard)
+        except ValueError as e:
+            parser.error(str(e))
 
     if args.fake:
         if not args.dry_run and Path(args.out_dir).resolve() == DEFAULT_VERIFY_DIR.resolve():
@@ -484,6 +609,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             dry_run=args.dry_run,
             video_ids=args.video_id,
             continue_on_error=args.continue_on_error,
+            max_chunk_s=args.max_chunk_s,
+            shard=shard,
         )
     except (ValueError, OSError, RuntimeError) as e:
         print(f"LỖI: {e}", file=sys.stderr)
@@ -491,6 +618,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     print(f"xong: {summary.examined} window xét, {summary.verified} verify, "
           f"{summary.skipped} bỏ qua, {summary.failed} lỗi")
+    print(summary.timing_report())
     return 2 if summary.failed else 0
 
 

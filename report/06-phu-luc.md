@@ -50,11 +50,23 @@ python scripts/precompute_embeddings.py --manifest manifests/ucf_test.csv --shar
 
 ### 6.3.4. Chạy kiểm chuẩn và trích xuất bảng số liệu
 ```bash
-# CHƯA CÓ: scripts/run_benchmark.py là task TH3, chưa viết. Cập nhật lệnh khi TH3 xong.
-python scripts/run_benchmark.py --manifest manifests/ucf_test.csv --output results/benchmark_summary.json
+# Chạy kiểm chuẩn cấu hình A4c trên tập UCF-Crime test (290 video)
+python scripts/run_benchmark.py --manifest manifests/ucf_test.csv --ablation A4c \
+    --calib-manifest manifests/ucf_calib_normal.csv --out-dir results
 ```
 
-### 6.3.5. Khởi chạy bảng điều khiển giám sát (Streamlit Dashboard)
+### 6.3.5. Kiểm chứng tầng 2 bằng Generative VLM
+```bash
+# Chạy kiểm chứng trên các candidate window (hỗ trợ phân chia shard i/N và tự động chia chunk <= 30s)
+python scripts/run_verify.py --manifest manifests/ucf_test.csv --windows-dir results/windows \
+    --out-dir results/verify --k 4 --verifier-model Qwen/Qwen2.5-VL-3B-Instruct
+
+# Chạy thử nghiệm khô (dry-run) đếm số chunk-call mà không nạp model
+python scripts/run_verify.py --manifest manifests/ucf_test.csv --windows-dir results/windows \
+    --dry-run
+```
+
+### 6.3.6. Khởi chạy bảng điều khiển giám sát (Streamlit Dashboard)
 ```bash
 # Khởi chạy giao diện trực quan ở chế độ Replay Mode
 streamlit run app/streamlit_app.py

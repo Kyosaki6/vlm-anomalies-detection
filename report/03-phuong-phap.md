@@ -80,7 +80,8 @@ với $w$ là `memory_weight` (mặc định 0.5).
 
 Các cửa sổ ứng viên từ Tầng 1 được chuyển tiếp đến Tầng 2 (`vad/verify/vlm.py`):
 - Hệ thống trích xuất $k$ khung hình phân bố đều (thường $k = 4$) trong khoảng thời gian của cửa sổ nghi vấn.
-- Các khung hình này được đưa vào mô hình VLM sinh ngôn ngữ (được lượng tử hóa 4-bit để vận hành trong ngưỡng 6GB VRAM, ví dụ dòng Qwen2-VL hoặc SmolVLM2).
+- **Xử lý cửa sổ dài (Quy tắc D-1):** Để tránh hiện tượng lấy mẫu quá thưa với các cửa sổ thời gian dài (trong 307 cửa sổ của UCF-Crime có 65 cửa sổ $> 30$ giây, dài nhất lên tới 490 giây), cửa sổ dài hơn ngưỡng $T_{max} = 30$ giây được chia đều thành các đoạn nhỏ (chunk) $\le 30$ giây. Mỗi chunk trích xuất độc lập $k$ khung hình và gọi VLM kiểm chứng riêng rẽ. Kết luận của cửa sổ là phép tuyển logic (OR): cửa sổ được coi là bất thường nếu có ít nhất một chunk bất thường (mô tả, nhãn loại và độ tin cậy lấy từ chunk bất thường có độ tin cậy cao nhất).
+- Các khung hình này được đưa vào mô hình VLM sinh ngôn ngữ (được lượng tử hóa 4-bit để vận hành trong ngưỡng 6GB VRAM, ví dụ dòng Qwen2.5-VL-3B-Instruct).
 - VLM nhận câu lệnh yêu cầu phân tích khách quan và bắt buộc trả về kết quả định dạng JSON duy nhất:
   ```json
   {
