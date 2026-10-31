@@ -24,8 +24,8 @@ Hệ thống được phát triển và kiểm thử trên các cấu hình ph�
 3. **ShanghaiTech Campus (Mục tiêu mở rộng - Stretch Goal):**
    - Gồm 107 video kiểm thử tại 13 góc quay khuôn viên trường đại học.
    - Nếu điều kiện thời gian cho phép, tập này được đánh giá theo quy ước "training-free kết hợp khung hình tham chiếu bình thường". Nếu thiếu thời gian, báo cáo ghi rõ giới hạn kỹ thuật này.
-4. **Tập clip đường phố Việt Nam (Minh họa demo):**
-   - Khoảng 5 clip ngắn (10 đến 30 giây) quay tại bối cảnh đường phố trong nước, gán nhãn thủ công mốc thời gian, dùng cho kiểm thử trực quan trên bảng điều khiển.
+4. **Tập clip demo (Minh họa giao diện):**
+   - Gồm 7 clip ngắn tải từ iStock (bản preview có watermark, chưa mua licence), không phải clip tự quay hay cảnh dàn dựng có consent. Nhãn thời gian được gán thủ công chỉ để đối chiếu khi demo; các clip này không tham gia bất kỳ số liệu benchmark nào.
 
 ### 4.1.3. Giao thức đánh giá (Evaluation Protocol)
 
