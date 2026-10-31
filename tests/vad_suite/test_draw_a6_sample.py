@@ -128,6 +128,8 @@ def test_sample_has_no_caption_and_no_leak(scene, tmp_path):
     for column in ("verdict", "video_class", "gt_overlap", "score"):
         assert column not in text, f"CSV blind còn cột đáp án: {column}"
     assert "human_label" in text
+    # source_file trỏ tới file tier-2 có caption/is_anomaly -> không được nằm trong file blind
+    assert "source_file" not in text and "verify/" not in text
     key_text = key.read_text(encoding="utf-8")
     assert "verdict" in key_text and "gt_overlap" in key_text
 
@@ -165,21 +167,37 @@ def test_same_seed_same_sample_different_seed_may_differ(scene, tmp_path):
     assert len(_rows(c)) == 8
 
 
-def test_gt_overlap_uses_inclusive_frames(scene):
+def test_blind_row_order_is_not_grouped_by_verdict(scene, tmp_path):
+    """Thứ tự dòng không được lộ verdict: không có kiểu "nửa đầu confirmed, nửa sau rejected"."""
+    for seed in ("7", "8", "9"):
+        rc, out, key = _run(scene, tmp_path, "--seed", seed, "--per-verdict", "4", name=f"o{seed}")
+        assert rc == 0
+        verdicts = [r["verdict"] for r in _rows(key)]
+        assert verdicts != sorted(verdicts) and verdicts != sorted(verdicts, reverse=True), verdicts
+        # blind và key cùng thứ tự dòng
+        blind_keys = [(r["video_id"], r["window_index"]) for r in _rows(out)]
+        key_keys = [(r["video_id"], r["window_index"]) for r in _rows(key)]
+        assert blind_keys == key_keys
+
+
+def test_gt_overlap_rounds_both_edges_with_fractional_fps():
+    annotations = {"V": type("A", (), {"segments": ((300, 600),)})()}
+    # 29.97 fps: 10.01 s * 29.97 ~= 299.99 -> round = 300, phải chạm cận trái 300
+    _, overlap = gt_overlap("V", {"start_s": 0.0, "end_s": 10.01, "fps": 29.97}, annotations)
+    assert overlap
+
+
+def test_gt_overlap_uses_inclusive_frames():
     annotations = {"Anomalous01_x264": type("A", (), {"segments": ((300, 600),)})()}
     # giây 9.5..10.5 -> frame 285..315, chạm GT bắt đầu ở 300 (cận đóng)
-    has_event, overlap = gt_overlap({"video_id": "Anomalous01_x264",
-                                     "start_s": 9.5, "end_s": 10.5, "fps": FPS}, annotations)
+    has_event, overlap = gt_overlap("Anomalous01_x264", {"start_s": 9.5, "end_s": 10.5, "fps": FPS}, annotations)
     assert has_event and overlap
     # khung vừa DỪNG trước frame 300 (0..299) -> không chồng, chặn cận đóng hở
-    has_event, overlap = gt_overlap({"video_id": "Anomalous01_x264",
-                                     "start_s": 9.0, "end_s": 9.9, "fps": FPS}, annotations)
+    has_event, overlap = gt_overlap("Anomalous01_x264", {"start_s": 9.0, "end_s": 9.9, "fps": FPS}, annotations)
     assert has_event and not overlap
-    has_event, overlap = gt_overlap({"video_id": "Anomalous01_x264",
-                                     "start_s": 60.0, "end_s": 70.0, "fps": FPS}, annotations)
+    has_event, overlap = gt_overlap("Anomalous01_x264", {"start_s": 60.0, "end_s": 70.0, "fps": FPS}, annotations)
     assert has_event and not overlap      # cùng video nhưng ngoài đoạn GT
-    has_event, overlap = gt_overlap({"video_id": "Normal01_x264",
-                                     "start_s": 0.0, "end_s": 10.0, "fps": FPS}, annotations)
+    has_event, overlap = gt_overlap("Normal01_x264", {"start_s": 0.0, "end_s": 10.0, "fps": FPS}, annotations)
     assert not has_event and not overlap  # video bình thường -> không annotation
 
 

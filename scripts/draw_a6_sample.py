@@ -16,6 +16,8 @@ Nguyên tắc chống thiên vị (ghi trước, thực thi bằng code):
     mẫu phản ánh tỉ lệ pool, nên confirmed có thể lệch anomalous/normal.
   - Mẫu có thể tập trung ở vài video (cửa sổ trong cùng video tương quan);
     script in cảnh báo khi một video góp > 2 mẫu — ghi rõ khi báo cáo.
+  - Thứ tự dòng trong file blind được xáo theo seed (không nhóm theo verdict) và
+    không có cột `source_file` (nó trỏ tới file tier-2 chứa caption/verdict).
   - Cột `gt_overlap` (file key) = cửa sổ có chồng lấn đoạn GT hay không — tính
     từ annotation, KHÔNG dùng để chọn mẫu (chỉ ghi lại).
   - BẮT BUỘC đủ 307 file kết quả, trừ khi `--allow-partial` (chỉ để chạy thử;
@@ -50,9 +52,9 @@ DEFAULT_KEY_OUT = ROOT / "notes" / "a6-handcheck-key.csv"
 PER_VERDICT = 10  # 10 xác nhận + 10 từ chối = 20 (task sheet A6)
 MAX_PER_VIDEO_WARN = 2  # cảnh báo khi một video góp nhiều hơn ngưỡng này
 
+# KHÔNG có `source_file`: nó trỏ tới file tier-2 chứa caption/is_anomaly (lộ đáp án).
 BLIND_FIELDS = [
-    "video_id", "window_index", "start_s", "end_s", "duration_s",
-    "source_file", "human_label",
+    "video_id", "window_index", "start_s", "end_s", "duration_s", "human_label",
 ]
 KEY_FIELDS = [
     "video_id", "window_index", "start_s", "end_s", "duration_s", "score",
@@ -122,11 +124,12 @@ def load_verdicts(verify_dir: Path) -> dict[tuple[str, int], dict]:
     return out
 
 
-def gt_overlap(w: dict, annotations: dict) -> tuple[bool, bool]:
+def gt_overlap(video_id: str, w: dict, annotations: dict) -> tuple[bool, bool]:
     """(video_có_sự_cố, cửa_sổ_chồng_GT). Chồng theo frame, [start, end] đóng như load_gt."""
-    ann = annotations.get(w["video_id"]) if "video_id" in w else None
-    start_f = int(w["start_s"] * w["fps"])       # floor: cận trái đóng
-    end_f = int(round(w["end_s"] * w["fps"]))    # round: cận phải đóng (quy ước ucf_crime.py)
+    ann = annotations.get(video_id)
+    # cùng một quy tắc làm tròn cho hai cận (fps không nguyên, vd 29.97, không lệch biên)
+    start_f = int(round(w["start_s"] * w["fps"]))
+    end_f = int(round(w["end_s"] * w["fps"]))
     has_event = ann is not None and bool(ann.segments)
     if not has_event:
         return False, False
@@ -175,7 +178,7 @@ def draw_sample(
         video_id, w_index = key
         if key not in verdicts:
             continue
-        has_event, overlap = gt_overlap({**w, "video_id": video_id}, annotations)
+        has_event, overlap = gt_overlap(video_id, w, annotations)
         rows.append({
             "video_id": video_id,
             "window_index": w_index,
@@ -204,7 +207,18 @@ def draw_sample(
             pool = sorted(strata[cls], key=lambda r: (r["video_id"], r["window_index"]))
             rng.shuffle(pool)
             picked.extend(pool[: take[cls]])
-    return sorted(picked, key=lambda r: (r["verdict"], r["video_id"], r["window_index"]))
+    return shuffle_order(picked, seed)
+
+
+def shuffle_order(rows: list[dict], seed: int) -> list[dict]:
+    """Thứ tự dòng xác định theo seed, KHÔNG nhóm theo verdict.
+
+    Sort theo verdict sẽ khiến 10 dòng đầu = confirmed, 10 dòng sau = rejected, người chấm
+    đọc được đáp án từ vị trí dòng. Dùng Random riêng để không đổi tập mẫu đã rút.
+    """
+    ordered = sorted(rows, key=lambda r: (r["video_id"], r["window_index"]))
+    random.Random(f"order-{seed}").shuffle(ordered)
+    return ordered
 
 
 def _write_csv(path: Path, fields: list[str], rows: list[dict]) -> None:
