@@ -38,7 +38,7 @@ Do hạn chế về thời gian thực hiện (kế hoạch thực hiện rút n
 2. Quy mô kiểm chứng Tầng 2 (Tier-2 VLM):
    - Mô hình VLM sinh ngôn ngữ được chạy trên các cửa sổ ứng viên nghi vấn. Trong trường hợp giới hạn thời gian tính toán của GPU 6GB, Tier-2 được phép chạy trên một tập con đại diện có ghi nhận chi phí thời gian và bộ nhớ thực tế, tuyệt đối không cắt bỏ hoàn toàn vì đây là ràng buộc cốt lõi của đề tài đăng ký.
 3. Dữ liệu thử nghiệm thực tế:
-   - Thu thập khoảng 5 clip đường phố Việt Nam phục vụ trình diễn (demo), trong đó có clip bình thường và clip dàn dựng có sự đồng ý. Các clip này không dùng để báo cáo điểm chuẩn benchmark.
+   - Thu thập 7 clip demo từ iStock (bản preview có watermark, chưa mua licence) để trình diễn giao diện; không phải clip tự quay hay cảnh dàn dựng có consent, và không dùng để báo cáo điểm chuẩn benchmark.
 4. Bảng điều khiển:
    - Hoạt động ở chế độ xem lại (replay mode) từ các tệp kết quả JSON đã tính trước (precomputed results), bảo đảm khả năng trình chiếu mượt mà trên máy tính không có GPU.
 5. Biến thể mô hình (Ablations):
