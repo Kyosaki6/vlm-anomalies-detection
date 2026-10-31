@@ -8,8 +8,13 @@ Mỗi window -> MỘT file JSON trong `results/verify/<video_id>/window_<i>.json
 File được ghi atomic; chạy lại sẽ bỏ qua window đã xong (resume), trừ khi `--force`.
 Script chỉ phụ thuộc protocol `Verifier`, nên `VLMVerifier` thật cắm vào sau mà không phải sửa.
 
+Danh sách video đi theo MANIFEST: với mỗi `video_id` mở đúng `<windows-dir>/<video_id>.json`
+(không glob `*.json`, vì thư mục có `_index.json` không phải RunResult). Video không có file windows bị bỏ qua.
+
 `--fake` dùng `FakeVerifier` cho dev/test và BẮT BUỘC dùng `--out-dir` khác `results/verify`
 để kết quả giả không lẫn vào kết quả thật.
+
+`--continue-on-error`: một window/video lỗi thì ghi nhận, chạy tiếp; exit code 2 nếu có lỗi.
 """
 from __future__ import annotations
 
@@ -18,8 +23,9 @@ import csv
 import hashlib
 import json
 import math
+import subprocess
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -43,11 +49,13 @@ DEFAULT_VERIFY_DIR = DEFAULT_RESULTS_DIR / "verify"
 
 @dataclass
 class VerifySummary:
-    """Kết quả một lần chạy: số window đã xét, đã verify, đã bỏ qua."""
+    """Kết quả một lần chạy: số window đã xét, đã verify, đã bỏ qua, bị lỗi."""
 
     examined: int = 0
     verified: int = 0
     skipped: int = 0
+    failed: int = 0
+    errors: list[str] = field(default_factory=list)
 
 
 def _check_video_id(video_id: str) -> str:
@@ -80,15 +88,15 @@ def load_manifest(path: str | Path) -> dict[str, Path]:
     return out
 
 
-def list_window_files(windows_dir: str | Path) -> list[Path]:
-    """Các file `results/windows/*.json`, sắp xếp ổn định. Không có file -> lỗi rõ ràng."""
-    base = Path(windows_dir)
-    if not base.is_dir():
-        raise FileNotFoundError(f"Không tìm thấy thư mục windows: {base}")
-    files = sorted(p for p in base.glob("*.json") if p.is_file())
-    if not files:
-        raise FileNotFoundError(f"Không có file windows nào trong: {base}")
-    return files
+def windows_file_for(windows_dir: str | Path, video_id: str) -> Path | None:
+    """`<windows_dir>/<video_id>.json`, hoặc None nếu video không có candidate window.
+
+    Đi theo `video_id` thay vì glob `*.json`: thư mục windows còn `_index.json` (index tier-1)
+    không phải RunResult.
+    """
+    _check_video_id(video_id)
+    path = Path(windows_dir) / f"{video_id}.json"
+    return path if path.is_file() else None
 
 
 def pick_frame_times(start_s: float, end_s: float, k: int) -> list[float]:
@@ -158,18 +166,21 @@ def read_frames_at(video_path: str | Path, frame_indices: Sequence[int]) -> dict
         cap.release()
 
 
-def extract_window_frames(video_path: str | Path, windows: Sequence[Window],
-                          k: int) -> tuple[list[list[Any]], list[list[float]]]:
-    """Cắt `k` frame cho mỗi window, giải mã video đúng MỘT lượt."""
-    if not windows:
-        return [], []
+def plan_window_frames(video_path: str | Path, windows: Sequence[Window],
+                       k: int) -> list[tuple[list[float], list[int]] | ValueError]:
+    """Mỗi window -> (mốc thời gian, chỉ số frame) hoặc ValueError nếu window không lấy được k frame.
+
+    Lỗi từng window được TRẢ VỀ (không raise) để người gọi chọn dừng hay đi tiếp.
+    """
     n_frames, fps = probe_video(video_path)
-    times_by_window = [pick_frame_times(w.start_s, w.end_s, k) for w in windows]
-    indices_by_window = [frame_indices_for_times(times, fps, n_frames) for times in times_by_window]
-    all_indices = [index for indices in indices_by_window for index in indices]
-    frame_by_index = read_frames_at(video_path, all_indices)
-    frames_by_window = [[frame_by_index[index] for index in indices] for indices in indices_by_window]
-    return frames_by_window, times_by_window
+    plans: list[tuple[list[float], list[int]] | ValueError] = []
+    for w in windows:
+        try:
+            times = pick_frame_times(w.start_s, w.end_s, k)
+            plans.append((times, frame_indices_for_times(times, fps, n_frames)))
+        except ValueError as e:
+            plans.append(e)
+    return plans
 
 
 def verifier_name(verifier: Verifier | None) -> str:
@@ -181,7 +192,28 @@ def verifier_name(verifier: Verifier | None) -> str:
     return str(getattr(verifier, "model_id", type(verifier).__name__))
 
 
-def make_fingerprint(window: Window, k: int, name: str) -> str:
+def verifier_config(verifier: Verifier | None) -> dict[str, Any]:
+    """Mọi thứ ngoài `model_id` làm đổi đầu ra của VLM; đổi cái nào là phải verify lại.
+
+    `quantization`, `max_attempts`, `max_new_tokens` và hash prompt (sha1[:8] của system+user,
+    cùng công thức `bench_vlm.py`: `3d71fdba` ở A1). Verifier không có thuộc tính nào thì trường đó là None.
+    """
+    if verifier is None or isinstance(verifier, FakeVerifier):
+        return {}
+    system = getattr(verifier, "_system", None)
+    user = getattr(verifier, "_user_prompt", None)
+    prompt_hash = (hashlib.sha1((str(system) + str(user)).encode("utf-8")).hexdigest()[:8]
+                   if system is not None and user is not None else None)
+    return {
+        "quantization": getattr(verifier, "quantization", None),
+        "max_attempts": getattr(verifier, "max_attempts", None),
+        "max_new_tokens": getattr(verifier, "max_new_tokens", None),
+        "prompt_hash": prompt_hash,
+    }
+
+
+def make_fingerprint(window: Window, k: int, name: str,
+                     config: dict[str, Any] | None = None) -> str:
     """Hash cấu hình + window để quyết định resume có hợp lệ hay không."""
     payload = {
         "video_id": window.video_id,
@@ -190,9 +222,20 @@ def make_fingerprint(window: Window, k: int, name: str) -> str:
         "score": float(window.score),
         "k": int(k),
         "verifier": str(name),
+        "verifier_config": dict(config or {}),
     }
     raw = json.dumps(payload, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def git_commit() -> str:
+    """Short sha của HEAD để ghi vào metadata; không có git -> 'unknown'."""
+    try:
+        out = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT,
+                             capture_output=True, text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return "unknown"
+    return out.stdout.strip() if out.returncode == 0 and out.stdout.strip() else "unknown"
 
 
 def output_path(out_dir: str | Path, video_id: str, window_index: int) -> Path:
@@ -253,8 +296,13 @@ def _build_result(video_id: str, sample_fps: float, window: Window, result: Veri
 def run_verify(manifest_path: str | Path, windows_dir: str | Path = DEFAULT_WINDOWS_DIR,
                out_dir: str | Path = DEFAULT_VERIFY_DIR, verifier: Verifier | None = None,
                k: int = 4, limit: int | None = None, force: bool = False,
-               dry_run: bool = False, video_ids: Sequence[str] | None = None) -> VerifySummary:
-    """Chạy verify cho mọi window trong `windows_dir`; trả thống kê."""
+               dry_run: bool = False, video_ids: Sequence[str] | None = None,
+               continue_on_error: bool = False) -> VerifySummary:
+    """Chạy verify cho mọi window của các video trong manifest; trả thống kê.
+
+    Mặc định lỗi đầu tiên dừng cả lượt (resume cứu được lần sau). Với `continue_on_error=True`
+    lỗi của một window/video được ghi vào `summary.errors` + `summary.failed` rồi chạy tiếp.
+    """
     if not isinstance(k, int) or k < 1:
         raise ValueError(f"k phải là số nguyên >= 1, nhận {k!r}")
     if limit is not None and (not isinstance(limit, int) or limit < 0):
@@ -269,79 +317,120 @@ def run_verify(manifest_path: str | Path, windows_dir: str | Path = DEFAULT_WIND
         )
 
     manifest = load_manifest(manifest_path)
-    wanted = set(video_ids) if video_ids else None
-    files = list_window_files(windows_dir)
+    wanted = list(dict.fromkeys(video_ids)) if video_ids else None
+    if wanted is not None:
+        unknown = [v for v in wanted if v not in manifest]
+        if unknown:
+            raise ValueError(f"--video-id không có trong manifest {manifest_path}: {unknown}")
     name = verifier_name(verifier)
+    config = verifier_config(verifier)
+    commit = git_commit() if not dry_run else ""
     summary = VerifySummary()
 
-    for windows_file in files:
-        source = RunResult.from_json(windows_file)
-        if wanted is not None and source.video_id not in wanted:
+    def fail(message: str, exc: Exception) -> None:
+        if not continue_on_error:
+            raise exc
+        summary.failed += 1
+        summary.errors.append(message)
+        print(f"[lỗi] {message}", file=sys.stderr)
+
+    for video_id, video_path in manifest.items():
+        if wanted is not None and video_id not in wanted:
             continue
-        _check_video_id(source.video_id)
-        video_path = manifest.get(source.video_id)
-        if video_path is None:
-            raise ValueError(f"Không có {source.video_id!r} trong manifest {manifest_path}")
-        if not video_path.is_file():
-            raise FileNotFoundError(f"Không tìm thấy video của {source.video_id!r}: {video_path}")
+        if limit is not None and summary.examined >= limit:
+            break
+        windows_file = windows_file_for(windows_dir, video_id)
+        if windows_file is None:
+            continue
+        try:
+            source = RunResult.from_json(windows_file)
+            if source.video_id != video_id:
+                raise ValueError(
+                    f"{windows_file} có video_id {source.video_id!r}, manifest nói {video_id!r}"
+                )
+        except (TypeError, ValueError, OSError) as e:
+            fail(f"{video_id}: không đọc được windows ({e})", e)
+            continue
 
         pending: list[tuple[int, Window, str, Path]] = []
-        stop = False
         for index, window in enumerate(source.candidate_windows):
             if limit is not None and summary.examined >= limit:
-                stop = True
                 break
             summary.examined += 1
-            _validate_window(source.video_id, window, k)
-            fingerprint = make_fingerprint(window, k, name)
-            target = output_path(out_dir, source.video_id, index)
-            if not force and is_completed(target, source.video_id, index, window, fingerprint):
+            try:
+                _validate_window(video_id, window, k)
+            except ValueError as e:
+                fail(f"{video_id}[{index}]: {e}", e)
+                continue
+            fingerprint = make_fingerprint(window, k, name, config)
+            target = output_path(out_dir, video_id, index)
+            if not force and is_completed(target, video_id, index, window, fingerprint):
                 summary.skipped += 1
                 continue
             pending.append((index, window, fingerprint, target))
 
-        if stop and not pending:
-            break
-
+        if not pending:
+            continue
         if dry_run:
-            if pending:
-                print(f"[dry-run] {source.video_id}: {len(pending)} window cần verify")
-            if stop:
-                break
+            print(f"[dry-run] {video_id}: {len(pending)} window cần verify")
             continue
 
-        frames_by_window, times_by_window = extract_window_frames(
-            video_path, [window for _, window, _, _ in pending], k
-        )
-        for (index, window, fingerprint, target), frames, times in zip(
-                pending, frames_by_window, times_by_window):
+        # Chỉ cần file video khi còn window phải verify (máy chỉ giữ cache verify vẫn resume được).
+        if not video_path.is_file():
+            fail(f"{video_id}: không tìm thấy video {video_path}",
+                 FileNotFoundError(f"Không tìm thấy video của {video_id!r}: {video_path}"))
+            continue
+        try:
+            plans = plan_window_frames(video_path, [w for _, w, _, _ in pending], k)
+        except (OSError, RuntimeError) as e:
+            fail(f"{video_id}: không probe được video ({e})", e)
+            continue
+
+        usable = [(item, plan) for item, plan in zip(pending, plans)
+                  if not isinstance(plan, ValueError)]
+        for item, plan in zip(pending, plans):
+            if isinstance(plan, ValueError):
+                fail(f"{video_id}[{item[0]}]: {plan}", plan)
+        if not usable:
+            continue
+        try:
+            frame_by_index = read_frames_at(
+                video_path, [i for _, (_, indices) in usable for i in indices])
+        except (OSError, RuntimeError) as e:
+            fail(f"{video_id}: không đọc được frame ({e})", e)
+            continue
+
+        for (index, window, fingerprint, target), (times, indices) in usable:
             context = {
-                "video_id": source.video_id,
+                "video_id": video_id,
                 "start_s": window.start_s,
                 "end_s": window.end_s,
                 "score": window.score,
                 "window_index": index,
             }
-            result = verifier.verify(frames, context)
-            if not isinstance(result, VerifyResult):
-                raise TypeError(
-                    f"Verifier phải trả VerifyResult, nhận {type(result).__name__}"
+            try:
+                result = verifier.verify([frame_by_index[i] for i in indices], context)
+                if not isinstance(result, VerifyResult):
+                    raise TypeError(
+                        f"Verifier phải trả VerifyResult, nhận {type(result).__name__}"
+                    )
+                metadata = make_metadata(
+                    model=name,
+                    commit=commit,
+                    window_index=index,
+                    k=k,
+                    frame_times_s=list(times),
+                    source_windows=str(windows_file),
+                    fingerprint=fingerprint,
+                    fake=isinstance(verifier, FakeVerifier),
+                    verifier_config=config,
                 )
-            metadata = make_metadata(
-                model=name,
-                commit="",
-                window_index=index,
-                k=k,
-                frame_times_s=list(times),
-                source_windows=str(windows_file),
-                fingerprint=fingerprint,
-                fake=isinstance(verifier, FakeVerifier),
-            )
-            _build_result(source.video_id, source.sample_fps, window, result, metadata).to_json(target)
+                _build_result(video_id, source.sample_fps, window, result,
+                              metadata).to_json(target)
+            except Exception as e:  # noqa: BLE001 - ghi nhận từng window, không nuốt im
+                fail(f"{video_id}[{index}]: {type(e).__name__}: {e}", e)
+                continue
             summary.verified += 1
-
-        if stop:
-            break
 
     return summary
 
@@ -360,6 +449,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--fake", action="store_true", help="dùng FakeVerifier (chỉ dev/test)")
     parser.add_argument("--verifier-model", default="", help="HF id của VLM thật")
     parser.add_argument("--dry-run", action="store_true", help="chỉ in việc sẽ làm")
+    parser.add_argument("--continue-on-error", action="store_true",
+                        help="window/video lỗi thì ghi nhận rồi chạy tiếp (exit 2 nếu có lỗi)")
     args = parser.parse_args(argv)
 
     if args.k < 1:
@@ -371,11 +462,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         if not args.dry_run and Path(args.out_dir).resolve() == DEFAULT_VERIFY_DIR.resolve():
             parser.error("--fake phải dùng --out-dir khác results/verify để không ghi kết quả giả")
         verifier: Verifier | None = FakeVerifier()
-    elif args.dry_run:
-        verifier = None
+    elif args.dry_run and not args.verifier_model:
+        verifier = None  # không biết model nào -> fingerprint "dry-run", mọi window đều tính là pending
     else:
         if not args.verifier_model:
             parser.error("cần --verifier-model khi không dùng --fake")
+        # VLMVerifier lazy-load model ở lần verify đầu, nên dựng ở đây rẻ và cho fingerprint
+        # đúng: `--dry-run --verifier-model X` thấy được window nào đã xong.
         from vad.verify.vlm import VLMVerifier
         verifier = VLMVerifier(model_id=args.verifier_model)
 
@@ -390,14 +483,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             force=args.force,
             dry_run=args.dry_run,
             video_ids=args.video_id,
+            continue_on_error=args.continue_on_error,
         )
     except (ValueError, OSError, RuntimeError) as e:
         print(f"LỖI: {e}", file=sys.stderr)
         return 1
 
     print(f"xong: {summary.examined} window xét, {summary.verified} verify, "
-          f"{summary.skipped} bỏ qua")
-    return 0
+          f"{summary.skipped} bỏ qua, {summary.failed} lỗi")
+    return 2 if summary.failed else 0
 
 
 if __name__ == "__main__":

@@ -353,3 +353,261 @@ def test_sample_run_windows_are_processed_with_fake_verifier(tmp_path):
     assert (summary.examined, summary.verified) == (3, 3)
     assert len(verifier.calls) == 3
     assert len(list((out / "sample_run").glob("window_*.json"))) == 3
+
+
+# --- sửa theo review PR #27 -------------------------------------------------------
+
+def test_index_json_in_windows_dir_does_not_break_run(synthetic_video, tmp_path):
+    """Blocker review: `results/windows/_index.json` không phải RunResult."""
+    manifest = write_manifest(tmp_path, "v1", synthetic_video)
+    windows_file, _ = write_windows(tmp_path)
+    (windows_file.parent / "_index.json").write_text(
+        '{"ablation": "A4c", "n_windows": 2}', encoding="utf-8")
+    out = tmp_path / "verify"
+
+    summary = rv.run_verify(manifest, windows_file.parent, out, verifier=CountingVerifier())
+    dry = rv.run_verify(manifest, windows_file.parent, out, verifier=FakeVerifier(), dry_run=True)
+
+    assert (summary.verified, summary.failed) == (2, 0)
+    assert (dry.examined, dry.skipped) == (2, 2)
+    assert rv.main(["--manifest", str(manifest), "--windows-dir", str(windows_file.parent),
+                    "--out-dir", str(out), "--dry-run"]) == 0
+
+
+def test_video_id_filter_opens_only_requested_file(synthetic_video, tmp_path):
+    """`--video-id X` không được mở file windows của video khác (kể cả file hỏng)."""
+    manifest = tmp_path / "manifest.csv"
+    manifest.write_text(
+        "video_id,path,dataset,split\n"
+        f"v1,{synthetic_video.as_posix()},ucf_crime,test\n"
+        "v2,/nope/v2.mp4,ucf_crime,test\n", encoding="utf-8")
+    windows_file, _ = write_windows(tmp_path, "v1")
+    (windows_file.parent / "v2.json").write_text("{broken", encoding="utf-8")
+
+    summary = rv.run_verify(manifest, windows_file.parent, tmp_path / "verify",
+                            verifier=CountingVerifier(), video_ids=["v1"])
+
+    assert (summary.examined, summary.verified) == (2, 2)
+    with pytest.raises(ValueError, match="manifest"):
+        rv.run_verify(manifest, windows_file.parent, tmp_path / "verify2",
+                      verifier=CountingVerifier(), video_ids=["ghost"])
+
+
+def test_video_without_windows_file_is_skipped(synthetic_video, tmp_path):
+    manifest = write_manifest(tmp_path, "v1", synthetic_video)
+    windows_dir = tmp_path / "empty_windows"
+    windows_dir.mkdir()
+
+    summary = rv.run_verify(manifest, windows_dir, tmp_path / "verify",
+                            verifier=CountingVerifier())
+
+    assert (summary.examined, summary.verified) == (0, 0)
+
+
+def test_windows_file_for_rejects_path_video_id(tmp_path):
+    with pytest.raises(ValueError, match="video_id"):
+        rv.windows_file_for(tmp_path, "../x")
+
+
+class FakeQuantVerifier(CountingVerifier):
+    """Có đủ thuộc tính giống VLMVerifier thật để kiểm fingerprint."""
+
+    model_id = "org/model"
+
+    def __init__(self, quantization="4bit", max_attempts=2, system="s", user="u"):
+        super().__init__()
+        self.quantization = quantization
+        self.max_attempts = max_attempts
+        self.max_new_tokens = 128
+        self._system = system
+        self._user_prompt = user
+
+
+@pytest.mark.parametrize("change", [
+    {"quantization": "none"},
+    {"max_attempts": 3},
+    {"user": "prompt đã sửa"},
+])
+def test_verifier_config_change_invalidates_fingerprint(change):
+    """Review #2: đổi quantization / max_attempts / prompt thì resume phải làm lại."""
+    w = Window("v1", 0.2, 1.2, 0.9)
+    base = FakeQuantVerifier()
+    # FakeVerifier luôn được coi là 'fake' -> dùng lớp không kế thừa FakeVerifier cho nhánh thật.
+    class Real:
+        model_id = "org/model"
+        def __init__(self, **kw):
+            d = dict(quantization="4bit", max_attempts=2, system="s", user="u")
+            d.update(kw)
+            self.quantization = d["quantization"]
+            self.max_attempts = d["max_attempts"]
+            self.max_new_tokens = 128
+            self._system = d["system"]
+            self._user_prompt = d["user"]
+    a, b = Real(), Real(**change)
+    assert rv.make_fingerprint(w, 4, rv.verifier_name(a), rv.verifier_config(a)) != \
+        rv.make_fingerprint(w, 4, rv.verifier_name(b), rv.verifier_config(b))
+    assert rv.verifier_config(base) == {}  # FakeVerifier không có cấu hình
+
+
+def test_prompt_hash_matches_bench_vlm_formula():
+    import hashlib
+
+    class Real:
+        model_id = "m"
+        quantization = "4bit"
+        max_attempts = 2
+        max_new_tokens = 128
+        _system = "SYS"
+        _user_prompt = "USER"
+
+    expected = hashlib.sha1(b"SYSUSER").hexdigest()[:8]
+    assert rv.verifier_config(Real())["prompt_hash"] == expected
+
+
+def test_config_change_triggers_reverify_end_to_end(synthetic_video, tmp_path, monkeypatch):
+    manifest = write_manifest(tmp_path, "v1", synthetic_video)
+    windows_file, _ = write_windows(tmp_path)
+    out = tmp_path / "verify"
+    monkeypatch.setattr(rv, "verifier_name", lambda v: "org/model")
+    monkeypatch.setattr(rv, "verifier_config",
+                        lambda v: {"quantization": v.quantization})
+    v4, v16 = CountingVerifier(), CountingVerifier()
+    v4.quantization, v16.quantization = "4bit", "none"
+    # tránh nhánh `--fake` chặn: chỉ cần out-dir khác results/verify (đã đúng)
+    rv.run_verify(manifest, windows_file.parent, out, verifier=v4)
+    again = rv.run_verify(manifest, windows_file.parent, out, verifier=v4)
+    changed = rv.run_verify(manifest, windows_file.parent, out, verifier=v16)
+
+    assert (again.verified, again.skipped) == (0, 2)
+    assert (changed.verified, changed.skipped) == (2, 0)
+
+
+def test_resume_does_not_need_video_when_everything_done(synthetic_video, tmp_path):
+    """Review #2: máy chỉ có cache verify (không có video) vẫn resume/dry-run được."""
+    manifest = write_manifest(tmp_path, "v1", synthetic_video)
+    windows_file, _ = write_windows(tmp_path)
+    out = tmp_path / "verify"
+    rv.run_verify(manifest, windows_file.parent, out, verifier=CountingVerifier())
+    synthetic_video.unlink()
+
+    again = rv.run_verify(manifest, windows_file.parent, out, verifier=CountingVerifier())
+    dry = rv.run_verify(manifest, windows_file.parent, out, verifier=FakeVerifier(), dry_run=True)
+
+    assert (again.verified, again.skipped, again.failed) == (0, 2, 0)
+    assert (dry.skipped, dry.failed) == (2, 0)
+
+
+def test_dry_run_does_not_need_video(tmp_path):
+    manifest = write_manifest(tmp_path, "v1", tmp_path / "missing.mp4")
+    windows_file, _ = write_windows(tmp_path)
+
+    summary = rv.run_verify(manifest, windows_file.parent, tmp_path / "verify",
+                            verifier=None, dry_run=True)
+
+    assert summary.examined == 2
+
+
+class FlakyVerifier(CountingVerifier):
+    """Window index 0 luôn lỗi."""
+
+    def verify(self, frames, context):
+        if context["window_index"] == 0:
+            raise RuntimeError("window 0 hỏng")
+        return super().verify(frames, context)
+
+
+def test_continue_on_error_records_failure_and_keeps_going(synthetic_video, tmp_path):
+    manifest = write_manifest(tmp_path, "v1", synthetic_video)
+    windows_file, _ = write_windows(tmp_path)
+    out = tmp_path / "verify"
+
+    summary = rv.run_verify(manifest, windows_file.parent, out, verifier=FlakyVerifier(),
+                            continue_on_error=True)
+
+    assert (summary.verified, summary.failed) == (1, 1)
+    assert "window 0 hỏng" in summary.errors[0]
+    assert [p.name for p in (out / "v1").glob("window_*.json")] == ["window_0001.json"]
+
+
+def test_continue_on_error_skips_window_too_short_for_k_frames(synthetic_video, tmp_path):
+    manifest = write_manifest(tmp_path, "v1", synthetic_video)
+    windows_file, _ = write_windows(
+        tmp_path, windows=(Window("v1", 0.5, 0.52, 0.9), Window("v1", 1.5, 2.7, 0.8)))
+    out = tmp_path / "verify"
+    verifier = CountingVerifier()
+
+    summary = rv.run_verify(manifest, windows_file.parent, out, verifier=verifier,
+                            continue_on_error=True)
+
+    assert (summary.verified, summary.failed) == (1, 1)
+    assert len(verifier.calls) == 1
+    with pytest.raises(ValueError, match="quá ngắn"):
+        rv.run_verify(manifest, windows_file.parent, tmp_path / "v2", verifier=CountingVerifier())
+
+
+def test_continue_on_error_survives_missing_video_and_cli_exit_code(synthetic_video, tmp_path):
+    manifest = tmp_path / "manifest.csv"
+    manifest.write_text(
+        "video_id,path,dataset,split\n"
+        "bad,/nope/bad.mp4,ucf_crime,test\n"
+        f"v1,{synthetic_video.as_posix()},ucf_crime,test\n", encoding="utf-8")
+    windows_file, _ = write_windows(tmp_path, "v1")
+    write_windows(tmp_path, "bad")
+    out = tmp_path / "verify"
+
+    rc_strict = rv.main(["--manifest", str(manifest), "--windows-dir", str(windows_file.parent),
+                         "--out-dir", str(out / "strict"), "--fake"])
+    rc_soft = rv.main(["--manifest", str(manifest), "--windows-dir", str(windows_file.parent),
+                       "--out-dir", str(out / "soft"), "--fake", "--continue-on-error"])
+
+    assert rc_strict == 1
+    assert rc_soft == 2
+    assert len(list((out / "soft" / "v1").glob("window_*.json"))) == 2
+
+
+def test_metadata_commit_is_recorded(synthetic_video, tmp_path, monkeypatch):
+    manifest = write_manifest(tmp_path, "v1", synthetic_video)
+    windows_file, _ = write_windows(tmp_path)
+    monkeypatch.setattr(rv, "git_commit", lambda: "abc1234")
+    out = tmp_path / "verify"
+
+    rv.run_verify(manifest, windows_file.parent, out, verifier=CountingVerifier())
+
+    assert RunResult.from_json(out / "v1" / "window_0000.json").metadata["commit"] == "abc1234"
+
+
+def test_git_commit_falls_back_to_unknown(monkeypatch):
+    def boom(*a, **k):
+        raise OSError("no git")
+
+    monkeypatch.setattr(rv.subprocess, "run", boom)
+    assert rv.git_commit() == "unknown"
+
+
+def test_cli_dry_run_with_verifier_model_builds_lazy_verifier(synthetic_video, tmp_path, monkeypatch, capsys):
+    """`--dry-run --verifier-model X` dựng VLMVerifier (lazy, không tải model) để fingerprint đúng."""
+    import vad.verify.vlm as vlm
+
+    built = []
+
+    class Lazy:
+        quantization, max_attempts, max_new_tokens = "4bit", 2, 128
+        _system, _user_prompt = "s", "u"
+
+        def __init__(self, model_id):
+            self.model_id = model_id
+            built.append(model_id)
+
+        def verify(self, frames, context):  # pragma: no cover - dry-run never calls it
+            raise AssertionError("dry-run must not verify")
+
+    monkeypatch.setattr(vlm, "VLMVerifier", Lazy)
+    manifest = write_manifest(tmp_path, "v1", synthetic_video)
+    windows_file, _ = write_windows(tmp_path)
+
+    rc = rv.main(["--manifest", str(manifest), "--windows-dir", str(windows_file.parent),
+                  "--out-dir", str(tmp_path / "verify"), "--dry-run",
+                  "--verifier-model", "org/m"])
+
+    assert rc == 0 and built == ["org/m"]
+    assert "[dry-run] v1: 2 window" in capsys.readouterr().out
