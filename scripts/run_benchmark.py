@@ -29,7 +29,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from vad.datasets.ucf_crime import Annotation, load_annotations, load_gt  # noqa: E402
-from vad.embed.cache import DEFAULT_CACHE_DIR, _slug, has_cached, load_embeddings  # noqa: E402
+from vad.embed.cache import DEFAULT_CACHE_DIR, has_cached, load_embeddings, slug  # noqa: E402
 from vad.eval.metrics import fast_frame_level_auc, fast_video_bootstrap_auc_ci  # noqa: E402
 from vad.pipeline import (ABLATIONS, DEFAULT_PROMPTS, CalibStats, PipelineConfig, build_memory_bank,  # noqa: E402
                           compute_calib_stats, load_detection_prompts, score_cached_video)
@@ -73,7 +73,7 @@ def select_rows(rows: list[dict[str, Any]], limit: int | None) -> list[dict[str,
 # --- prompt cache --------------------------------------------------------------------
 
 def prompt_cache_path(model_id: str, prompt_set: str, cache_dir: str | Path = DEFAULT_PROMPT_CACHE) -> Path:
-    return Path(cache_dir) / f"{_slug(model_id)}__{prompt_set}.npz"
+    return Path(cache_dir) / f"{slug(model_id)}__{prompt_set}.npz"
 
 
 def _default_embedder_factory(model_id: str, device: str | None):
