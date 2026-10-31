@@ -6,24 +6,48 @@ Tách khỏi `streamlit_app.py` để test được trên CPU thuần. Dữ li�
 """
 from __future__ import annotations
 
+import json
 import math
 from pathlib import Path
 from typing import Sequence
 
 import numpy as np
 
-from vad.results import DEFAULT_RESULTS_DIR, RunResult, result_path
+from vad.results import DEFAULT_RESULTS_DIR, SCHEMA_VERSION, RunResult, result_path
 from vad.types import Alert, VerifyResult, Window
 
 DEMO_NOTE = "DEMO DATA: synthetic scores and a fake verifier. Not a real result."
 
 
+def _is_run_file(path: Path) -> bool:
+    """File là một `RunResult` về mặt khung: JSON object có `schema_version` == SCHEMA_VERSION.
+
+    File khác loại nằm chung thư mục (`ablation_A*.json`, `threshold_A4c.json`, `typing_eval.json`,
+    `a0_stride16*.json`) không có `schema_version` -> bị bỏ. JSON hỏng/không đọc được -> bỏ, không ném.
+    """
+    try:
+        with path.open(encoding="utf-8-sig") as f:
+            obj = json.load(f)
+    except (OSError, ValueError):
+        return False
+    return isinstance(obj, dict) and obj.get("schema_version") == SCHEMA_VERSION
+
+
+def default_results_dir() -> Path:
+    """`results/run_A4c/` nếu có, ngược lại `results/`. Biến `VAD_RESULTS_DIR` do caller xử lý trước."""
+    preferred = Path(DEFAULT_RESULTS_DIR) / "run_A4c"
+    return preferred if preferred.is_dir() else Path(DEFAULT_RESULTS_DIR)
+
+
 def list_video_ids(root: str | Path = DEFAULT_RESULTS_DIR) -> list[str]:
-    """`video_id` của mọi file `results/<id>.json` (bỏ thư mục con `windows/`). Sắp xếp theo tên."""
+    """`video_id` của mọi file kết quả chạy `<root>/<id>.json` (bỏ thư mục con `windows/` và file không phải run).
+
+    Chỉ giữ file có `schema_version` khớp (xem `_is_run_file`). Sắp xếp theo tên.
+    """
     base = Path(root)
     if not base.is_dir():
         return []
-    return sorted(p.stem for p in base.glob("*.json") if p.is_file())
+    return sorted(p.stem for p in base.glob("*.json") if p.is_file() and _is_run_file(p))
 
 
 def load_run(video_id: str, root: str | Path = DEFAULT_RESULTS_DIR) -> RunResult:
@@ -96,6 +120,6 @@ def demo_run(video_id: str = "demo_video", seconds: int = 120, fps: float = 1.0,
 
 
 __all__ = [
-    "DEMO_NOTE", "list_video_ids", "load_run", "is_demo", "is_placeholder", "run_note", "duration_s",
+    "DEMO_NOTE", "default_results_dir", "list_video_ids", "load_run", "is_demo", "is_placeholder", "run_note", "duration_s",
     "timeline", "detections", "alerts_by_severity", "threshold_crossings", "demo_run",
 ]
