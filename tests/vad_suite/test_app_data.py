@@ -31,13 +31,45 @@ def test_sample_run_loads_and_is_flagged_placeholder():
     assert data.duration_s(run) == 120.0
 
 
+def _run_json(video_id: str, **over) -> str:
+    return json.dumps({"schema_version": 1, "video_id": video_id, "sample_fps": 1.0, **over})
+
 def test_list_video_ids_skips_windows_dir_and_missing_root(tmp_path):
     assert data.list_video_ids(tmp_path / "nope") == []
-    (tmp_path / "b.json").write_text("{}")
-    (tmp_path / "a.json").write_text("{}")
+    (tmp_path / "b.json").write_text(_run_json("b"))
+    (tmp_path / "a.json").write_text(_run_json("a"))
     (tmp_path / "windows").mkdir()
-    (tmp_path / "windows" / "a.json").write_text("{}")
+    (tmp_path / "windows" / "a.json").write_text(_run_json("a"))
     assert data.list_video_ids(tmp_path) == ["a", "b"]
+
+def test_list_video_ids_mixed_dir_keeps_only_run_files(tmp_path):
+    """Thư mục lẫn run + ablation/threshold/typing/non-dict/JSON hỏng/schema lạ: chỉ giữ run schema_version=1."""
+    (tmp_path / "run1.json").write_text(_run_json("run1"))
+    (tmp_path / "run2.json").write_bytes(b"\xef\xbb\xbf" + _run_json("run2").encode())   # BOM
+    (tmp_path / "ablation_A0.json").write_text(json.dumps({"ablation": "A0", "config": {}}))
+    (tmp_path / "threshold_A4c.json").write_text(json.dumps({"threshold": 1.1686}))
+    (tmp_path / "typing_eval.json").write_text(json.dumps({"task": "C3-typing"}))
+    (tmp_path / "list.json").write_text("[1, 2]")
+    (tmp_path / "broken.json").write_text("{not json")
+    (tmp_path / "empty.json").write_text("")
+    (tmp_path / "future.json").write_text(_run_json("future", schema_version=99))
+    ids = data.list_video_ids(tmp_path)
+    assert ids == ["run1", "run2"]
+    for vid in ids:                      # mọi id liệt kê đều nạp được, không ném
+        data.load_run(vid, tmp_path)
+
+def test_list_video_ids_real_results_dir_has_no_ablation_files():
+    ids = data.list_video_ids(SAMPLE_ROOT)
+    assert "sample_run" in ids
+    assert not any(i.startswith(("ablation_", "threshold_", "typing_", "a0_stride")) for i in ids)
+    for vid in ids:
+        data.load_run(vid, SAMPLE_ROOT)
+
+def test_default_results_dir_prefers_run_a4c(tmp_path, monkeypatch):
+    monkeypatch.setattr(data, "DEFAULT_RESULTS_DIR", tmp_path)
+    assert data.default_results_dir() == tmp_path
+    (tmp_path / "run_A4c").mkdir()
+    assert data.default_results_dir() == tmp_path / "run_A4c"
 
 
 def test_load_run_rejects_hostile_and_missing_ids(tmp_path):

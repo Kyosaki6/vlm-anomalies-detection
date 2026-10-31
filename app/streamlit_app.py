@@ -21,7 +21,6 @@ import pandas as pd  # noqa: E402
 import streamlit as st  # noqa: E402
 
 import data  # noqa: E402
-from vad.results import DEFAULT_RESULTS_DIR  # noqa: E402
 
 
 def demo_requested(argv: list[str] | None = None) -> bool:
@@ -45,7 +44,8 @@ def main() -> None:
     st.caption("Replay mode: showing precomputed results from results/. No model runs here.")
 
     demo = demo_requested()
-    results_dir = Path(os.environ.get("VAD_RESULTS_DIR", DEFAULT_RESULTS_DIR))
+    override = os.environ.get("VAD_RESULTS_DIR", "").strip()
+    results_dir = Path(override) if override else data.default_results_dir()
 
     with st.sidebar:
         st.header("Settings")
