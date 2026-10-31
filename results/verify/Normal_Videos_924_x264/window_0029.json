@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_924_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 3541.0,
+      "end_s": 3568.0,
+      "score": 1.3290755871092075
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A man is walking on a green floor in an indoor facility.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:10:31+00:00",
+    "schema_version": 1,
+    "window_index": 29,
+    "k": 4,
+    "frame_times_s": [
+      3544.375,
+      3551.125,
+      3557.875,
+      3564.625
+    ],
+    "source_windows": "results\\windows\\Normal_Videos_924_x264.json",
+    "fingerprint": "4648f7756a971a44395d51257e30ff5e5fd09535b435b25b4505ab226460c871",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 3541.0,
+        "end_s": 3568.0,
+        "frame_times_s": [
+          3544.375,
+          3551.125,
+          3557.875,
+          3564.625
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A man is walking on a green floor in an indoor facility."
+      }
+    ],
+    "elapsed_s": 3.242514699930325
+  }
+}

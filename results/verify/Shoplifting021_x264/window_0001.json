@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Shoplifting021_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shoplifting021_x264",
+      "start_s": 38.0,
+      "end_s": 47.0,
+      "score": 1.2316159219184484
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is standing at a checkout counter, interacting with a cashier.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:19:11+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      39.125,
+      41.375,
+      43.625,
+      45.875
+    ],
+    "source_windows": "results\\windows\\Shoplifting021_x264.json",
+    "fingerprint": "3a498d9ac8ea95db7bb40125fd5c9fe752eb20482c1b9a05d403cb405c8a2857",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 38.0,
+        "end_s": 47.0,
+        "frame_times_s": [
+          39.125,
+          41.375,
+          43.625,
+          45.875
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is standing at a checkout counter, interacting with a cashier."
+      }
+    ],
+    "elapsed_s": 2.778326899977401
+  }
+}

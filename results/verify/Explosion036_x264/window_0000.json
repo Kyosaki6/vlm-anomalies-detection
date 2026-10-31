@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion036_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Explosion036_x264",
+      "start_s": 0.0,
+      "end_s": 69.0,
+      "score": 1.3843091945939228
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "A person is seen kneeling on the ground near a manhole cover.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:21:57+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      2.875,
+      8.625,
+      14.375,
+      20.125,
+      25.875,
+      31.625,
+      37.375,
+      43.125,
+      48.875,
+      54.625,
+      60.375,
+      66.125
+    ],
+    "source_windows": "results\\windows\\Explosion036_x264.json",
+    "fingerprint": "65f0af6a412d306a875c13ab72d2ca8fb4c8eefa74894a537a1897c5f1787956",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 3,
+    "chunks": [
+      {
+        "start_s": 0.0,
+        "end_s": 23.0,
+        "frame_times_s": [
+          2.875,
+          8.625,
+          14.375,
+          20.125
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A person is seen kneeling on the ground near a manhole cover."
+      },
+      {
+        "start_s": 23.0,
+        "end_s": 46.0,
+        "frame_times_s": [
+          25.875,
+          31.625,
+          37.375,
+          43.125
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A person is seen throwing a firecracker that explodes."
+      },
+      {
+        "start_s": 46.0,
+        "end_s": 69.0,
+        "frame_times_s": [
+          48.875,
+          54.625,
+          60.375,
+          66.125
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A group of people are gathered around a man who is lying on the ground, and then an explosion occurs."
+      }
+    ],
+    "elapsed_s": 10.995579799986444
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Burglary032_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Burglary032_x264",
+      "start_s": 159.0,
+      "end_s": 163.0,
+      "score": 1.2374810499856304
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Burglary",
+      "caption": "A person wearing a white hoodie is seen moving around a room that appears to be a classroom or office, possibly searching for something valuable.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:04:47+00:00",
+    "schema_version": 1,
+    "window_index": 4,
+    "k": 4,
+    "frame_times_s": [
+      159.5,
+      160.5,
+      161.5,
+      162.5
+    ],
+    "source_windows": "results\\windows\\Burglary032_x264.json",
+    "fingerprint": "b162d5ac485fb4d52ba7a10725ae46b056569110c5a8b8b81aba12c644c8ca62",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 159.0,
+        "end_s": 163.0,
+        "frame_times_s": [
+          159.5,
+          160.5,
+          161.5,
+          162.5
+        ],
+        "is_anomaly": true,
+        "event_type": "Burglary",
+        "confidence": 0.95,
+        "caption": "A person wearing a white hoodie is seen moving around a room that appears to be a classroom or office, possibly searching for something valuable."
+      }
+    ],
+    "elapsed_s": 11.712325799977407
+  }
+}

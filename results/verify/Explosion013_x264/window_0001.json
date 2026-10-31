@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion013_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Explosion013_x264",
+      "start_s": 91.0,
+      "end_s": 111.0,
+      "score": 1.4035339479291833
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "An explosion occurs on a construction site, causing debris to fly and sparks to fly.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:12:48+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      93.5,
+      98.5,
+      103.5,
+      108.5
+    ],
+    "source_windows": "results\\windows\\Explosion013_x264.json",
+    "fingerprint": "baaa812348b3774c7c439a031f7b322c2be53358998a168c81d70af4cc7f09b0",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 91.0,
+        "end_s": 111.0,
+        "frame_times_s": [
+          93.5,
+          98.5,
+          103.5,
+          108.5
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "An explosion occurs on a construction site, causing debris to fly and sparks to fly."
+      }
+    ],
+    "elapsed_s": 9.819750300026499
+  }
+}

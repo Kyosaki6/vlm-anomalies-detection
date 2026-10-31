@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_935_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_935_x264",
+      "start_s": 1790.0,
+      "end_s": 1796.0,
+      "score": 1.2382246006077384
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a public space, possibly a shopping mall or train station, and appears to be looking at something on their phone.",
+      "confidence": 0.8
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:12:02+00:00",
+    "schema_version": 1,
+    "window_index": 24,
+    "k": 4,
+    "frame_times_s": [
+      1790.75,
+      1792.25,
+      1793.75,
+      1795.25
+    ],
+    "source_windows": "results\\windows\\Normal_Videos_935_x264.json",
+    "fingerprint": "df34ae380fe6e3559a1512247288d8dd36de03f86e85932e4ffa08b72c023037",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 1790.0,
+        "end_s": 1796.0,
+        "frame_times_s": [
+          1790.75,
+          1792.25,
+          1793.75,
+          1795.25
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.8,
+        "caption": "A person is walking through a public space, possibly a shopping mall or train station, and appears to be looking at something on their phone."
+      }
+    ],
+    "elapsed_s": 3.991343600093387
+  }
+}

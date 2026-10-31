@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "video_id": "Shoplifting049_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shoplifting049_x264",
+      "start_s": 0.0,
+      "end_s": 72.0,
+      "score": 1.3794065520809617
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Shoplifting",
+      "caption": "A customer is seen taking a phone from the display without paying.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:20:51+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      3.0,
+      9.0,
+      15.0,
+      21.0,
+      27.0,
+      33.0,
+      39.0,
+      45.0,
+      51.0,
+      57.0,
+      63.0,
+      69.0
+    ],
+    "source_windows": "results\\windows\\Shoplifting049_x264.json",
+    "fingerprint": "d0e2bd86d0b2009ce289c756591be5b0f9847c3a77d6ab6b2fd88b31d182401d",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 3,
+    "chunks": [
+      {
+        "start_s": 0.0,
+        "end_s": 24.0,
+        "frame_times_s": [
+          3.0,
+          9.0,
+          15.0,
+          21.0
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.85,
+        "caption": "A customer is browsing through a Samsung phone display."
+      },
+      {
+        "start_s": 24.0,
+        "end_s": 48.0,
+        "frame_times_s": [
+          27.0,
+          33.0,
+          39.0,
+          45.0
+        ],
+        "is_anomaly": true,
+        "event_type": "Shoplifting",
+        "confidence": 0.95,
+        "caption": "A customer is seen taking a phone from the display without paying."
+      },
+      {
+        "start_s": 48.0,
+        "end_s": 72.0,
+        "frame_times_s": [
+          51.0,
+          57.0,
+          63.0,
+          69.0
+        ],
+        "is_anomaly": true,
+        "event_type": "Shoplifting",
+        "confidence": 0.95,
+        "caption": "A man is seen selecting items from a display and then placing them into his bag."
+      }
+    ],
+    "elapsed_s": 8.566800399916247
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_869_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_869_x264",
+      "start_s": 69.0,
+      "end_s": 76.0,
+      "score": 1.2298387931023953
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A man is standing near a stack of boxes and chairs.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:05:54+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      69.875,
+      71.625,
+      73.375,
+      75.125
+    ],
+    "source_windows": "results\\windows\\Normal_Videos_869_x264.json",
+    "fingerprint": "70619dbc184a238b5261487252f82ee4c6928884049ba753b87525ca8cd466a2",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 69.0,
+        "end_s": 76.0,
+        "frame_times_s": [
+          69.875,
+          71.625,
+          73.375,
+          75.125
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A man is standing near a stack of boxes and chairs."
+      }
+    ],
+    "elapsed_s": 3.167841500020586
+  }
+}

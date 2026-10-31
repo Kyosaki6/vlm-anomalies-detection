@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_924_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 213.0,
+      "end_s": 226.0,
+      "score": 1.2445684100146654
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is sitting on the floor next to a bag and a TV.",
+      "confidence": 0.85
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:07:27+00:00",
+    "schema_version": 1,
+    "window_index": 6,
+    "k": 4,
+    "frame_times_s": [
+      214.625,
+      217.875,
+      221.125,
+      224.375
+    ],
+    "source_windows": "results\\windows\\Normal_Videos_924_x264.json",
+    "fingerprint": "d082dd50955bb82263c495c51d5dce5b04734fd8f25e72b33067b1bf2d6be661",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 213.0,
+        "end_s": 226.0,
+        "frame_times_s": [
+          214.625,
+          217.875,
+          221.125,
+          224.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.85,
+        "caption": "A person is sitting on the floor next to a bag and a TV."
+      }
+    ],
+    "elapsed_s": 3.313810999970883
+  }
+}

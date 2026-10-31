@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_924_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 3204.0,
+      "end_s": 3209.0,
+      "score": 1.2292768922079498
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking across a green floor area.",
+      "confidence": 0.85
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:10:15+00:00",
+    "schema_version": 1,
+    "window_index": 24,
+    "k": 4,
+    "frame_times_s": [
+      3204.625,
+      3205.875,
+      3207.125,
+      3208.375
+    ],
+    "source_windows": "results\\windows\\Normal_Videos_924_x264.json",
+    "fingerprint": "f7d5cf0af6d64e893930de57547ac5f2cd87d4e6311dbcee80fa6ed48762cc80",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 3204.0,
+        "end_s": 3209.0,
+        "frame_times_s": [
+          3204.625,
+          3205.875,
+          3207.125,
+          3208.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.85,
+        "caption": "A person is walking across a green floor area."
+      }
+    ],
+    "elapsed_s": 3.0923292000079527
+  }
+}

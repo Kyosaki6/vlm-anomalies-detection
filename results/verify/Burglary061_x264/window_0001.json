@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "video_id": "Burglary061_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Burglary061_x264",
+      "start_s": 235.0,
+      "end_s": 296.0,
+      "score": 1.213744245883301
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Burglary",
+      "caption": "A person is seen entering a room and then leaving with items.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:06:54+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      237.54166666666666,
+      242.625,
+      247.70833333333334,
+      252.79166666666669,
+      257.875,
+      262.95833333333337,
+      268.0416666666667,
+      273.125,
+      278.20833333333337,
+      283.2916666666667,
+      288.375,
+      293.4583333333333
+    ],
+    "source_windows": "results\\windows\\Burglary061_x264.json",
+    "fingerprint": "fb7591ee21368f1ff338227f0923d1f738e68faa23cf525bff6ba6967d784d89",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 3,
+    "chunks": [
+      {
+        "start_s": 235.0,
+        "end_s": 255.33333333333334,
+        "frame_times_s": [
+          237.54166666666666,
+          242.625,
+          247.70833333333334,
+          252.79166666666669
+        ],
+        "is_anomaly": true,
+        "event_type": "Burglary",
+        "confidence": 0.95,
+        "caption": "A person is seen entering a room and then leaving with items."
+      },
+      {
+        "start_s": 255.33333333333334,
+        "end_s": 275.6666666666667,
+        "frame_times_s": [
+          257.875,
+          262.95833333333337,
+          268.0416666666667,
+          273.125
+        ],
+        "is_anomaly": true,
+        "event_type": "Burglary",
+        "confidence": 0.95,
+        "caption": "A person is seen entering a room and then exiting with a bag."
+      },
+      {
+        "start_s": 275.6666666666667,
+        "end_s": 296.0,
+        "frame_times_s": [
+          278.20833333333337,
+          283.2916666666667,
+          288.375,
+          293.4583333333333
+        ],
+        "is_anomaly": true,
+        "event_type": "Burglary",
+        "confidence": 0.95,
+        "caption": "A person is seen entering a room through a window."
+      }
+    ],
+    "elapsed_s": 28.663074500043876
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Shooting047_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shooting047_x264",
+      "start_s": 75.0,
+      "end_s": 92.0,
+      "score": 1.240372087791766
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Robbery",
+      "caption": "A person is being robbed by two individuals outside a house.",
+      "confidence": 0.85
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:17:57+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      77.125,
+      81.375,
+      85.625,
+      89.875
+    ],
+    "source_windows": "results\\windows\\Shooting047_x264.json",
+    "fingerprint": "462148dfbc0606b47c76b97a1be7f77261d9f3bf14362107689196fba2dcdfb9",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 75.0,
+        "end_s": 92.0,
+        "frame_times_s": [
+          77.125,
+          81.375,
+          85.625,
+          89.875
+        ],
+        "is_anomaly": false,
+        "event_type": "Robbery",
+        "confidence": 0.85,
+        "caption": "A person is being robbed by two individuals outside a house."
+      }
+    ],
+    "elapsed_s": 3.330762700061314
+  }
+}

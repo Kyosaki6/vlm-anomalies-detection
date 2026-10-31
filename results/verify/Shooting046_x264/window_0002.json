@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Shooting046_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shooting046_x264",
+      "start_s": 118.0,
+      "end_s": 123.0,
+      "score": 1.1956356749251806
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Robbery",
+      "caption": "A person is being robbed at gunpoint by another individual near an ATM.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:17:43+00:00",
+    "schema_version": 1,
+    "window_index": 2,
+    "k": 4,
+    "frame_times_s": [
+      118.625,
+      119.875,
+      121.125,
+      122.375
+    ],
+    "source_windows": "results\\windows\\Shooting046_x264.json",
+    "fingerprint": "afd366bd4fe93c5d6340de53e234482f237c36bdb3152b1415a5539a31c54294",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 118.0,
+        "end_s": 123.0,
+        "frame_times_s": [
+          118.625,
+          119.875,
+          121.125,
+          122.375
+        ],
+        "is_anomaly": true,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "A person is being robbed at gunpoint by another individual near an ATM."
+      }
+    ],
+    "elapsed_s": 3.3351348000578582
+  }
+}

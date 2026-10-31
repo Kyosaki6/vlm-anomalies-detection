@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Vandalism036_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Vandalism036_x264",
+      "start_s": 20.0,
+      "end_s": 25.0,
+      "score": 1.2199366832572143
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Vandalism",
+      "caption": "A person is seen vandalizing a vending machine.",
+      "confidence": 0.9
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:21:49+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      20.625,
+      21.875,
+      23.125,
+      24.375
+    ],
+    "source_windows": "results\\windows\\Vandalism036_x264.json",
+    "fingerprint": "cf7cda24ca83080295b4e8b422f0141e7782e254c89ba57604fd034310edf34d",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 20.0,
+        "end_s": 25.0,
+        "frame_times_s": [
+          20.625,
+          21.875,
+          23.125,
+          24.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Vandalism",
+        "confidence": 0.9,
+        "caption": "A person is seen vandalizing a vending machine."
+      }
+    ],
+    "elapsed_s": 2.9130866000195965
+  }
+}

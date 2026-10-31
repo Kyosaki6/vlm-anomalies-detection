@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "video_id": "Assault006_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Assault006_x264",
+      "start_s": 38.0,
+      "end_s": 270.0,
+      "score": 1.4650048492525825
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Assault",
+      "caption": "A group of people are gathered around a person on the floor, suggesting an assault scenario.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:02:44+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      41.625,
+      48.875,
+      56.125,
+      63.375,
+      70.625,
+      77.875,
+      85.125,
+      92.375,
+      99.625,
+      106.875,
+      114.125,
+      121.375,
+      128.625,
+      135.875,
+      143.125,
+      150.375,
+      157.625,
+      164.875,
+      172.125,
+      179.375,
+      186.625,
+      193.875,
+      201.125,
+      208.375,
+      215.625,
+      222.875,
+      230.125,
+      237.375,
+      244.625,
+      251.875,
+      259.125,
+      266.375
+    ],
+    "source_windows": "results\\windows\\Assault006_x264.json",
+    "fingerprint": "66d339cedfabfb2a85fd9c55ca9ff6e519fb6f47fba8886294647f55bdef948d",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 8,
+    "chunks": [
+      {
+        "start_s": 38.0,
+        "end_s": 67.0,
+        "frame_times_s": [
+          41.625,
+          48.875,
+          56.125,
+          63.375
+        ],
+        "is_anomaly": true,
+        "event_type": "Assault",
+        "confidence": 0.95,
+        "caption": "A group of people are gathered around a person on the floor, suggesting an assault scenario."
+      },
+      {
+        "start_s": 67.0,
+        "end_s": 96.0,
+        "frame_times_s": [
+          70.625,
+          77.875,
+          85.125,
+          92.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Assault",
+        "confidence": 0.85,
+        "caption": "A group of people are gathered around a person who is being restrained by others."
+      },
+      {
+        "start_s": 96.0,
+        "end_s": 125.0,
+        "frame_times_s": [
+          99.625,
+          106.875,
+          114.125,
+          121.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Assault",
+        "confidence": 0.8,
+        "caption": "A group of individuals is gathered around a table in what appears to be a commercial setting, possibly a store or a market."
+      },
+      {
+        "start_s": 125.0,
+        "end_s": 154.0,
+        "frame_times_s": [
+          128.625,
+          135.875,
+          143.125,
+          150.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Fighting",
+        "confidence": 0.95,
+        "caption": "A group of people are gathered around a table, engaging in a physical altercation."
+      },
+      {
+        "start_s": 154.0,
+        "end_s": 183.0,
+        "frame_times_s": [
+          157.625,
+          164.875,
+          172.125,
+          179.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Fighting",
+        "confidence": 0.95,
+        "caption": "A group of people are gathered around a table, engaging in a physical altercation."
+      },
+      {
+        "start_s": 183.0,
+        "end_s": 212.0,
+        "frame_times_s": [
+          186.625,
+          193.875,
+          201.125,
+          208.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Fighting",
+        "confidence": 0.95,
+        "caption": "A group of people are gathered around a table, engaging in a physical altercation."
+      },
+      {
+        "start_s": 212.0,
+        "end_s": 241.0,
+        "frame_times_s": [
+          215.625,
+          222.875,
+          230.125,
+          237.375
+        ],
+        "is_anomaly": true,
+        "event_type": "Assault",
+        "confidence": 0.95,
+        "caption": "A group of people are gathered around a person on the ground, suggesting an assault scenario."
+      },
+      {
+        "start_s": 241.0,
+        "end_s": 270.0,
+        "frame_times_s": [
+          244.625,
+          251.875,
+          259.125,
+          266.375
+        ],
+        "is_anomaly": true,
+        "event_type": "Assault",
+        "confidence": 0.95,
+        "caption": "A group of people are gathered around a counter in a store, and one person is being pushed by another."
+      }
+    ],
+    "elapsed_s": 87.84916560002603
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_896_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_896_x264",
+      "start_s": 3.0,
+      "end_s": 20.0,
+      "score": 1.2863667467541413
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A woman walks down a street while a man parks his car.",
+      "confidence": 0.75
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:06:36+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      5.125,
+      9.375,
+      13.625,
+      17.875
+    ],
+    "source_windows": "results\\windows\\Normal_Videos_896_x264.json",
+    "fingerprint": "d4476f23c6e1fec141e4596aea1c91fd090fd4520656cb78a655e17c77d31e2e",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 3.0,
+        "end_s": 20.0,
+        "frame_times_s": [
+          5.125,
+          9.375,
+          13.625,
+          17.875
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.75,
+        "caption": "A woman walks down a street while a man parks his car."
+      }
+    ],
+    "elapsed_s": 3.199136900017038
+  }
+}

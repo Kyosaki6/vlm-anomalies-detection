@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion027_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Explosion027_x264",
+      "start_s": 6.0,
+      "end_s": 26.0,
+      "score": 1.3659639608149465
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "A person is seen handling a device that explodes.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:21:13+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      8.5,
+      13.5,
+      18.5,
+      23.5
+    ],
+    "source_windows": "results\\windows\\Explosion027_x264.json",
+    "fingerprint": "761cd6f6589f565a5bfb1c661b97521617a0b8125d9d1f3771bd52158dc7ba13",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 6.0,
+        "end_s": 26.0,
+        "frame_times_s": [
+          8.5,
+          13.5,
+          18.5,
+          23.5
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A person is seen handling a device that explodes."
+      }
+    ],
+    "elapsed_s": 6.076327699935064
+  }
+}
