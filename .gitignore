@@ -40,3 +40,6 @@ Thumbs.db
 manifests/*.local.csv
 results/**/*.npy
 results/**/*.mp4
+
+# --- A6a: đáp án chấm tay (không commit trước khi chấm xong; repo giữ SHA-256) ---
+/notes/private/

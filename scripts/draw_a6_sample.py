@@ -2,7 +2,9 @@
 """A6a: rút mẫu 20 cửa sổ để NGƯỜI tự kiểm tay (task A6, Phước).
 
     python scripts/draw_a6_sample.py --seed 20261031
-    # -> notes/a6-handcheck-sample.csv (BLIND) + notes/a6-handcheck-key.csv (đáp án)
+    # -> notes/a6-handcheck-sample.csv (BLIND, commit)
+    #    notes/private/a6-handcheck-key.csv (đáp án, gitignored, gửi riêng cho người đối chiếu)
+    #    notes/a6-handcheck-key.sha256 (SHA-256 của key, commit)
 
 Nguyên tắc chống thiên vị (ghi trước, thực thi bằng code):
   - Mẫu rút TRƯỚC khi đọc caption: file BLIND không có caption, cũng không có
@@ -18,6 +20,8 @@ Nguyên tắc chống thiên vị (ghi trước, thực thi bằng code):
     script in cảnh báo khi một video góp > 2 mẫu — ghi rõ khi báo cáo.
   - Thứ tự dòng trong file blind được xáo theo seed (không nhóm theo verdict) và
     không có cột `source_file` (nó trỏ tới file tier-2 chứa caption/verdict).
+  - Giới hạn (ghi vào báo cáo): `video_id` vẫn lộ lớp video (`Normal_Videos_*`) vì
+    người chấm phải mở đúng clip -> blind ở mức verdict/GT, KHÔNG blind tuyệt đối.
   - Cột `gt_overlap` (file key) = cửa sổ có chồng lấn đoạn GT hay không — tính
     từ annotation, KHÔNG dùng để chọn mẫu (chỉ ghi lại).
   - BẮT BUỘC đủ 307 file kết quả, trừ khi `--allow-partial` (chỉ để chạy thử;
@@ -32,6 +36,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import random
 import sys
@@ -47,7 +52,10 @@ DEFAULT_WINDOWS_DIR = ROOT / "results" / "windows"
 DEFAULT_VERIFY_DIR = ROOT / "results" / "verify"
 DEFAULT_ANNOTATION = ROOT / "datasets" / "ucf_crime" / "Temporal_Anomaly_Annotation_for_Testing_Videos.txt"
 DEFAULT_OUT = ROOT / "notes" / "a6-handcheck-sample.csv"
-DEFAULT_KEY_OUT = ROOT / "notes" / "a6-handcheck-key.csv"
+# Key KHÔNG nằm trong repo: /notes/private/ nằm trong .gitignore. Repo chỉ giữ SHA-256 của key
+# (DEFAULT_HASH_OUT) để chứng minh sau này key không bị sửa sau khi chấm.
+DEFAULT_KEY_OUT = ROOT / "notes" / "private" / "a6-handcheck-key.csv"
+DEFAULT_HASH_OUT = ROOT / "notes" / "a6-handcheck-key.sha256"
 
 PER_VERDICT = 10  # 10 xác nhận + 10 từ chối = 20 (task sheet A6)
 MAX_PER_VIDEO_WARN = 2  # cảnh báo khi một video góp nhiều hơn ngưỡng này
@@ -242,6 +250,8 @@ def main(argv: list[str] | None = None) -> int:
                    help="CSV BLIND cho người chấm (không có verdict/video_class/gt_overlap/score)")
     p.add_argument("--key-out", default=str(DEFAULT_KEY_OUT),
                    help="CSV đáp án (verdict/video_class/gt_overlap/score) — không đưa cho người chấm")
+    p.add_argument("--hash-out", default=str(DEFAULT_HASH_OUT),
+                   help="file SHA-256 của key (commit được; key thật thì không)")
     p.add_argument("--seed", type=int, default=20261031)
     p.add_argument("--per-verdict", type=int, default=PER_VERDICT)
     p.add_argument("--allow-partial", action="store_true",
@@ -287,6 +297,10 @@ def main(argv: list[str] | None = None) -> int:
         blind.append(row)
     _write_csv(out, BLIND_FIELDS, blind)
     _write_csv(key_out, KEY_FIELDS, picked)
+    digest = hashlib.sha256(key_out.read_bytes()).hexdigest()
+    hash_out = Path(args.hash_out)
+    hash_out.parent.mkdir(parents=True, exist_ok=True)
+    hash_out.write_text(f"{digest}  {key_out.name}\n", encoding="utf-8")
 
     per_video: dict[str, int] = defaultdict(int)
     for r in picked:

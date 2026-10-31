@@ -8,6 +8,7 @@ chạy lại cùng seed = y hệt, thiếu file tier-2 thì TỪ CHỐI (so tậ
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -92,6 +93,7 @@ def _run(scene, tmp_path: Path, *extra: str, name: str = "sample"):
     """Chạy main với out/key trong tmp; trả (rc, blind_path, key_path)."""
     out = tmp_path / f"{name}.csv"
     key = tmp_path / f"{name}-key.csv"
+    extra = ("--hash-out", str(tmp_path / f"{name}.sha256"), *extra)
     rc = main(["--windows-dir", str(scene["windows"]), "--verify-dir", str(scene["verify"]),
                "--annotation", str(scene["annotation"]), "--out", str(out),
                "--key-out", str(key), *extra])
@@ -185,6 +187,23 @@ def test_gt_overlap_rounds_both_edges_with_fractional_fps():
     # 29.97 fps: 10.01 s * 29.97 ~= 299.99 -> round = 300, phải chạm cận trái 300
     _, overlap = gt_overlap("V", {"start_s": 0.0, "end_s": 10.01, "fps": 29.97}, annotations)
     assert overlap
+
+
+def test_key_hash_matches_key_file(scene, tmp_path):
+    rc, out, key = _run(scene, tmp_path, "--seed", "7", "--per-verdict", "4")
+    assert rc == 0
+    recorded = (tmp_path / "sample.sha256").read_text(encoding="utf-8").split()[0]
+    assert recorded == hashlib.sha256(key.read_bytes()).hexdigest()
+    # hash không được lộ nội dung đáp án
+    assert "confirmed" not in (tmp_path / "sample.sha256").read_text(encoding="utf-8")
+
+
+def test_default_key_path_is_gitignored():
+    from scripts.draw_a6_sample import DEFAULT_KEY_OUT, ROOT
+    rel = DEFAULT_KEY_OUT.relative_to(ROOT).as_posix()
+    assert rel.startswith("notes/private/")
+    ignore = (ROOT / ".gitignore").read_text(encoding="utf-8")
+    assert "/notes/private/" in ignore
 
 
 def test_gt_overlap_uses_inclusive_frames():
