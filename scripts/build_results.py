@@ -11,7 +11,9 @@
   - `<verify_dir>/<video_id>.json`                -- một file cho cả video (định dạng `RunResult.load_windows`)
   - `<verify_dir>/<video_id>/window_NNNN.json`    -- một file cho mỗi cửa sổ, đúng thứ `scripts/run_verify.py`
     ghi ra. Kiểu thứ hai được kiểm chặt hơn: window_index liên tục từ 0, tên file khớp index, mọi file cùng
-    một cấu hình verifier, và fingerprint tính lại từ cửa sổ tier-1 hiện tại phải khớp fingerprint đã lưu.
+    một cấu hình verifier, và fingerprint phải khớp chính cửa sổ ghi trong file (file không bị sửa tay).
+    Sau đó `check_pairs_match` đối chiếu TỪNG cửa sổ với cửa sổ tier-1 tính lại: mốc giây và `score`
+    (dung sai `SCORE_TOLERANCE`) — đây mới là chỗ bắt file của lần chạy khác.
     Video không có cửa sổ nào thì không cần file tier-2 (đúng: không có gì để verify).
 
 Nhãn sự kiện của cảnh báo (quyết định D-2, C7b): với tier-2 thật, nhãn lớp do `ZeroShotEventTyper` quyết
@@ -53,7 +55,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from run_benchmark import (BenchmarkInputError, build_calib_stats, expected_samples, git_commit,  # noqa: E402
                            load_or_embed_prompts, read_benchmark_manifest, select_rows)
-from vad.embed.cache import DEFAULT_CACHE_DIR, _slug, has_cached, load_embeddings  # noqa: E402
+from vad.embed.cache import DEFAULT_CACHE_DIR, has_cached, load_embeddings, slug  # noqa: E402
 from vad.fakes import FakeVerifier  # noqa: E402
 from vad.graph.alerts import build_alert_feed  # noqa: E402
 from vad.graph.policy import DEFAULT_POLICY, GraphPolicy  # noqa: E402
@@ -67,6 +69,8 @@ DEFAULT_PROMPT_CACHE = ROOT / "cache" / "prompts"
 DEFAULT_TYPING_CACHE = ROOT / "cache" / "typing"
 LENGTH_TOLERANCE = 2                    # số mẫu lệch cho phép (làm tròn fps), giống run_benchmark
 PAIR_TOLERANCE = 1e-3                   # sai số giây khi đối chiếu cửa sổ tính lại vs cửa sổ trong file tier-2
+SCORE_TOLERANCE = 1e-4                  # sai số điểm tier-1: run_verify băm score đọc từ file, ở đây tính lại
+                                        # từ cache — lệch bit cuối giữa CPU/Colab không được làm mọi file thật trượt
 THRESHOLD_SOURCES = ("placeholder", "calib_normal")
 TIER2_SOURCES = ("none", "fake", "json")
 TYPER_SOURCES = ("zeroshot", "none")
@@ -197,10 +201,11 @@ def _read_json_object(path: Path) -> dict[str, Any]:
 def _check_window_file(path: Path, saved: RunResult, window: Window) -> tuple[int, tuple[Any, ...]]:
     """Kiểm một file tier-2 theo cửa sổ; trả `(window_index, chữ ký cấu hình verifier)`.
 
-    Vì sao cần fingerprint: `check_pairs_match` chỉ so `start_s`/`end_s`. Hai lần chạy khác cấu hình
-    (smoothing khác, verifier khác) có thể cho cùng mốc giây nhưng khác `score`/`k`/prompt — nhãn VLM của
-    lần này sẽ bị dán sang cửa sổ của lần kia. `run_verify.make_fingerprint` băm cả window (kể cả `score`)
-    lẫn cấu hình verifier, nên tính lại bằng cửa sổ tier-1 hiện tại là phép so đủ chặt.
+    Fingerprint ở đây chỉ chứng minh file TỰ NHẤT QUÁN: nó được tính lại từ chính cửa sổ ghi trong file, nên
+    sửa tay `score`/mốc giây mà không cập nhật fingerprint sẽ bị bắt. Việc file có đúng cửa sổ tier-1 HIỆN TẠI
+    hay không do `check_pairs_match` lo (so cả `score` với `SCORE_TOLERANCE`), vì `run_verify` băm score đọc từ
+    `results/windows/<id>.json` còn ở đây score được tính lại từ cache — so hash tuyệt đối sẽ trượt vì lệch
+    bit cuối giữa CPU và Colab.
     """
     meta = saved.metadata
     index = meta.get("window_index")
@@ -226,14 +231,14 @@ def _check_window_file(path: Path, saved: RunResult, window: Window) -> tuple[in
         raise BuildResultsError(
             f"{path.name}: metadata.fingerprint thiếu — không kiểm tra được file có đúng cửa sổ này không")
 
-    from run_verify import make_fingerprint      # lazy: không cần cv2 khi chỉ dùng kiểu <video_id>.json
+    from run_verify import make_fingerprint      # lazy: run_verify kéo theo cv2 + probe video; đường
+                                                 # <video_id>.json không cần hai thứ đó
 
     expected = make_fingerprint(window, k, name, config, float(max_chunk_s))
     if expected != stored:
         raise BuildResultsError(
-            f"{path.name}: fingerprint không khớp cửa sổ tính lại [{window.start_s:g}, {window.end_s:g}] "
-            f"score {window.score:.6g} — file tier-2 của lần chạy khác (khác cửa sổ/verifier/tham số), "
-            "không ghép bừa.")
+            f"{path.name}: fingerprint không khớp cửa sổ ghi trong file [{window.start_s:g}, {window.end_s:g}] "
+            f"score {window.score:.6g} — file bị sửa tay hoặc ghép từ hai lần chạy, không ghép bừa.")
     signature = (name, k, float(max_chunk_s), json.dumps(config, sort_keys=True))
     return index, signature
 
@@ -271,9 +276,6 @@ def load_verify_window_dir(path: str | Path, video_id: str
                 f"{len(saved.candidate_windows)} cửa sổ + {len(saved.verify_results)} kết quả.")
         window, result = saved.candidate_windows[0], saved.verify_results[0]
         index, signature = _check_window_file(p, saved, window)
-        if index in by_index:
-            # Không thể xảy ra khi tên file đã khớp index, nhưng giữ để lỗi rõ nếu ai đó nới kiểm tên file.
-            raise BuildResultsError(f"{d}: hai file cùng window_index={index} ({by_index[index][2].name}, {p.name})")
         by_index[index] = (window, result, p)
         signatures.add(signature)
         fake = fake or bool(saved.metadata.get("fake"))
@@ -315,7 +317,7 @@ def window_sample_slice(window: Window, n_samples: int, sample_fps: float) -> sl
 
 def typing_cache_path(model_id: str, cache_dir: str | Path = DEFAULT_TYPING_CACHE) -> Path:
     """`cache/typing/<model>__typing.npz` — một file cho cả bộ 13 nhãn của prompts.yaml hiện tại."""
-    return Path(cache_dir) / f"{_slug(model_id)}__typing.npz"
+    return Path(cache_dir) / f"{slug(model_id)}__typing.npz"
 
 
 def load_or_embed_typer(model_id: str, prompts_path: str | Path = DEFAULT_PROMPTS,
@@ -373,7 +375,15 @@ def apply_event_typing(windows: Sequence[Window], verify: Sequence[VerifyResult]
 
     Chỉ phân loại cửa sổ `is_anomaly=True`: cửa sổ VLM nói "bình thường" không sinh cảnh báo, phân loại
     thêm chỉ tốn CPU và dễ khiến người đọc tưởng có sự kiện. Cửa sổ bị từ chối giữ nguyên kết quả VLM.
+
+    Kiểm `embedding_dim` trước vòng lặp: cache nhãn embed bằng model khác (hoặc cache khung của model khác)
+    thì lỗi phải nói rõ model/dimension, không để `classify` ném "shape không khớp D=..." khó hiểu.
     """
+    typer_dim = getattr(typer, "embedding_dim", None)
+    if typer_dim is not None and frame_embs.shape[1] != typer_dim:
+        raise BuildResultsError(
+            f"Vector nhãn sự kiện có D={typer_dim} nhưng embedding khung có D={frame_embs.shape[1]} — cache "
+            "nhãn được embed bằng model khác; xoá cache/typing (hoặc truyền --typing-cache-dir khác) rồi chạy lại.")
     typed: list[VerifyResult] = []
     records: list[dict[str, Any]] = []
     for i, (w, r) in enumerate(zip(windows, verify)):
@@ -400,10 +410,15 @@ def apply_event_typing(windows: Sequence[Window], verify: Sequence[VerifyResult]
 
 def check_pairs_match(video_id: str, windows: Sequence[Window],
                       saved: Sequence[Window]) -> None:
-    """Từng cặp cửa sổ phải cùng mốc thời gian; lệch quá `PAIR_TOLERANCE` giây -> lỗi.
+    """Từng cặp cửa sổ phải cùng mốc thời gian VÀ cùng `score`; lệch quá dung sai -> lỗi.
 
     Bắt đúng lỗ mà review PR #20 phát hiện: file tier-2 của ngưỡng/ablation khác có thể cùng SỐ cửa sổ
     nhưng khác mốc giây, và nhãn VLM của cửa sổ cũ sẽ bị dán sang cửa sổ mới mà không ai biết.
+
+    So thêm `score` là điểm sửa của review PR #38: fingerprint chỉ chứng minh file tự nhất quán, nên một
+    file của lần chạy khác (cùng mốc giây, fingerprint tự tính lại khớp) vẫn lọt nếu chỉ so thời gian.
+    Dùng dung sai `SCORE_TOLERANCE` thay vì so hash: score trong file do `run_verify` đọc từ
+    `results/windows/` còn score ở đây được tính lại từ cache, lệch bit cuối giữa CPU/Colab là bình thường.
     """
     if len(saved) != len(windows):
         raise BuildResultsError(
@@ -413,6 +428,12 @@ def check_pairs_match(video_id: str, windows: Sequence[Window],
             raise BuildResultsError(
                 f"{video_id}: cửa sổ #{i} tính lại là [{w.start_s:g}, {w.end_s:g}] nhưng file tier-2 ghi "
                 f"[{s.start_s:g}, {s.end_s:g}] — tier-2 chạy trên ngưỡng/ablation khác, không ghép bừa.")
+        if abs(float(w.score) - float(s.score)) > SCORE_TOLERANCE:
+            raise BuildResultsError(
+                f"{video_id}: cửa sổ #{i} [{w.start_s:g}, {w.end_s:g}] score tính lại {w.score:.6g} nhưng file "
+                f"tier-2 ghi {s.score:.6g} — tier-2 của lần chạy khác (khác ngưỡng/ablation/normal bank), "
+                "không ghép bừa.")
+
 
 def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.ndarray,
                        abnormal_embs: np.ndarray, cache_dir: str | Path = DEFAULT_CACHE_DIR,
@@ -425,7 +446,7 @@ def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.nd
                        saved_windows: Sequence[Window] | None = None,
                        calib_stats: CalibStats | None = None,
                        tier2_fake: bool = False,
-                        typer: Any | None = None) -> RunResult:
+                       typer: Any | None = None) -> RunResult:
     """Một video -> RunResult đầy đủ (điểm, cửa sổ, tier-2 nếu có, cảnh báo, metadata).
 
     `config.threshold` quyết định có cắt cửa sổ hay không: None = chỉ có đường điểm (dashboard vẫn vẽ
@@ -465,8 +486,10 @@ def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.nd
         check_pairs_match(video_id, windows, saved_windows)
 
     typing_meta: dict[str, Any] | None = None
-    if typer is not None and verify:
+    if typer is not None and verify and not tier2_fake:
         # D-2: nhãn cảnh báo do typer quyết định; nhãn VLM giữ nguyên trong records để báo cáo.
+        # File tự khai `fake=true` thì KHÔNG phân loại: nhãn sẽ trông như kết quả thật trong khi note nói
+        # "TIER-2 GIẢ", và typer không có gì để đo trên một kết quả giả.
         frame_embs = load_embeddings(config.model_id, video_id, config.sample_fps, cache_dir)
         verify, typing_meta = apply_event_typing(windows, verify, frame_embs, typer, config.sample_fps)
         typing_meta["typer_model"] = config.model_id

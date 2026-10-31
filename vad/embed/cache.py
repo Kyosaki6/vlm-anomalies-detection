@@ -15,8 +15,12 @@ import numpy as np
 DEFAULT_CACHE_DIR = Path(__file__).resolve().parents[2] / "cache" / "embeddings"
 
 
-def _slug(text: str) -> str:
+def slug(text: str) -> str:
+    """Tên model/video -> phần an toàn cho tên file (thay ký tự lạ bằng '-')."""
     return re.sub(r"[^A-Za-z0-9._-]+", "-", text).strip("-")
+
+
+_slug = slug          # tên cũ: giữ để code ngoài repo (notebook, script cũ) không vỡ
 
 
 def cache_path(model_id: str, video_id: str, sample_fps: float,

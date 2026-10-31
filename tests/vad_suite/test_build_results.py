@@ -149,11 +149,11 @@ def test_zone_and_night_hour_raise_severity(world):
 
 
 def test_verify_dir_roundtrip_and_pair_mismatch(world):
-    _build(world, limit=1)                                        # tạo cửa sổ trước
+    first = _build(world, limit=1)[0]                             # tạo cửa sổ trước
     vdir = world["tmp"] / "tier2"
     vdir.mkdir()
     good = {"schema_version": 1, "video_id": "Abuse028_x264", "sample_fps": 1.0,
-            "candidate_windows": [{"video_id": "Abuse028_x264", "start_s": 10.0, "end_s": 20.0, "score": 0.9}],
+            "candidate_windows": [dataclasses.asdict(first.candidate_windows[0])],
             "verify_results": [{"is_anomaly": True, "event_type": "RoadAccidents",
                                 "caption": "a car crash", "confidence": 0.8}]}
     (vdir / "Abuse028_x264.json").write_text(json.dumps(good), encoding="utf-8")
@@ -588,6 +588,48 @@ def test_verify_window_file_tampered_score_raises(wworld):
         _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out")
 
 
+def test_verify_window_dir_self_consistent_foreign_score_raises(wworld):
+    """File của lần chạy KHÁC, fingerprint tự tính lại vẫn khớp nhưng score khác tier-1 -> phải lỗi.
+
+    Đây là lỗ mà review PR #38 bắt được: bản trước tính fingerprint từ chính cửa sổ trong file nên chỉ
+    chứng minh file tự nhất quán; một file dựng bằng ngưỡng/ablation khác nhưng cùng mốc giây vẫn lọt và
+    caption VLM của lần chạy kia bị dán sang cửa sổ hiện tại.
+    """
+    res = _build2(wworld)[0]
+    vdir = wworld["tmp"] / "verify"
+    for i, w in enumerate(res.candidate_windows):
+        foreign = dataclasses.replace(w, score=w.score + 7.0)     # cùng mốc giây, score của lần chạy khác
+        _window_file(vdir, wworld["video_id"], i, foreign,
+                     VerifyResult(True, EventType.FIGHTING, "c", 0.9))   # fingerprint tự khớp file
+    with pytest.raises(br.BuildResultsError, match="score tính lại"):
+        _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out")
+
+
+def test_verify_window_score_within_tolerance_is_accepted(wworld):
+    """Lệch bit cuối giữa CPU và Colab (score lệch < 1e-4) không được làm file tier-2 thật bị loại."""
+    res = _build2(wworld)[0]
+    vdir = wworld["tmp"] / "verify"
+    for i, w in enumerate(res.candidate_windows):
+        _window_file(vdir, wworld["video_id"], i, dataclasses.replace(w, score=w.score + 5e-5),
+                     VerifyResult(True, EventType.FIGHTING, "c", 0.9))
+    out = _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out")[0]
+    assert len(out.verify_results) == len(res.candidate_windows)
+
+
+def test_fake_tier2_files_are_not_typed(wworld):
+    """File tự khai `fake=true` -> KHÔNG chạy typer: nhãn typer trông như kết quả thật trong khi note nói giả."""
+    base = _build2(wworld)[0]
+    vdir = _write_tier2(wworld, base, wworld["tmp"] / "verify",
+                        [VerifyResult(True, EventType.ROBBERY, "someone robbing a shop", 0.8)] * 2, fake=True)
+    counting = _CountingTyper(_zero_shot_typer(wworld))
+    out = _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out", typer=counting)[0]
+
+    assert counting.sizes == []                                       # typer không được gọi lần nào
+    assert "event_typing" not in out.metadata
+    assert [v.event_type for v in out.verify_results] == [EventType.ROBBERY, EventType.ROBBERY]
+    assert "TIER-2 GIẢ" in out.metadata["note"]
+
+
 def test_verify_window_dir_mixed_verifier_runs_raise(wworld):
     """Hai cửa sổ do hai model/verifier khác nhau sinh ra -> không được trộn thành một lần chạy."""
     res = _build2(wworld)[0]
@@ -715,6 +757,18 @@ def test_typer_skips_windows_vlm_rejected(wworld):
     assert out.verify_results[1].event_type is EventType.ROAD_ACCIDENT
     assert [a.start_s for a in out.alerts] == [24.0]
     assert [r["window_index"] for r in out.metadata["event_typing"]["windows"]] == [1]
+
+
+def test_typer_rejects_embedding_dimension_mismatch(wworld):
+    """Cache nhãn embed bằng model khác (D khác) -> lỗi nói rõ dimension, không để `classify` ném shape khó hiểu."""
+    from vad.score.typing import ZeroShotEventTyper
+    base = _build2(wworld)[0]
+    vdir = _write_tier2(wworld, base, wworld["tmp"] / "verify",
+                        [VerifyResult(True, EventType.FIGHTING, "c", 0.9)] * 2)
+    wrong = ZeroShotEventTyper.from_label_embeddings(["RoadAccidents", "Robbery"],
+                                                     np.eye(2, DIM + 1, dtype=np.float32))
+    with pytest.raises(br.BuildResultsError, match=f"D={DIM + 1}"):
+        _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out", typer=wrong)
 
 
 def test_window_sample_slice_maps_seconds_to_cached_samples():

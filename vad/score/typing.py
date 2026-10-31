@@ -120,6 +120,10 @@ class ZeroShotEventTyper:
         build sau chỉ đọc lại. `names` vẫn phải có trong prompts.yaml — sai tên là lỗi cấu hình, không
         được âm thầm thành UNKNOWN. Caller chịu trách nhiệm kiểm vector cache khớp ĐÚNG chữ prompt
         hiện tại (xem `scripts/build_results.py`); ở đây chỉ kiểm tên + shape.
+
+        LƯU Ý: hàm này bỏ qua `__init__` nên phải tự đặt đủ thuộc tính. Test
+        `test_from_label_embeddings_sets_the_same_attributes_as_init` (tests/vad_suite/test_typing.py)
+        so hai đường dựng với nhau — thêm thuộc tính mới vào `__init__` mà quên ở đây thì test đó đỏ.
         """
         _, all_labels = load_typing_prompts(prompts_path)
         picked = [str(n) for n in names]

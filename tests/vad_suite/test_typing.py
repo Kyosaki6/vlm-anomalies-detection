@@ -138,3 +138,22 @@ def test_runs_on_real_config_with_fake_embedder_without_gpu():
     assert len(r1.scores) == 13
     assert r1.event_type is r2.event_type and r1.confidence == r2.confidence
     assert r1.event_type is not EventType.NORMAL      # 13 lớp bất thường, không có Normal mặc định
+
+
+def test_from_label_embeddings_sets_the_same_attributes_as_init():
+    """Hai đường dựng typer phải cho CÙNG bộ thuộc tính.
+
+    `from_label_embeddings` bỏ qua `__init__` và đặt thuộc tính bằng tay; nếu ai đó thêm thuộc tính mới
+    vào `__init__` mà quên đường cache, typer dựng từ cache sẽ thiếu thuộc tính và chỉ nổ ở lúc dùng.
+    Test này so `vars()` của hai bên nên bắt được cả trường hợp đó.
+    """
+    a = ZeroShotEventTyper(FakeEmbedder(dim=6))
+    b = ZeroShotEventTyper.from_label_embeddings(a._names, a._label_embs, logit_scale=a.logit_scale)
+
+    assert set(vars(a)) == set(vars(b))
+    assert b._names == a._names
+    assert b._types == a._types
+    assert b.embedding_dim == a.embedding_dim
+    assert b.logit_scale == a.logit_scale
+    assert b.embedder is None and a.embedder is not None
+    np.testing.assert_allclose(b._label_embs, a._label_embs)
