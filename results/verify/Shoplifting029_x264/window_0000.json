@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "video_id": "Shoplifting029_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shoplifting029_x264",
+      "start_s": 24.0,
+      "end_s": 55.0,
+      "score": 1.2848870691187326
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Shoplifting",
+      "caption": "A customer is seen taking a shirt from a display rack.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:19:36+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      25.9375,
+      29.8125,
+      33.6875,
+      37.5625,
+      41.4375,
+      45.3125,
+      49.1875,
+      53.0625
+    ],
+    "source_windows": "results/windows/Shoplifting029_x264.json",
+    "fingerprint": "9a8c5e91cfcbea08a0e4787aad6827d6e7aad44fc350b042a0033dfd115da047",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 2,
+    "chunks": [
+      {
+        "start_s": 24.0,
+        "end_s": 39.5,
+        "frame_times_s": [
+          25.9375,
+          29.8125,
+          33.6875,
+          37.5625
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.85,
+        "caption": "A customer is browsing through clothing items in a store."
+      },
+      {
+        "start_s": 39.5,
+        "end_s": 55.0,
+        "frame_times_s": [
+          41.4375,
+          45.3125,
+          49.1875,
+          53.0625
+        ],
+        "is_anomaly": false,
+        "event_type": "Shoplifting",
+        "confidence": 0.95,
+        "caption": "A customer is seen taking a shirt from a display rack."
+      }
+    ],
+    "elapsed_s": 5.4712865999899805
+  }
+}

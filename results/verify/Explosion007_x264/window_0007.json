@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion007_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 258.0,
+      "end_s": 282.0,
+      "score": 1.3032809871713555
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "A truck is on fire and a person is running away from it.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:10:45+00:00",
+    "schema_version": 1,
+    "window_index": 7,
+    "k": 4,
+    "frame_times_s": [
+      261.0,
+      267.0,
+      273.0,
+      279.0
+    ],
+    "source_windows": "results/windows/Explosion007_x264.json",
+    "fingerprint": "b41bc51442173e12a633778002c3c692f7c3c6b4ad26efb5738c2ad4aa0f5162",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 258.0,
+        "end_s": 282.0,
+        "frame_times_s": [
+          261.0,
+          267.0,
+          273.0,
+          279.0
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A truck is on fire and a person is running away from it."
+      }
+    ],
+    "elapsed_s": 9.657080099917948
+  }
+}

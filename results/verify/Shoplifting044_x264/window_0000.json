@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Shoplifting044_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shoplifting044_x264",
+      "start_s": 31.0,
+      "end_s": 50.0,
+      "score": 1.2566998056460637
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Shoplifting",
+      "caption": "A man is seen in a store, looking at items on a shelf.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:20:01+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      33.375,
+      38.125,
+      42.875,
+      47.625
+    ],
+    "source_windows": "results/windows/Shoplifting044_x264.json",
+    "fingerprint": "9cb20a87b62406e9c7b19308bfc178822572422905e0b89e0442c5f7dbabfc15",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 31.0,
+        "end_s": 50.0,
+        "frame_times_s": [
+          33.375,
+          38.125,
+          42.875,
+          47.625
+        ],
+        "is_anomaly": false,
+        "event_type": "Shoplifting",
+        "confidence": 0.95,
+        "caption": "A man is seen in a store, looking at items on a shelf."
+      }
+    ],
+    "elapsed_s": 2.880357399932109
+  }
+}

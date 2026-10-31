@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion007_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 57.0,
+      "end_s": 60.0,
+      "score": 1.172829826329584
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "An explosion is detected in the surveillance footage.",
+      "confidence": 0.98
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:09:38+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      57.375,
+      58.125,
+      58.875,
+      59.625
+    ],
+    "source_windows": "results/windows/Explosion007_x264.json",
+    "fingerprint": "3ff05927a78498df14e4383ec0673cb4790519b7ff7713d2e2fe26b98c093476",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 57.0,
+        "end_s": 60.0,
+        "frame_times_s": [
+          57.375,
+          58.125,
+          58.875,
+          59.625
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.98,
+        "caption": "An explosion is detected in the surveillance footage."
+      }
+    ],
+    "elapsed_s": 9.63786630006507
+  }
+}

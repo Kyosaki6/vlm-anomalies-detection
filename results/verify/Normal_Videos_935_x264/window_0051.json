@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_935_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_935_x264",
+      "start_s": 3251.0,
+      "end_s": 3256.0,
+      "score": 1.205029756399232
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a public space.",
+      "confidence": 0.8
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:13:27+00:00",
+    "schema_version": 1,
+    "window_index": 51,
+    "k": 4,
+    "frame_times_s": [
+      3251.625,
+      3252.875,
+      3254.125,
+      3255.375
+    ],
+    "source_windows": "results/windows/Normal_Videos_935_x264.json",
+    "fingerprint": "0189680881f36ca4ff6e77c9c83f5485fa07d302d3c4b09cd46f029fef0969ec",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 3251.0,
+        "end_s": 3256.0,
+        "frame_times_s": [
+          3251.625,
+          3252.875,
+          3254.125,
+          3255.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.8,
+        "caption": "A person is walking through a public space."
+      }
+    ],
+    "elapsed_s": 3.337776800035499
+  }
+}

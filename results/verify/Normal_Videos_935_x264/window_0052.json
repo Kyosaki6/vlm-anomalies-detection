@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_935_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_935_x264",
+      "start_s": 3341.0,
+      "end_s": 3346.0,
+      "score": 1.2451923559613762
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.8
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:13:30+00:00",
+    "schema_version": 1,
+    "window_index": 52,
+    "k": 4,
+    "frame_times_s": [
+      3341.625,
+      3342.875,
+      3344.125,
+      3345.375
+    ],
+    "source_windows": "results/windows/Normal_Videos_935_x264.json",
+    "fingerprint": "00d8dfbb7c074b13e4665f812315b48f2d43314ccec2af5d57f78cd59b43a804",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 3341.0,
+        "end_s": 3346.0,
+        "frame_times_s": [
+          3341.625,
+          3342.875,
+          3344.125,
+          3345.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.8,
+        "caption": "People walking through a shopping mall."
+      }
+    ],
+    "elapsed_s": 3.064793700003065
+  }
+}

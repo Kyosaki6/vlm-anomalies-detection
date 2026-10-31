@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_725_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_725_x264",
+      "start_s": 2.0,
+      "end_s": 7.0,
+      "score": 1.1924013818969996
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A white SUV is parked on a wet street.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:05:37+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      2.625,
+      3.875,
+      5.125,
+      6.375
+    ],
+    "source_windows": "results/windows/Normal_Videos_725_x264.json",
+    "fingerprint": "17f2ccaf8791392cfbe5a7a30998819dfbfa511dce5b4c760255ca681e598f20",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 2.0,
+        "end_s": 7.0,
+        "frame_times_s": [
+          2.625,
+          3.875,
+          5.125,
+          6.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A white SUV is parked on a wet street."
+      }
+    ],
+    "elapsed_s": 3.0951487000565976
+  }
+}

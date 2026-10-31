@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_896_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_896_x264",
+      "start_s": 64.0,
+      "end_s": 73.0,
+      "score": 1.2208480609728891
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking down the street next to parked cars.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:06:42+00:00",
+    "schema_version": 1,
+    "window_index": 2,
+    "k": 4,
+    "frame_times_s": [
+      65.125,
+      67.375,
+      69.625,
+      71.875
+    ],
+    "source_windows": "results/windows/Normal_Videos_896_x264.json",
+    "fingerprint": "e881bc3002a9a9081a1f0cb007061f12e470dcda86eecbd13eb9f94e254ab5a0",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 64.0,
+        "end_s": 73.0,
+        "frame_times_s": [
+          65.125,
+          67.375,
+          69.625,
+          71.875
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is walking down the street next to parked cars."
+      }
+    ],
+    "elapsed_s": 3.115044999984093
+  }
+}

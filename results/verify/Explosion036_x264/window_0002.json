@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion036_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Explosion036_x264",
+      "start_s": 86.0,
+      "end_s": 178.0,
+      "score": 1.4200103430477902
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "A person is lying on the ground after an explosion.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:22:15+00:00",
+    "schema_version": 1,
+    "window_index": 2,
+    "k": 4,
+    "frame_times_s": [
+      88.875,
+      94.625,
+      100.375,
+      106.125,
+      111.875,
+      117.625,
+      123.375,
+      129.125,
+      134.875,
+      140.625,
+      146.375,
+      152.125,
+      157.875,
+      163.625,
+      169.375,
+      175.125
+    ],
+    "source_windows": "results/windows/Explosion036_x264.json",
+    "fingerprint": "ec7ddc5b80d74852e56a8d972106761ae3011dc62884879d8cdece6ae2656843",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 4,
+    "chunks": [
+      {
+        "start_s": 86.0,
+        "end_s": 109.0,
+        "frame_times_s": [
+          88.875,
+          94.625,
+          100.375,
+          106.125
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A person is lying on the ground after an explosion."
+      },
+      {
+        "start_s": 109.0,
+        "end_s": 132.0,
+        "frame_times_s": [
+          111.875,
+          117.625,
+          123.375,
+          129.125
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A group of people are gathered around a small explosion on the ground."
+      },
+      {
+        "start_s": 132.0,
+        "end_s": 155.0,
+        "frame_times_s": [
+          134.875,
+          140.625,
+          146.375,
+          152.125
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A yellow scooter is on fire and emitting smoke."
+      },
+      {
+        "start_s": 155.0,
+        "end_s": 178.0,
+        "frame_times_s": [
+          157.875,
+          163.625,
+          169.375,
+          175.125
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A yellow toy car is being blown up by a remote-controlled device."
+      }
+    ],
+    "elapsed_s": 14.412735800025985
+  }
+}

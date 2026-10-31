@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "RoadAccidents021_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "RoadAccidents021_x264",
+      "start_s": 3.0,
+      "end_s": 5.0,
+      "score": 1.1743757750597346
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking near parked vehicles in a parking lot.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:14:01+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      3.25,
+      3.75,
+      4.25,
+      4.75
+    ],
+    "source_windows": "results/windows/RoadAccidents021_x264.json",
+    "fingerprint": "40edfbae7066f223ad17f96c60cadcb2b9261cc8b9ad89ed283a9596266c4421",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 3.0,
+        "end_s": 5.0,
+        "frame_times_s": [
+          3.25,
+          3.75,
+          4.25,
+          4.75
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is walking near parked vehicles in a parking lot."
+      }
+    ],
+    "elapsed_s": 3.487538699992001
+  }
+}

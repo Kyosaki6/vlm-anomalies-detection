@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion039_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Explosion039_x264",
+      "start_s": 8.0,
+      "end_s": 21.0,
+      "score": 1.2429058017468066
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Robbery",
+      "caption": "A man in a blue jacket and pink hat is seen handling cash at a counter.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:22:19+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      9.625,
+      12.875,
+      16.125,
+      19.375
+    ],
+    "source_windows": "results/windows/Explosion039_x264.json",
+    "fingerprint": "3eade04c0c2e1db565c9d5b59b9e7183940ec3a4e66c1db8f5bd513aa1f3a261",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 8.0,
+        "end_s": 21.0,
+        "frame_times_s": [
+          9.625,
+          12.875,
+          16.125,
+          19.375
+        ],
+        "is_anomaly": true,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "A man in a blue jacket and pink hat is seen handling cash at a counter."
+      }
+    ],
+    "elapsed_s": 3.9868209999985993
+  }
+}

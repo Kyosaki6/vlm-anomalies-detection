@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "video_id": "Fighting042_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Fighting042_x264",
+      "start_s": 4.0,
+      "end_s": 75.0,
+      "score": 1.4684061507402417
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Fighting",
+      "caption": "Two individuals are engaged in a physical altercation near a door.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:24:04+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      6.958333333333334,
+      12.875,
+      18.791666666666668,
+      24.708333333333336,
+      30.625,
+      36.54166666666667,
+      42.458333333333336,
+      48.375,
+      54.29166666666667,
+      60.208333333333336,
+      66.125,
+      72.04166666666667
+    ],
+    "source_windows": "results/windows/Fighting042_x264.json",
+    "fingerprint": "f740151fff17651276ff2c4dcf9573860a6032aa15259da8c20f86ba9ba2202b",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 3,
+    "chunks": [
+      {
+        "start_s": 4.0,
+        "end_s": 27.666666666666668,
+        "frame_times_s": [
+          6.958333333333334,
+          12.875,
+          18.791666666666668,
+          24.708333333333336
+        ],
+        "is_anomaly": true,
+        "event_type": "Fighting",
+        "confidence": 0.95,
+        "caption": "Two individuals are engaged in a physical altercation near a door."
+      },
+      {
+        "start_s": 27.666666666666668,
+        "end_s": 51.333333333333336,
+        "frame_times_s": [
+          30.625,
+          36.54166666666667,
+          42.458333333333336,
+          48.375
+        ],
+        "is_anomaly": true,
+        "event_type": "Fighting",
+        "confidence": 0.95,
+        "caption": "Two individuals are engaged in a physical altercation near a glass door."
+      },
+      {
+        "start_s": 51.333333333333336,
+        "end_s": 75.0,
+        "frame_times_s": [
+          54.29166666666667,
+          60.208333333333336,
+          66.125,
+          72.04166666666667
+        ],
+        "is_anomaly": true,
+        "event_type": "Fighting",
+        "confidence": 0.95,
+        "caption": "A person is seen entering a building and then engaging in a physical altercation with another individual outside."
+      }
+    ],
+    "elapsed_s": 11.146391800022684
+  }
+}

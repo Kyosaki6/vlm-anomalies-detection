@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "video_id": "Burglary079_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Burglary079_x264",
+      "start_s": 94.0,
+      "end_s": 200.0,
+      "score": 1.3568879393360622
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Burglary",
+      "caption": "A person is seen breaking into a vehicle and removing items from it.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:07:36+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      97.3125,
+      103.9375,
+      110.5625,
+      117.1875,
+      123.8125,
+      130.4375,
+      137.0625,
+      143.6875,
+      150.3125,
+      156.9375,
+      163.5625,
+      170.1875,
+      176.8125,
+      183.4375,
+      190.0625,
+      196.6875
+    ],
+    "source_windows": "results/windows/Burglary079_x264.json",
+    "fingerprint": "c60bbbf5d78cf0a85ce774e3b08f2a70ca10b6d30c6cf0efabb0b641b10cdf2a",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 4,
+    "chunks": [
+      {
+        "start_s": 94.0,
+        "end_s": 120.5,
+        "frame_times_s": [
+          97.3125,
+          103.9375,
+          110.5625,
+          117.1875
+        ],
+        "is_anomaly": true,
+        "event_type": "Burglary",
+        "confidence": 0.95,
+        "caption": "A person is seen breaking into a vehicle and removing items from it."
+      },
+      {
+        "start_s": 120.5,
+        "end_s": 147.0,
+        "frame_times_s": [
+          123.8125,
+          130.4375,
+          137.0625,
+          143.6875
+        ],
+        "is_anomaly": true,
+        "event_type": "Burglary",
+        "confidence": 0.95,
+        "caption": "A person is seen breaking into a vehicle and removing items from it."
+      },
+      {
+        "start_s": 147.0,
+        "end_s": 173.5,
+        "frame_times_s": [
+          150.3125,
+          156.9375,
+          163.5625,
+          170.1875
+        ],
+        "is_anomaly": true,
+        "event_type": "Burglary",
+        "confidence": 0.95,
+        "caption": "A person is seen breaking into a vehicle and removing items from it."
+      },
+      {
+        "start_s": 173.5,
+        "end_s": 200.0,
+        "frame_times_s": [
+          176.8125,
+          183.4375,
+          190.0625,
+          196.6875
+        ],
+        "is_anomaly": true,
+        "event_type": "Burglary",
+        "confidence": 0.95,
+        "caption": "A person is seen breaking into a vehicle and removing items from it."
+      }
+    ],
+    "elapsed_s": 39.82898639992345
+  }
+}

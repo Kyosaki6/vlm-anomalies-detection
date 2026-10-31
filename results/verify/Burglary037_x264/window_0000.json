@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Burglary037_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Burglary037_x264",
+      "start_s": 11.0,
+      "end_s": 15.0,
+      "score": 1.2633660082805833
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Burglary",
+      "caption": "A man is seen entering a room and searching for something.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:05:36+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      11.5,
+      12.5,
+      13.5,
+      14.5
+    ],
+    "source_windows": "results/windows/Burglary037_x264.json",
+    "fingerprint": "6ab85c2854acc0c6c99a93b7bdbfcbbb0dd2560d301bf7021ca4699a079f6fe1",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 11.0,
+        "end_s": 15.0,
+        "frame_times_s": [
+          11.5,
+          12.5,
+          13.5,
+          14.5
+        ],
+        "is_anomaly": true,
+        "event_type": "Burglary",
+        "confidence": 0.95,
+        "caption": "A man is seen entering a room and searching for something."
+      }
+    ],
+    "elapsed_s": 8.462929699919187
+  }
+}

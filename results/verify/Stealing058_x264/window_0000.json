@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "video_id": "Stealing058_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Stealing058_x264",
+      "start_s": 18.0,
+      "end_s": 135.0,
+      "score": 1.3987385126252514
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Robbery",
+      "caption": "Two individuals are seen breaking into a car and stealing items.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:21:22+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      21.65625,
+      28.96875,
+      36.28125,
+      43.59375,
+      50.90625,
+      58.21875,
+      65.53125,
+      72.84375,
+      80.15625,
+      87.46875,
+      94.78125,
+      102.09375,
+      109.40625,
+      116.71875,
+      124.03125,
+      131.34375
+    ],
+    "source_windows": "results/windows/Stealing058_x264.json",
+    "fingerprint": "3a883d1b05be247716beca389da068e0bffb861698c10fb125a6e42cd4c2d685",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 4,
+    "chunks": [
+      {
+        "start_s": 18.0,
+        "end_s": 47.25,
+        "frame_times_s": [
+          21.65625,
+          28.96875,
+          36.28125,
+          43.59375
+        ],
+        "is_anomaly": false,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "Two individuals are seen breaking into a car and stealing items."
+      },
+      {
+        "start_s": 47.25,
+        "end_s": 76.5,
+        "frame_times_s": [
+          50.90625,
+          58.21875,
+          65.53125,
+          72.84375
+        ],
+        "is_anomaly": false,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "Two individuals are seen approaching a vehicle and one of them is holding a bag, suggesting they might be robbing the vehicle's occupants."
+      },
+      {
+        "start_s": 76.5,
+        "end_s": 105.75,
+        "frame_times_s": [
+          80.15625,
+          87.46875,
+          94.78125,
+          102.09375
+        ],
+        "is_anomaly": false,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "Two individuals are seen approaching a car and one of them is holding a weapon."
+      },
+      {
+        "start_s": 105.75,
+        "end_s": 135.0,
+        "frame_times_s": [
+          109.40625,
+          116.71875,
+          124.03125,
+          131.34375
+        ],
+        "is_anomaly": true,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "Two individuals are seen breaking into a car and stealing items."
+      }
+    ],
+    "elapsed_s": 11.994126199977472
+  }
+}

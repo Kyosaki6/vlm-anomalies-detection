@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_924_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 321.0,
+      "end_s": 811.0,
+      "score": 1.4529083075099418
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is working on a device on the floor.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:08:34+00:00",
+    "schema_version": 1,
+    "window_index": 8,
+    "k": 4,
+    "frame_times_s": [
+      324.6029411764706,
+      331.80882352941177,
+      339.0147058823529,
+      346.2205882352941,
+      353.4264705882353,
+      360.63235294117646,
+      367.8382352941176,
+      375.0441176470588,
+      382.25,
+      389.45588235294116,
+      396.6617647058824,
+      403.86764705882354,
+      411.07352941176475,
+      418.2794117647059,
+      425.4852941176471,
+      432.69117647058823,
+      439.89705882352945,
+      447.1029411764706,
+      454.30882352941177,
+      461.5147058823529,
+      468.72058823529414,
+      475.9264705882353,
+      483.13235294117646,
+      490.3382352941176,
+      497.54411764705884,
+      504.75,
+      511.95588235294116,
+      519.1617647058823,
+      526.3676470588235,
+      533.5735294117648,
+      540.7794117647059,
+      547.9852941176471,
+      555.1911764705883,
+      562.3970588235295,
+      569.6029411764706,
+      576.8088235294118,
+      584.014705882353,
+      591.2205882352941,
+      598.4264705882354,
+      605.6323529411765,
+      612.8382352941177,
+      620.0441176470588,
+      627.25,
+      634.4558823529411,
+      641.6617647058823,
+      648.8676470588235,
+      656.0735294117646,
+      663.2794117647059,
+      670.4852941176471,
+      677.6911764705883,
+      684.8970588235294,
+      692.1029411764706,
+      699.3088235294118,
+      706.5147058823529,
+      713.7205882352941,
+      720.9264705882352,
+      728.1323529411765,
+      735.3382352941177,
+      742.5441176470588,
+      749.75,
+      756.9558823529412,
+      764.1617647058824,
+      771.3676470588235,
+      778.5735294117648,
+      785.779411764706,
+      792.9852941176471,
+      800.1911764705883,
+      807.3970588235294
+    ],
+    "source_windows": "results/windows/Normal_Videos_924_x264.json",
+    "fingerprint": "560b29e78ae7d072ed00204d6e07da584701338da5310119dbc9bfe6b751107e",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 17,
+    "chunks": [
+      {
+        "start_s": 321.0,
+        "end_s": 349.8235294117647,
+        "frame_times_s": [
+          324.6029411764706,
+          331.80882352941177,
+          339.0147058823529,
+          346.2205882352941
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is working on a device on the floor."
+      },
+      {
+        "start_s": 349.8235294117647,
+        "end_s": 378.6470588235294,
+        "frame_times_s": [
+          353.4264705882353,
+          360.63235294117646,
+          367.8382352941176,
+          375.0441176470588
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A man is kneeling on the floor, working on something, while another person stands nearby holding a red object."
+      },
+      {
+        "start_s": 378.6470588235294,
+        "end_s": 407.47058823529414,
+        "frame_times_s": [
+          382.25,
+          389.45588235294116,
+          396.6617647058824,
+          403.86764705882354
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A man is sitting on the floor while another person stands next to him, possibly discussing something."
+      },
+      {
+        "start_s": 407.47058823529414,
+        "end_s": 436.29411764705884,
+        "frame_times_s": [
+          411.07352941176475,
+          418.2794117647059,
+          425.4852941176471,
+          432.69117647058823
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is sitting on the floor, possibly working on something."
+      },
+      {
+        "start_s": 436.29411764705884,
+        "end_s": 465.11764705882354,
+        "frame_times_s": [
+          439.89705882352945,
+          447.1029411764706,
+          454.30882352941177,
+          461.5147058823529
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is sitting on the floor with their legs crossed and hands resting on their knees."
+      },
+      {
+        "start_s": 465.11764705882354,
+        "end_s": 493.94117647058823,
+        "frame_times_s": [
+          468.72058823529414,
+          475.9264705882353,
+          483.13235294117646,
+          490.3382352941176
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is sitting on the floor with a backpack and a phone, possibly working or studying."
+      },
+      {
+        "start_s": 493.94117647058823,
+        "end_s": 522.7647058823529,
+        "frame_times_s": [
+          497.54411764705884,
+          504.75,
+          511.95588235294116,
+          519.1617647058823
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is sitting on the floor using a laptop while another person stands nearby."
+      },
+      {
+        "start_s": 522.7647058823529,
+        "end_s": 551.5882352941177,
+        "frame_times_s": [
+          526.3676470588235,
+          533.5735294117648,
+          540.7794117647059,
+          547.9852941176471
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is sitting on the floor with a bag next to them."
+      },
+      {
+        "start_s": 551.5882352941177,
+        "end_s": 580.4117647058824,
+        "frame_times_s": [
+          555.1911764705883,
+          562.3970588235295,
+          569.6029411764706,
+          576.8088235294118
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is sitting on the floor next to a bag and a red ball."
+      },
+      {
+        "start_s": 580.4117647058824,
+        "end_s": 609.2352941176471,
+        "frame_times_s": [
+          584.014705882353,
+          591.2205882352941,
+          598.4264705882354,
+          605.6323529411765
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A man is sitting at a desk working on a computer while another man sits on the floor next to him."
+      },
+      {
+        "start_s": 609.2352941176471,
+        "end_s": 638.0588235294117,
+        "frame_times_s": [
+          612.8382352941177,
+          620.0441176470588,
+          627.25,
+          634.4558823529411
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is sitting on the floor near a bag and a red object, possibly a hat."
+      },
+      {
+        "start_s": 638.0588235294117,
+        "end_s": 666.8823529411765,
+        "frame_times_s": [
+          641.6617647058823,
+          648.8676470588235,
+          656.0735294117646,
+          663.2794117647059
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is sitting on the floor in a room with a computer and various items around them."
+      },
+      {
+        "start_s": 666.8823529411765,
+        "end_s": 695.7058823529412,
+        "frame_times_s": [
+          670.4852941176471,
+          677.6911764705883,
+          684.8970588235294,
+          692.1029411764706
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is sitting on the floor while another person stands nearby."
+      },
+      {
+        "start_s": 695.7058823529412,
+        "end_s": 724.5294117647059,
+        "frame_times_s": [
+          699.3088235294118,
+          706.5147058823529,
+          713.7205882352941,
+          720.9264705882352
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is sitting on the floor in front of a computer monitor, seemingly working or studying."
+      },
+      {
+        "start_s": 724.5294117647059,
+        "end_s": 753.3529411764706,
+        "frame_times_s": [
+          728.1323529411765,
+          735.3382352941177,
+          742.5441176470588,
+          749.75
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.8,
+        "caption": "A person is sitting on the floor while another person stands nearby, both engaged in some activity."
+      },
+      {
+        "start_s": 753.3529411764706,
+        "end_s": 782.1764705882354,
+        "frame_times_s": [
+          756.9558823529412,
+          764.1617647058824,
+          771.3676470588235,
+          778.5735294117648
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is sitting on the floor while another person stands nearby, both engaged in an activity involving a small object."
+      },
+      {
+        "start_s": 782.1764705882354,
+        "end_s": 811.0,
+        "frame_times_s": [
+          785.779411764706,
+          792.9852941176471,
+          800.1911764705883,
+          807.3970588235294
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is sitting on the floor in a room with another person standing nearby."
+      }
+    ],
+    "elapsed_s": 63.17976960004307
+  }
+}

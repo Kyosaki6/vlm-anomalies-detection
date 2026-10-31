@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "video_id": "Arrest001_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Arrest001_x264",
+      "start_s": 0.0,
+      "end_s": 80.0,
+      "score": 1.4507573392995579
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person walks into an office space and sits down at their desk.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T07:52:33+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      3.3333333333333335,
+      10.0,
+      16.666666666666668,
+      23.333333333333336,
+      30.0,
+      36.66666666666667,
+      43.333333333333336,
+      50.0,
+      56.66666666666667,
+      63.333333333333336,
+      70.0,
+      76.66666666666667
+    ],
+    "source_windows": "results/windows/Arrest001_x264.json",
+    "fingerprint": "30213dea820a21470b7ff6a846194d6b6c55915f865fc42bb634c5a881bdd41a",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 3,
+    "chunks": [
+      {
+        "start_s": 0.0,
+        "end_s": 26.666666666666668,
+        "frame_times_s": [
+          3.3333333333333335,
+          10.0,
+          16.666666666666668,
+          23.333333333333336
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person walks into an office space and sits down at their desk."
+      },
+      {
+        "start_s": 26.666666666666668,
+        "end_s": 53.333333333333336,
+        "frame_times_s": [
+          30.0,
+          36.66666666666667,
+          43.333333333333336,
+          50.0
+        ],
+        "is_anomaly": false,
+        "event_type": "Arrest",
+        "confidence": 0.95,
+        "caption": "A person is being arrested by security personnel at a desk."
+      },
+      {
+        "start_s": 53.333333333333336,
+        "end_s": 80.0,
+        "frame_times_s": [
+          56.66666666666667,
+          63.333333333333336,
+          70.0,
+          76.66666666666667
+        ],
+        "is_anomaly": false,
+        "event_type": "Arrest",
+        "confidence": 0.95,
+        "caption": "A person is being arrested by security personnel."
+      }
+    ],
+    "elapsed_s": 93.29112090007402
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Shoplifting044_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shoplifting044_x264",
+      "start_s": 72.0,
+      "end_s": 101.0,
+      "score": 1.2946162290869747
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Shoplifting",
+      "caption": "A customer is seen attempting to steal a product from a shelf.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:20:04+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      75.625,
+      82.875,
+      90.125,
+      97.375
+    ],
+    "source_windows": "results/windows/Shoplifting044_x264.json",
+    "fingerprint": "e848f5fe37b94318b2ac42e6a4e087ff160e58364cb9efcadfa2f801c5a163de",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 72.0,
+        "end_s": 101.0,
+        "frame_times_s": [
+          75.625,
+          82.875,
+          90.125,
+          97.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Shoplifting",
+        "confidence": 0.95,
+        "caption": "A customer is seen attempting to steal a product from a shelf."
+      }
+    ],
+    "elapsed_s": 2.783624399919063
+  }
+}

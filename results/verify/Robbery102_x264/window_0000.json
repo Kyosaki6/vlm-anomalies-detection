@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Robbery102_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Robbery102_x264",
+      "start_s": 39.0,
+      "end_s": 46.0,
+      "score": 1.3212980231463511
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Robbery",
+      "caption": "A woman is being robbed by a man outside her house.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:14:29+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      39.875,
+      41.625,
+      43.375,
+      45.125
+    ],
+    "source_windows": "results/windows/Robbery102_x264.json",
+    "fingerprint": "532aa5492c19e1542adde1f941e33c50283777e342ce4c8d951a709cadd171d3",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 39.0,
+        "end_s": 46.0,
+        "frame_times_s": [
+          39.875,
+          41.625,
+          43.375,
+          45.125
+        ],
+        "is_anomaly": true,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "A woman is being robbed by a man outside her house."
+      }
+    ],
+    "elapsed_s": 3.620444200001657
+  }
+}

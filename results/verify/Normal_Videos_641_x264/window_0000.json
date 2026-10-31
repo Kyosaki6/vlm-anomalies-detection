@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_641_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_641_x264",
+      "start_s": 7.0,
+      "end_s": 17.0,
+      "score": 1.282584480646211
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A man in a blue shirt is standing in a grocery store aisle, looking at his phone.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:25:36+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      8.25,
+      10.75,
+      13.25,
+      15.75
+    ],
+    "source_windows": "results/windows/Normal_Videos_641_x264.json",
+    "fingerprint": "eb215223e533d72eee0eee549cc932317a54e6154eb5ea2eaa734d0ebfe10c62",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 7.0,
+        "end_s": 17.0,
+        "frame_times_s": [
+          8.25,
+          10.75,
+          13.25,
+          15.75
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A man in a blue shirt is standing in a grocery store aisle, looking at his phone."
+      }
+    ],
+    "elapsed_s": 10.406695500016212
+  }
+}

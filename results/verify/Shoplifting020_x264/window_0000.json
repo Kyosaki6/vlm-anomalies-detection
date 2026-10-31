@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "video_id": "Shoplifting020_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shoplifting020_x264",
+      "start_s": 0.0,
+      "end_s": 41.0,
+      "score": 1.3269360745512877
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A customer is shopping at a convenience store.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:18:54+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      2.5625,
+      7.6875,
+      12.8125,
+      17.9375,
+      23.0625,
+      28.1875,
+      33.3125,
+      38.4375
+    ],
+    "source_windows": "results/windows/Shoplifting020_x264.json",
+    "fingerprint": "533cb698b3d0e59df32bb7145f1bd647b15d3a0566b1964d9f1e7d6c7433796b",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 2,
+    "chunks": [
+      {
+        "start_s": 0.0,
+        "end_s": 20.5,
+        "frame_times_s": [
+          2.5625,
+          7.6875,
+          12.8125,
+          17.9375
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A customer is shopping at a convenience store."
+      },
+      {
+        "start_s": 20.5,
+        "end_s": 41.0,
+        "frame_times_s": [
+          23.0625,
+          28.1875,
+          33.3125,
+          38.4375
+        ],
+        "is_anomaly": false,
+        "event_type": "Shoplifting",
+        "confidence": 0.95,
+        "caption": "A customer is caught stealing items from the checkout counter."
+      }
+    ],
+    "elapsed_s": 5.375924000050873
+  }
+}

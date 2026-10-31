@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion035_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Explosion035_x264",
+      "start_s": 78.0,
+      "end_s": 79.0,
+      "score": 1.1724079497353943
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "A person is seen in a room with a table and chairs.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:21:46+00:00",
+    "schema_version": 1,
+    "window_index": 2,
+    "k": 4,
+    "frame_times_s": [
+      78.125,
+      78.375,
+      78.625,
+      78.875
+    ],
+    "source_windows": "results/windows/Explosion035_x264.json",
+    "fingerprint": "619c5514e9b43319b54d34ff732f8bb64e44a7600a0190f774e46d3ef8ec7798",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 78.0,
+        "end_s": 79.0,
+        "frame_times_s": [
+          78.125,
+          78.375,
+          78.625,
+          78.875
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A person is seen in a room with a table and chairs."
+      }
+    ],
+    "elapsed_s": 3.5144646000117064
+  }
+}

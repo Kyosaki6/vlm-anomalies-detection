@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Shooting032_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shooting032_x264",
+      "start_s": 642.0,
+      "end_s": 654.0,
+      "score": 1.2926972280376248
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Shooting",
+      "caption": "A person is shot multiple times by a police officer while running down the street.",
+      "confidence": 0.98
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:17:05+00:00",
+    "schema_version": 1,
+    "window_index": 4,
+    "k": 4,
+    "frame_times_s": [
+      643.5,
+      646.5,
+      649.5,
+      652.5
+    ],
+    "source_windows": "results/windows/Shooting032_x264.json",
+    "fingerprint": "7ca9f509d3fd7679154501ea423118eecf27178786b81b3c00104ebfe31a5826",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 642.0,
+        "end_s": 654.0,
+        "frame_times_s": [
+          643.5,
+          646.5,
+          649.5,
+          652.5
+        ],
+        "is_anomaly": true,
+        "event_type": "Shooting",
+        "confidence": 0.98,
+        "caption": "A person is shot multiple times by a police officer while running down the street."
+      }
+    ],
+    "elapsed_s": 3.534548799972981
+  }
+}

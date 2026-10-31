@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "video_id": "Fighting047_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Fighting047_x264",
+      "start_s": 4.0,
+      "end_s": 149.0,
+      "score": 1.4933312948947455
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Fighting",
+      "caption": "Two individuals are engaged in a physical altercation near a blue pole in a workshop setting.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:24:23+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      7.625,
+      14.875,
+      22.125,
+      29.375,
+      36.625,
+      43.875,
+      51.125,
+      58.375,
+      65.625,
+      72.875,
+      80.125,
+      87.375,
+      94.625,
+      101.875,
+      109.125,
+      116.375,
+      123.625,
+      130.875,
+      138.125,
+      145.375
+    ],
+    "source_windows": "results/windows/Fighting047_x264.json",
+    "fingerprint": "9cfc492fa9d9ce763705da588e1d82b227d3fdc44403103f08feec4368ae73bf",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 5,
+    "chunks": [
+      {
+        "start_s": 4.0,
+        "end_s": 33.0,
+        "frame_times_s": [
+          7.625,
+          14.875,
+          22.125,
+          29.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Fighting",
+        "confidence": 0.95,
+        "caption": "Two individuals are engaged in a physical altercation near a blue pole in a workshop setting."
+      },
+      {
+        "start_s": 33.0,
+        "end_s": 62.0,
+        "frame_times_s": [
+          36.625,
+          43.875,
+          51.125,
+          58.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Fighting",
+        "confidence": 0.95,
+        "caption": "A group of people are engaged in a physical altercation in a garage setting."
+      },
+      {
+        "start_s": 62.0,
+        "end_s": 91.0,
+        "frame_times_s": [
+          65.625,
+          72.875,
+          80.125,
+          87.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Fighting",
+        "confidence": 0.85,
+        "caption": "A group of people are engaged in a physical altercation in a garage setting."
+      },
+      {
+        "start_s": 91.0,
+        "end_s": 120.0,
+        "frame_times_s": [
+          94.625,
+          101.875,
+          109.125,
+          116.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Fighting",
+        "confidence": 0.85,
+        "caption": "A group of people are engaged in a physical altercation in a garage setting."
+      },
+      {
+        "start_s": 120.0,
+        "end_s": 149.0,
+        "frame_times_s": [
+          123.625,
+          130.875,
+          138.125,
+          145.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Fighting",
+        "confidence": 0.85,
+        "caption": "Two individuals are engaged in a physical altercation in a workshop setting."
+      }
+    ],
+    "elapsed_s": 18.075771400006488
+  }
+}

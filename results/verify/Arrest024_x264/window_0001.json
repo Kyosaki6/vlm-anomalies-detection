@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "video_id": "Arrest024_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Arrest024_x264",
+      "start_s": 33.0,
+      "end_s": 121.0,
+      "score": 1.4118320422088269
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Robbery",
+      "caption": "A white van is being robbed by a person on the side of the road.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T07:53:53+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      36.666666666666664,
+      44.0,
+      51.33333333333333,
+      58.666666666666664,
+      66.0,
+      73.33333333333333,
+      80.66666666666666,
+      88.0,
+      95.33333333333333,
+      102.66666666666666,
+      110.0,
+      117.33333333333333
+    ],
+    "source_windows": "results/windows/Arrest024_x264.json",
+    "fingerprint": "26bef9a600e1f5e24365b6fe97e292f6fdbd7c1b6d438598c22dcae808ca84ec",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 3,
+    "chunks": [
+      {
+        "start_s": 33.0,
+        "end_s": 62.33333333333333,
+        "frame_times_s": [
+          36.666666666666664,
+          44.0,
+          51.33333333333333,
+          58.666666666666664
+        ],
+        "is_anomaly": true,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "A white van is being robbed by a person on the side of the road."
+      },
+      {
+        "start_s": 62.33333333333333,
+        "end_s": 91.66666666666666,
+        "frame_times_s": [
+          66.0,
+          73.33333333333333,
+          80.66666666666666,
+          88.0
+        ],
+        "is_anomaly": false,
+        "event_type": "Arrest",
+        "confidence": 0.95,
+        "caption": "A person is being arrested by law enforcement near a white van on a city street."
+      },
+      {
+        "start_s": 91.66666666666666,
+        "end_s": 121.0,
+        "frame_times_s": [
+          95.33333333333333,
+          102.66666666666666,
+          110.0,
+          117.33333333333333
+        ],
+        "is_anomaly": false,
+        "event_type": "Arrest",
+        "confidence": 0.85,
+        "caption": "A police officer approaches a suspect lying on the ground near a white van."
+      }
+    ],
+    "elapsed_s": 32.33019180002157
+  }
+}

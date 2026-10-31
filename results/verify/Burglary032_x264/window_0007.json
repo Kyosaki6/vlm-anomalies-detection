@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Burglary032_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Burglary032_x264",
+      "start_s": 420.0,
+      "end_s": 426.0,
+      "score": 1.2676932223605988
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Burglary",
+      "caption": "A person wearing a white hat and jacket is seen entering a room through a door.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:05:17+00:00",
+    "schema_version": 1,
+    "window_index": 7,
+    "k": 4,
+    "frame_times_s": [
+      420.75,
+      422.25,
+      423.75,
+      425.25
+    ],
+    "source_windows": "results/windows/Burglary032_x264.json",
+    "fingerprint": "a2307a8c339fcf22a0c9e8588af06e0326e3ba883aa40daec17848ce27ff110d",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 420.0,
+        "end_s": 426.0,
+        "frame_times_s": [
+          420.75,
+          422.25,
+          423.75,
+          425.25
+        ],
+        "is_anomaly": false,
+        "event_type": "Burglary",
+        "confidence": 0.95,
+        "caption": "A person wearing a white hat and jacket is seen entering a room through a door."
+      }
+    ],
+    "elapsed_s": 10.443792999954894
+  }
+}

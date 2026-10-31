@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Burglary037_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Burglary037_x264",
+      "start_s": 54.0,
+      "end_s": 64.0,
+      "score": 1.3661547138318937
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Burglary",
+      "caption": "A person is seen entering a room and then exiting with a bag.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:05:56+00:00",
+    "schema_version": 1,
+    "window_index": 2,
+    "k": 4,
+    "frame_times_s": [
+      55.25,
+      57.75,
+      60.25,
+      62.75
+    ],
+    "source_windows": "results/windows/Burglary037_x264.json",
+    "fingerprint": "040338dae92d914af7e95a3a529ca3f62c4f7877f0d545746ba8532d23b29953",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 54.0,
+        "end_s": 64.0,
+        "frame_times_s": [
+          55.25,
+          57.75,
+          60.25,
+          62.75
+        ],
+        "is_anomaly": true,
+        "event_type": "Burglary",
+        "confidence": 0.95,
+        "caption": "A person is seen entering a room and then exiting with a bag."
+      }
+    ],
+    "elapsed_s": 9.968227700097486
+  }
+}

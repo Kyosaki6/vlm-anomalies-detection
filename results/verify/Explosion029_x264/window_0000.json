@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion029_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Explosion029_x264",
+      "start_s": 10.0,
+      "end_s": 81.0,
+      "score": 1.427014789172805
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "A person is seen near a gas pump, and then an explosion occurs.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:21:29+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      12.958333333333334,
+      18.875,
+      24.79166666666667,
+      30.708333333333336,
+      36.62500000000001,
+      42.54166666666667,
+      48.458333333333336,
+      54.375,
+      60.29166666666667,
+      66.20833333333334,
+      72.125,
+      78.04166666666667
+    ],
+    "source_windows": "results/windows/Explosion029_x264.json",
+    "fingerprint": "9fd0e1f08f775be6ff5a5e024cdf778ad610d132f7df8080871fcdb306f072c0",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 3,
+    "chunks": [
+      {
+        "start_s": 10.0,
+        "end_s": 33.66666666666667,
+        "frame_times_s": [
+          12.958333333333334,
+          18.875,
+          24.79166666666667,
+          30.708333333333336
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.85,
+        "caption": "A person is pumping gas into their vehicle at night."
+      },
+      {
+        "start_s": 33.66666666666667,
+        "end_s": 57.333333333333336,
+        "frame_times_s": [
+          36.62500000000001,
+          42.54166666666667,
+          48.458333333333336,
+          54.375
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.85,
+        "caption": "A person is seen near a gas pump, and then an explosion occurs."
+      },
+      {
+        "start_s": 57.333333333333336,
+        "end_s": 81.0,
+        "frame_times_s": [
+          60.29166666666667,
+          66.20833333333334,
+          72.125,
+          78.04166666666667
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A person is seen near a gas pump, and then an explosion occurs."
+      }
+    ],
+    "elapsed_s": 15.395388500066474
+  }
+}

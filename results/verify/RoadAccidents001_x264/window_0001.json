@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "RoadAccidents001_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "RoadAccidents001_x264",
+      "start_s": 34.0,
+      "end_s": 46.0,
+      "score": 1.2406913643345179
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "RoadAccidents",
+      "caption": "A person is lying on the ground near a vehicle, possibly injured.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:13:53+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      35.5,
+      38.5,
+      41.5,
+      44.5
+    ],
+    "source_windows": "results/windows/RoadAccidents001_x264.json",
+    "fingerprint": "23e705c0c77398dd09ea22c102ceb1abce7f0aac9b4413e5bf22cd6cd076aeaa",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 34.0,
+        "end_s": 46.0,
+        "frame_times_s": [
+          35.5,
+          38.5,
+          41.5,
+          44.5
+        ],
+        "is_anomaly": true,
+        "event_type": "RoadAccidents",
+        "confidence": 0.95,
+        "caption": "A person is lying on the ground near a vehicle, possibly injured."
+      }
+    ],
+    "elapsed_s": 3.914755299920216
+  }
+}

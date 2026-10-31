@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Shoplifting039_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shoplifting039_x264",
+      "start_s": 33.0,
+      "end_s": 39.0,
+      "score": 1.2434794118928783
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A man is seen walking into a store with a bag over his shoulder.",
+      "confidence": 0.85
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:19:51+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      33.75,
+      35.25,
+      36.75,
+      38.25
+    ],
+    "source_windows": "results/windows/Shoplifting039_x264.json",
+    "fingerprint": "3fc31a683187d0031ce03e25f94a92fe4420752475061ca08c3179478d3be8b7",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 33.0,
+        "end_s": 39.0,
+        "frame_times_s": [
+          33.75,
+          35.25,
+          36.75,
+          38.25
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.85,
+        "caption": "A man is seen walking into a store with a bag over his shoulder."
+      }
+    ],
+    "elapsed_s": 2.848181499983184
+  }
+}

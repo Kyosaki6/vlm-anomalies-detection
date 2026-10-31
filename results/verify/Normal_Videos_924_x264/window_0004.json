@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_924_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 131.0,
+      "end_s": 137.0,
+      "score": 1.1999750103160403
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A panda is sitting on the floor next to a bag.",
+      "confidence": 0.85
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:07:18+00:00",
+    "schema_version": 1,
+    "window_index": 4,
+    "k": 4,
+    "frame_times_s": [
+      131.75,
+      133.25,
+      134.75,
+      136.25
+    ],
+    "source_windows": "results/windows/Normal_Videos_924_x264.json",
+    "fingerprint": "4b360050456954b0ee864b690f90661ea5ecc311f9a50c855e6c2c3f968b5c56",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 131.0,
+        "end_s": 137.0,
+        "frame_times_s": [
+          131.75,
+          133.25,
+          134.75,
+          136.25
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.85,
+        "caption": "A panda is sitting on the floor next to a bag."
+      }
+    ],
+    "elapsed_s": 3.0949838999658823
+  }
+}

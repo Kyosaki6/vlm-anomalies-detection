@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "video_id": "Arson011_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Arson011_x264",
+      "start_s": 0.0,
+      "end_s": 43.0,
+      "score": 1.4426879019966232
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Arson",
+      "caption": "A person is seen holding a lit candle inside an elevator.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T07:59:11+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      2.6875,
+      8.0625,
+      13.4375,
+      18.8125,
+      24.1875,
+      29.5625,
+      34.9375,
+      40.3125
+    ],
+    "source_windows": "results/windows/Arson011_x264.json",
+    "fingerprint": "73b73fe37e7b44dcd1f68ffc583c03b7b68520f51d425cd232d49151cf079d8d",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 2,
+    "chunks": [
+      {
+        "start_s": 0.0,
+        "end_s": 21.5,
+        "frame_times_s": [
+          2.6875,
+          8.0625,
+          13.4375,
+          18.8125
+        ],
+        "is_anomaly": true,
+        "event_type": "Arson",
+        "confidence": 0.95,
+        "caption": "A person is seen holding a lit candle inside an elevator."
+      },
+      {
+        "start_s": 21.5,
+        "end_s": 43.0,
+        "frame_times_s": [
+          24.1875,
+          29.5625,
+          34.9375,
+          40.3125
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A person is seen holding a lit object near a wall, which then explodes."
+      }
+    ],
+    "elapsed_s": 18.725405099918135
+  }
+}

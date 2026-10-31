@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_924_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 57.0,
+      "end_s": 88.0,
+      "score": 1.221726272771893
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is sitting at a desk in front of a computer monitor.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:07:11+00:00",
+    "schema_version": 1,
+    "window_index": 2,
+    "k": 4,
+    "frame_times_s": [
+      58.9375,
+      62.8125,
+      66.6875,
+      70.5625,
+      74.4375,
+      78.3125,
+      82.1875,
+      86.0625
+    ],
+    "source_windows": "results/windows/Normal_Videos_924_x264.json",
+    "fingerprint": "02608f4ce272f77744cf646659a3b5fdd44beb96d72533518e159eecb83d6914",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 2,
+    "chunks": [
+      {
+        "start_s": 57.0,
+        "end_s": 72.5,
+        "frame_times_s": [
+          58.9375,
+          62.8125,
+          66.6875,
+          70.5625
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.8,
+        "caption": "A person is sitting at a table with a laptop and a bag on the floor."
+      },
+      {
+        "start_s": 72.5,
+        "end_s": 88.0,
+        "frame_times_s": [
+          74.4375,
+          78.3125,
+          82.1875,
+          86.0625
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is sitting at a desk in front of a computer monitor."
+      }
+    ],
+    "elapsed_s": 6.549570300034247
+  }
+}

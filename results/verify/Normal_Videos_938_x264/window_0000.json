@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_938_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_938_x264",
+      "start_s": 89.0,
+      "end_s": 92.0,
+      "score": 1.183442378516284
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A woman is standing behind a counter in a store, looking at a laptop.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:13:41+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      89.375,
+      90.125,
+      90.875,
+      91.625
+    ],
+    "source_windows": "results/windows/Normal_Videos_938_x264.json",
+    "fingerprint": "ddd76d3a62da0f98d35603209f546f911350ea56b9b1ec190a9baf5ecff22696",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 89.0,
+        "end_s": 92.0,
+        "frame_times_s": [
+          89.375,
+          90.125,
+          90.875,
+          91.625
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A woman is standing behind a counter in a store, looking at a laptop."
+      }
+    ],
+    "elapsed_s": 3.9662254001013935
+  }
+}

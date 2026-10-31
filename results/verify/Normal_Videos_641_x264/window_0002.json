@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_641_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_641_x264",
+      "start_s": 50.0,
+      "end_s": 55.0,
+      "score": 1.1811359710198128
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A customer is browsing items at the checkout counter.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:05:24+00:00",
+    "schema_version": 1,
+    "window_index": 2,
+    "k": 4,
+    "frame_times_s": [
+      50.625,
+      51.875,
+      53.125,
+      54.375
+    ],
+    "source_windows": "results/windows/Normal_Videos_641_x264.json",
+    "fingerprint": "c1cc4b913d0ce9b55ba4472981cbe7b6da8dc71ef18bc68752604a9e3108f08a",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 50.0,
+        "end_s": 55.0,
+        "frame_times_s": [
+          50.625,
+          51.875,
+          53.125,
+          54.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A customer is browsing items at the checkout counter."
+      }
+    ],
+    "elapsed_s": 3.0922627000836655
+  }
+}

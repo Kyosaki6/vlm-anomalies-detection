@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "RoadAccidents010_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "RoadAccidents010_x264",
+      "start_s": 11.0,
+      "end_s": 18.0,
+      "score": 1.2623406021332086
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "RoadAccidents",
+      "caption": "A white car is parked next to a red bus, and the driver of the car appears to be getting out of the vehicle.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:13:58+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      11.875,
+      13.625,
+      15.375,
+      17.125
+    ],
+    "source_windows": "results/windows/RoadAccidents010_x264.json",
+    "fingerprint": "3dc4f6bd38ed9f8c4ce8e3eba23aceb318b6e5865151cb8d867d692117011c7c",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 11.0,
+        "end_s": 18.0,
+        "frame_times_s": [
+          11.875,
+          13.625,
+          15.375,
+          17.125
+        ],
+        "is_anomaly": true,
+        "event_type": "RoadAccidents",
+        "confidence": 0.95,
+        "caption": "A white car is parked next to a red bus, and the driver of the car appears to be getting out of the vehicle."
+      }
+    ],
+    "elapsed_s": 4.329067699960433
+  }
+}

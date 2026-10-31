@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_894_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_894_x264",
+      "start_s": 58.0,
+      "end_s": 86.0,
+      "score": 1.3508078045411842
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Shoplifting",
+      "caption": "A customer is caught stealing items from the checkout counter.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:06:32+00:00",
+    "schema_version": 1,
+    "window_index": 2,
+    "k": 4,
+    "frame_times_s": [
+      61.5,
+      68.5,
+      75.5,
+      82.5
+    ],
+    "source_windows": "results/windows/Normal_Videos_894_x264.json",
+    "fingerprint": "ff753bc6e20b46b56a82ef5b6a4e7edbe82ac14612d3987a3bd6609268f92d0f",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 58.0,
+        "end_s": 86.0,
+        "frame_times_s": [
+          61.5,
+          68.5,
+          75.5,
+          82.5
+        ],
+        "is_anomaly": false,
+        "event_type": "Shoplifting",
+        "confidence": 0.95,
+        "caption": "A customer is caught stealing items from the checkout counter."
+      }
+    ],
+    "elapsed_s": 3.2373652999522164
+  }
+}

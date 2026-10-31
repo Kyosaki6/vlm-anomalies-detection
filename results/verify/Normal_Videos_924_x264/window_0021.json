@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_924_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 2398.0,
+      "end_s": 2399.0,
+      "score": 1.1707656219372542
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A woman walks across a green floor in a controlled environment.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:10:05+00:00",
+    "schema_version": 1,
+    "window_index": 21,
+    "k": 4,
+    "frame_times_s": [
+      2398.125,
+      2398.375,
+      2398.625,
+      2398.875
+    ],
+    "source_windows": "results/windows/Normal_Videos_924_x264.json",
+    "fingerprint": "38574d0d1462e16e70e8de45ba59451c8dd6dc780747cc961bfc940e09f0e1d8",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 2398.0,
+        "end_s": 2399.0,
+        "frame_times_s": [
+          2398.125,
+          2398.375,
+          2398.625,
+          2398.875
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A woman walks across a green floor in a controlled environment."
+      }
+    ],
+    "elapsed_s": 3.121954599977471
+  }
+}

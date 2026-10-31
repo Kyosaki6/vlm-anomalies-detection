@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion039_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Explosion039_x264",
+      "start_s": 30.0,
+      "end_s": 32.0,
+      "score": 1.192634741880641
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "A person is seen throwing a green object into the air.",
+      "confidence": 0.85
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:22:23+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      30.25,
+      30.75,
+      31.25,
+      31.75
+    ],
+    "source_windows": "results/windows/Explosion039_x264.json",
+    "fingerprint": "b0fcd73ec8a74202591a6412ae9581ff450730a4ebe9280bbc5aeb567f047370",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 30.0,
+        "end_s": 32.0,
+        "frame_times_s": [
+          30.25,
+          30.75,
+          31.25,
+          31.75
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.85,
+        "caption": "A person is seen throwing a green object into the air."
+      }
+    ],
+    "elapsed_s": 3.4762255999958143
+  }
+}

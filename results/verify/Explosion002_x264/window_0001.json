@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion002_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Explosion002_x264",
+      "start_s": 76.0,
+      "end_s": 80.0,
+      "score": 1.1847001224554
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "A person is seen walking towards a gas pump at night.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:08:46+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      76.5,
+      77.5,
+      78.5,
+      79.5
+    ],
+    "source_windows": "results/windows/Explosion002_x264.json",
+    "fingerprint": "b92406b8d43f844fac8347fd0251dcc206786cc13a9df5bb3d69a702cff5f8a6",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 76.0,
+        "end_s": 80.0,
+        "frame_times_s": [
+          76.5,
+          77.5,
+          78.5,
+          79.5
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A person is seen walking towards a gas pump at night."
+      }
+    ],
+    "elapsed_s": 8.996541000087745
+  }
+}

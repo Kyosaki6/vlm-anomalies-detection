@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion013_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Explosion013_x264",
+      "start_s": 15.0,
+      "end_s": 86.0,
+      "score": 1.356048305480891
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "A person is seen standing near a vehicle with a visible explosion.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:12:38+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      17.958333333333336,
+      23.875,
+      29.79166666666667,
+      35.708333333333336,
+      41.62500000000001,
+      47.54166666666667,
+      53.458333333333336,
+      59.375,
+      65.29166666666667,
+      71.20833333333334,
+      77.125,
+      83.04166666666667
+    ],
+    "source_windows": "results/windows/Explosion013_x264.json",
+    "fingerprint": "7496588fe0a2de1407bda2feb5975f4ab8dc77b469382d916a44c1d23c40a07f",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 3,
+    "chunks": [
+      {
+        "start_s": 15.0,
+        "end_s": 38.66666666666667,
+        "frame_times_s": [
+          17.958333333333336,
+          23.875,
+          29.79166666666667,
+          35.708333333333336
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A person is seen standing near a vehicle with a visible explosion."
+      },
+      {
+        "start_s": 38.66666666666667,
+        "end_s": 62.333333333333336,
+        "frame_times_s": [
+          41.62500000000001,
+          47.54166666666667,
+          53.458333333333336,
+          59.375
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A person is seen near a vehicle with a visible explosion."
+      },
+      {
+        "start_s": 62.333333333333336,
+        "end_s": 86.0,
+        "frame_times_s": [
+          65.29166666666667,
+          71.20833333333334,
+          77.125,
+          83.04166666666667
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "An explosion occurs near a vehicle."
+      }
+    ],
+    "elapsed_s": 26.293343900004402
+  }
+}

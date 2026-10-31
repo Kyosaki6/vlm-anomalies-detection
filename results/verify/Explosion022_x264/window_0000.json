@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion022_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Explosion022_x264",
+      "start_s": 0.0,
+      "end_s": 82.0,
+      "score": 1.3952330640890307
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "A person is seen walking towards a control panel and then an explosion occurs.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:21:07+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      3.4166666666666665,
+      10.25,
+      17.083333333333332,
+      23.916666666666664,
+      30.75,
+      37.58333333333333,
+      44.416666666666664,
+      51.25,
+      58.08333333333333,
+      64.91666666666666,
+      71.75,
+      78.58333333333333
+    ],
+    "source_windows": "results/windows/Explosion022_x264.json",
+    "fingerprint": "a353e7aad019568f8e3e136c3b78698c11fbe55c4e4d8943a4fc7e6fe68ce81a",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 3,
+    "chunks": [
+      {
+        "start_s": 0.0,
+        "end_s": 27.333333333333332,
+        "frame_times_s": [
+          3.4166666666666665,
+          10.25,
+          17.083333333333332,
+          23.916666666666664
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A person is seen walking towards a control panel and then an explosion occurs."
+      },
+      {
+        "start_s": 27.333333333333332,
+        "end_s": 54.666666666666664,
+        "frame_times_s": [
+          30.75,
+          37.58333333333333,
+          44.416666666666664,
+          51.25
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A person is seen walking towards a control panel and then an explosion occurs."
+      },
+      {
+        "start_s": 54.666666666666664,
+        "end_s": 82.0,
+        "frame_times_s": [
+          58.08333333333333,
+          64.91666666666666,
+          71.75,
+          78.58333333333333
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "An explosion occurs inside a facility."
+      }
+    ],
+    "elapsed_s": 19.596439100103453
+  }
+}

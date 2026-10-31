@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "video_id": "Fighting003_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Fighting003_x264",
+      "start_s": 12.0,
+      "end_s": 104.0,
+      "score": 1.3883435160295736
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Fighting",
+      "caption": "A fight breaks out between two individuals on a subway platform.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:23:23+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      14.875,
+      20.625,
+      26.375,
+      32.125,
+      37.875,
+      43.625,
+      49.375,
+      55.125,
+      60.875,
+      66.625,
+      72.375,
+      78.125,
+      83.875,
+      89.625,
+      95.375,
+      101.125
+    ],
+    "source_windows": "results/windows/Fighting003_x264.json",
+    "fingerprint": "5499131679c20435db6fcabdf794c94c5cb2763e1525b6239a5459a12316b134",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 4,
+    "chunks": [
+      {
+        "start_s": 12.0,
+        "end_s": 35.0,
+        "frame_times_s": [
+          14.875,
+          20.625,
+          26.375,
+          32.125
+        ],
+        "is_anomaly": false,
+        "event_type": "Fighting",
+        "confidence": 0.95,
+        "caption": "A group of individuals is engaged in a physical altercation near a subway station."
+      },
+      {
+        "start_s": 35.0,
+        "end_s": 58.0,
+        "frame_times_s": [
+          37.875,
+          43.625,
+          49.375,
+          55.125
+        ],
+        "is_anomaly": true,
+        "event_type": "Fighting",
+        "confidence": 0.95,
+        "caption": "A fight breaks out between two individuals on a subway platform."
+      },
+      {
+        "start_s": 58.0,
+        "end_s": 81.0,
+        "frame_times_s": [
+          60.875,
+          66.625,
+          72.375,
+          78.125
+        ],
+        "is_anomaly": true,
+        "event_type": "Fighting",
+        "confidence": 0.95,
+        "caption": "A fight breaks out between two individuals on the subway platform."
+      },
+      {
+        "start_s": 81.0,
+        "end_s": 104.0,
+        "frame_times_s": [
+          83.875,
+          89.625,
+          95.375,
+          101.125
+        ],
+        "is_anomaly": false,
+        "event_type": "Fighting",
+        "confidence": 0.95,
+        "caption": "Two individuals are engaged in a physical altercation near the subway station."
+      }
+    ],
+    "elapsed_s": 41.82356130005792
+  }
+}

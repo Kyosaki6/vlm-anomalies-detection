@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Shooting047_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shooting047_x264",
+      "start_s": 3.0,
+      "end_s": 13.0,
+      "score": 1.453786014003821
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Shooting",
+      "caption": "Surveillance video shows the shooting of Miami-Dade Police Officer John Saavedra and the shooting death of a growhouse suspect.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:17:54+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      4.25,
+      6.75,
+      9.25,
+      11.75
+    ],
+    "source_windows": "results/windows/Shooting047_x264.json",
+    "fingerprint": "cabd984a0245c664e904ea55165126470d4bc336fecd673df7c3f1716205d380",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 3.0,
+        "end_s": 13.0,
+        "frame_times_s": [
+          4.25,
+          6.75,
+          9.25,
+          11.75
+        ],
+        "is_anomaly": false,
+        "event_type": "Shooting",
+        "confidence": 0.95,
+        "caption": "Surveillance video shows the shooting of Miami-Dade Police Officer John Saavedra and the shooting death of a growhouse suspect."
+      }
+    ],
+    "elapsed_s": 3.845524200005457
+  }
+}
