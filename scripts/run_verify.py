@@ -136,6 +136,33 @@ def pick_frame_times(start_s: float, end_s: float, k: int) -> list[float]:
     return [start_s + (i + 0.5) * duration / k for i in range(k)]
 
 
+def clamp_window_to_video(start_s: float, end_s: float, duration: float) -> tuple[float, float]:
+    """Cắt cửa sổ về trong [0, duration] của video.
+
+    Tier-1 đôi khi xuất cửa sổ trôi quá cuối video do làm tròn frame/fps lúc export:
+    48/307 cửa sổ có `end_s > duration` (lệch 0.03..0.93 s). Trong đó 2 cửa sổ có mốc thời gian
+    vượt hẳn video nên code cũ raise và bị bỏ (RoadAccidents002_x264, Vandalism017_x264);
+    46 cửa sổ còn lại vẫn chạy nhưng mốc thời gian/frame indices đổi sau khi cắt.
+    Đây là thay đổi sampling đã biết và được chấp nhận (dịch < 1 s); fingerprint KHÔNG đổi nên
+    rerun không tự chạy lại 46 cửa sổ cũ — xem review PR #35.
+    Cắt về đúng độ dài video là cách hiểu duy nhất không bịa dữ liệu; nếu cửa sổ nằm HOÀN TOÀN
+    ngoài video thì vẫn raise để không bao giờ verify một cửa sổ không tồn tại.
+    """
+    if not (math.isfinite(duration) and duration > 0):
+        raise ValueError(f"duration phải hữu hạn và > 0, nhận {duration!r}")
+    if not (math.isfinite(start_s) and math.isfinite(end_s)):
+        raise ValueError(f"start_s/end_s phải hữu hạn, nhận ({start_s!r}, {end_s!r})")
+    if end_s <= 0 or start_s >= duration:
+        raise ValueError(
+            f"Cửa sổ {start_s}..{end_s}s nằm hoàn toàn ngoài video (0..{duration:.3f}s)"
+        )
+    start = min(max(start_s, 0.0), duration)
+    end = min(end_s, duration)
+    if end <= start:
+        raise ValueError(f"Cửa sổ rỗng sau khi cắt về video: {start}..{end} (duration {duration})")
+    return start, end
+
+
 def split_into_chunks(start_s: float, end_s: float,
                       max_chunk_s: float = DEFAULT_MAX_CHUNK_S) -> list[tuple[float, float]]:
     """Chia đều (start_s, end_s) thành n chunk, n = ceil(độ dài / max_chunk_s), mỗi chunk <= max_chunk_s.
@@ -242,14 +269,18 @@ def plan_window_frames(video_path: str | Path, windows: Sequence[Window], k: int
                        max_chunk_s: float = DEFAULT_MAX_CHUNK_S) -> list[ChunkPlan | ValueError]:
     """Mỗi window -> danh sách chunk [((start, end), mốc thời gian, chỉ số frame)] hoặc ValueError.
 
+    Biên cửa sổ được cắt về đúng độ dài video trước khi chia chunk (xem
+    `clamp_window_to_video`); cửa sổ nằm hoàn toàn ngoài video -> ValueError cho window đó.
     Lỗi từng window được TRẢ VỀ (không raise) để người gọi chọn dừng hay đi tiếp.
     """
     n_frames, fps = probe_video(video_path)
+    duration = n_frames / fps
     plans: list[ChunkPlan | ValueError] = []
     for w in windows:
         try:
             chunks: ChunkPlan = []
-            for c_start, c_end in split_into_chunks(w.start_s, w.end_s, max_chunk_s):
+            start_s, end_s = clamp_window_to_video(w.start_s, w.end_s, duration)
+            for c_start, c_end in split_into_chunks(start_s, end_s, max_chunk_s):
                 times = pick_frame_times(c_start, c_end, k)
                 chunks.append(((c_start, c_end), times, frame_indices_for_times(times, fps, n_frames)))
             plans.append(chunks)
@@ -458,6 +489,8 @@ def run_verify(manifest_path: str | Path, windows_dir: str | Path = DEFAULT_WIND
         if not pending:
             continue
         if dry_run:
+            # Ước lượng: dry-run không mở video nên KHÔNG clamp được biên (không biết duration).
+            # Số chunk thật có thể lệch nếu clamp làm cửa sổ cắt qua ngưỡng max_chunk_s (chưa gặp ở 307 cửa sổ).
             n_calls = sum(len(split_into_chunks(w.start_s, w.end_s, max_chunk_s))
                           for _, w, _, _ in pending if w.end_s > w.start_s)
             summary.chunk_calls += n_calls
