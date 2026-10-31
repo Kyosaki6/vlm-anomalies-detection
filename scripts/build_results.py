@@ -7,6 +7,13 @@
     python scripts/build_results.py --manifest manifests/own_demo.csv --ablation A3 \
         --threshold 2.5 --verify-dir results/tier2 --limit 5
 
+`--verify-dir` nhận HAI kiểu bố cục, vì tier-2 có hai nơi ghi ra:
+  - `<verify_dir>/<video_id>.json`                -- một file cho cả video (định dạng `RunResult.load_windows`)
+  - `<verify_dir>/<video_id>/window_NNNN.json`    -- một file cho mỗi cửa sổ, đúng thứ `scripts/run_verify.py`
+    ghi ra. Kiểu thứ hai được kiểm chặt hơn: window_index liên tục từ 0, tên file khớp index, mọi file cùng
+    một cấu hình verifier, và fingerprint tính lại từ cửa sổ tier-1 hiện tại phải khớp fingerprint đã lưu.
+    Video không có cửa sổ nào thì không cần file tier-2 (đúng: không có gì để verify).
+
 Vì sao có script này: `run_benchmark.py` trả lời "các ablation được bao nhiêu AUC"; nó không sinh ra thứ
 dashboard đọc. Script này là mảnh nối cuối: chạy tier-1 trên cache, cắt cửa sổ bằng một ngưỡng, gắn kết
 quả tier-2 (nếu đã có), dựng "bản tin cảnh báo" bằng `vad/graph/alerts.py`, rồi ghi file.
@@ -53,10 +60,13 @@ LENGTH_TOLERANCE = 2                    # số mẫu lệch cho phép (làm trò
 PAIR_TOLERANCE = 1e-3                   # sai số giây khi đối chiếu cửa sổ tính lại vs cửa sổ trong file tier-2
 THRESHOLD_SOURCES = ("placeholder", "calib_normal")
 TIER2_SOURCES = ("none", "fake", "json")
+VERIFY_WINDOW_GLOB = "window_*.json"
 PLACEHOLDER_TIER2_NOTE = ("TIER-2 GIẢ: nhãn sự kiện do FakeVerifier sinh, KHÔNG phải VLM. "
                           "FakeVerifier luôn trả cùng một nhãn (Fighting, 0.9) nên MỌI cảnh báo trong "
                           "file này đều là Fighting — không đọc như kết quả. "
                           "Chỉ dùng để dựng hình dạng file cho dashboard.")
+FAKE_VERIFY_FILE_NOTE = ("TIER-2 GIẢ: file trong --verify-dir tự khai `fake=true` (do FakeVerifier sinh), "
+                         "KHÔNG phải VLM thật — cảnh báo chỉ để dựng hình dạng file, không đọc như kết quả.")
 
 
 class BuildResultsError(ValueError):
@@ -141,6 +151,136 @@ def load_verify_results(path: str | Path,
     return saved.candidate_windows, saved.verify_results
 
 
+def resolve_verify_source(verify_dir: str | Path, video_id: str) -> tuple[str, Path]:
+    """Chọn nguồn tier-2 cho MỘT video: `"dir"` (mỗi cửa sổ một file), `"file"` (mỗi video một file) hay `"missing"`.
+
+    `missing` KHÔNG phải lỗi ở đây: video không có cửa sổ nào thì không có gì để verify, và tier-2 không
+    sinh thư mục cho nó. Việc "video CÓ cửa sổ mà không có kết quả" được `build_video_result` chặn, vì chỉ
+    lúc đó mới biết số cửa sổ thật.
+
+    Có cả hai kiểu cùng lúc là lỗi: hai nguồn có thể nói hai chuyện khác nhau, script không được đoán.
+    """
+    base = Path(verify_dir)
+    per_video = base / f"{video_id}.json"
+    per_window = base / video_id
+    has_file = per_video.is_file()
+    has_dir = per_window.is_dir()
+    if has_file and has_dir:
+        raise BuildResultsError(
+            f"{video_id}: có cả {per_video} và thư mục {per_window} — hai nguồn tier-2 cùng lúc, "
+            "chọn một (xoá/đổi tên cái còn lại), không đoán cái nào đúng.")
+    if has_dir:
+        return "dir", per_window
+    if has_file:
+        return "file", per_video
+    return "missing", per_video
+
+
+def _read_json_object(path: Path) -> dict[str, Any]:
+    with open(path, encoding="utf-8-sig") as f:
+        data = json.load(f)
+    if not isinstance(data, dict):
+        raise BuildResultsError(f"{path.name}: phải là JSON object, nhận {type(data).__name__}")
+    return data
+
+
+def _check_window_file(path: Path, saved: RunResult, window: Window) -> tuple[int, tuple[Any, ...]]:
+    """Kiểm một file tier-2 theo cửa sổ; trả `(window_index, chữ ký cấu hình verifier)`.
+
+    Vì sao cần fingerprint: `check_pairs_match` chỉ so `start_s`/`end_s`. Hai lần chạy khác cấu hình
+    (smoothing khác, verifier khác) có thể cho cùng mốc giây nhưng khác `score`/`k`/prompt — nhãn VLM của
+    lần này sẽ bị dán sang cửa sổ của lần kia. `run_verify.make_fingerprint` băm cả window (kể cả `score`)
+    lẫn cấu hình verifier, nên tính lại bằng cửa sổ tier-1 hiện tại là phép so đủ chặt.
+    """
+    meta = saved.metadata
+    index = meta.get("window_index")
+    if not isinstance(index, int) or isinstance(index, bool) or index < 0:
+        raise BuildResultsError(f"{path.name}: metadata.window_index thiếu hoặc không hợp lệ ({index!r})")
+    if path.name != f"window_{index:04d}.json":
+        raise BuildResultsError(
+            f"{path.name}: tên file không khớp window_index={index} (phải là window_{index:04d}.json) — "
+            "file bị đổi tên hoặc trộn từ lần chạy khác, không ghép bừa.")
+    k = meta.get("k")
+    if not isinstance(k, int) or isinstance(k, bool) or k < 1:
+        raise BuildResultsError(f"{path.name}: metadata.k thiếu hoặc không hợp lệ ({k!r})")
+    max_chunk_s = meta.get("max_chunk_s")
+    if not isinstance(max_chunk_s, (int, float)) or isinstance(max_chunk_s, bool) \
+            or not math.isfinite(max_chunk_s) or max_chunk_s <= 0:
+        raise BuildResultsError(f"{path.name}: metadata.max_chunk_s thiếu hoặc không hợp lệ ({max_chunk_s!r})")
+    name = meta.get("model")
+    if not isinstance(name, str) or not name.strip():
+        raise BuildResultsError(f"{path.name}: metadata.model (tên verifier) thiếu — không tính lại được fingerprint")
+    config = meta.get("verifier_config") or {}
+    stored = meta.get("fingerprint")
+    if not isinstance(stored, str) or not stored:
+        raise BuildResultsError(
+            f"{path.name}: metadata.fingerprint thiếu — không kiểm tra được file có đúng cửa sổ này không")
+
+    from run_verify import make_fingerprint      # lazy: không cần cv2 khi chỉ dùng kiểu <video_id>.json
+
+    expected = make_fingerprint(window, k, name, config, float(max_chunk_s))
+    if expected != stored:
+        raise BuildResultsError(
+            f"{path.name}: fingerprint không khớp cửa sổ tính lại [{window.start_s:g}, {window.end_s:g}] "
+            f"score {window.score:.6g} — file tier-2 của lần chạy khác (khác cửa sổ/verifier/tham số), "
+            "không ghép bừa.")
+    signature = (name, k, float(max_chunk_s), json.dumps(config, sort_keys=True))
+    return index, signature
+
+
+def load_verify_window_dir(path: str | Path, video_id: str
+                           ) -> tuple[tuple[Window, ...], tuple[VerifyResult, ...], bool]:
+    """Đọc thư mục tier-2 kiểu `run_verify.py`: `<dir>/<video_id>/window_NNNN.json`.
+
+    Trả `(cửa sổ, kết quả, có_file_giả)`. Mỗi file phải đúng MỘT cửa sổ + MỘT kết quả; cửa sổ được sắp
+    theo `window_index` chứ không theo thứ tự file trên đĩa (Windows/Linux/metadata đều có thể đổi thứ tự).
+    """
+    d = Path(path)
+    if not d.is_dir():
+        raise BuildResultsError(f"Chưa có thư mục tier-2 cho {video_id!r}: {d}")
+    files = sorted(d.glob(VERIFY_WINDOW_GLOB))
+    if not files:
+        raise BuildResultsError(f"{d}: không có file {VERIFY_WINDOW_GLOB} nào — tier-2 chưa chạy?")
+
+    by_index: dict[int, tuple[Window, VerifyResult, Path]] = {}
+    signatures: set[tuple[Any, ...]] = set()
+    fake = False
+    for p in files:
+        payload = {**_read_json_object(p), "anomaly_scores": []}
+        payload.setdefault("sample_fps", 1.0)
+        try:
+            saved = RunResult.from_dict(payload)
+        except (KeyError, TypeError, ValueError) as e:
+            raise BuildResultsError(f"{p.name}: không đọc được tier-2 ({e})") from e
+        if saved.video_id != video_id:
+            raise BuildResultsError(
+                f"{p.name}: video_id {saved.video_id!r} khác thư mục {video_id!r} — file của video khác.")
+        if len(saved.candidate_windows) != 1 or len(saved.verify_results) != 1:
+            raise BuildResultsError(
+                f"{p.name}: file tier-2 theo cửa sổ phải có đúng 1 cửa sổ + 1 kết quả, nhận "
+                f"{len(saved.candidate_windows)} cửa sổ + {len(saved.verify_results)} kết quả.")
+        window, result = saved.candidate_windows[0], saved.verify_results[0]
+        index, signature = _check_window_file(p, saved, window)
+        if index in by_index:
+            # Không thể xảy ra khi tên file đã khớp index, nhưng giữ để lỗi rõ nếu ai đó nới kiểm tên file.
+            raise BuildResultsError(f"{d}: hai file cùng window_index={index} ({by_index[index][2].name}, {p.name})")
+        by_index[index] = (window, result, p)
+        signatures.add(signature)
+        fake = fake or bool(saved.metadata.get("fake"))
+
+    if len(signatures) > 1:
+        raise BuildResultsError(
+            f"{d}: các file tier-2 không cùng một cấu hình verifier ({len(signatures)} kiểu: "
+            f"{sorted(s[0] for s in signatures)}) — trộn kết quả của hai lần chạy, không ghép bừa.")
+    missing = [i for i in range(max(by_index) + 1) if i not in by_index]
+    if missing:
+        raise BuildResultsError(
+            f"{d}: thiếu window_index {missing} (đang có {sorted(by_index)}) — tier-2 chưa chạy hết, "
+            "ghép sẽ gán nhãn lệch cửa sổ.")
+    ordered = [by_index[i] for i in range(len(by_index))]
+    return (tuple(w for w, _, _ in ordered), tuple(v for _, v, _ in ordered), fake)
+
+
 # --- dựng một video -------------------------------------------------------------------
 
 def check_pairs_match(video_id: str, windows: Sequence[Window],
@@ -168,7 +308,8 @@ def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.nd
                        threshold_source: str = "placeholder", calib_manifest: str = "",
                        normal_bank: np.ndarray | None = None,
                        saved_windows: Sequence[Window] | None = None,
-                       calib_stats: CalibStats | None = None) -> RunResult:
+                       calib_stats: CalibStats | None = None,
+                       tier2_fake: bool = False) -> RunResult:
     """Một video -> RunResult đầy đủ (điểm, cửa sổ, tier-2 nếu có, cảnh báo, metadata).
 
     `config.threshold` quyết định có cắt cửa sổ hay không: None = chỉ có đường điểm (dashboard vẫn vẽ
@@ -189,8 +330,9 @@ def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.nd
         # file tier-2 rỗng trong khi video CÓ cửa sổ -> metadata "tier2=json" sẽ nói dối.
         # Video thật sự 0 cửa sổ thì file rỗng là hợp lệ, nên điều kiện `windows` là cần.
         raise BuildResultsError(
-            f"{video_id}: có {len(windows)} cửa sổ nhưng file tier-2 không có kết quả nào — "
-            "metadata sẽ ghi tier2=json trong khi không có tier-2. Sửa file hoặc bỏ --verify-dir."
+            f"{video_id}: Chưa có file tier-2 (hoặc file không có kết quả nào) trong khi video có "
+            f"{len(windows)} cửa sổ — metadata sẽ ghi tier2=json trong khi không có tier-2. "
+            "Sửa file hoặc bỏ --verify-dir."
         )
 
     if verify and len(verify) != len(windows):
@@ -215,6 +357,8 @@ def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.nd
         notes.append(threshold_note(config.threshold, threshold_source, calib_manifest))
     if tier2_source == "fake":
         notes.append(PLACEHOLDER_TIER2_NOTE)
+    if tier2_fake:
+        notes.append(FAKE_VERIFY_FILE_NOTE)
     if extra_note:
         notes.append(extra_note)
 
@@ -265,26 +409,36 @@ def build_from_manifest(rows: Sequence[dict[str, Any]], config: PipelineConfig, 
                         write: bool = True) -> list[RunResult]:
     """Chạy mọi video trong `rows` và (mặc định) ghi `results/<id>.json` + `results/windows/<id>.json`."""
     check_cache(rows, config, cache_dir)
+    if verify_dir is not None and not Path(verify_dir).is_dir():
+        # Sai đường dẫn thì mọi video đều "không có tier-2"; nếu manifest tình cờ không có cửa sổ nào,
+        # lượt chạy sẽ "thành công" mà metadata ghi tier2=json. Bắt ở đây, không để lọt.
+        raise BuildResultsError(f"--verify-dir không tồn tại hoặc không phải thư mục: {verify_dir}")
     tier2_source = "fake" if verifier is not None else ("json" if verify_dir is not None else "none")
     results: list[RunResult] = []
     for row in rows:
         vid = row["video_id"]
         verify: Sequence[VerifyResult] | None = None
         saved_windows: Sequence[Window] | None = None
+        fake_tier2 = False
         if verifier is not None:
             # cắt cửa sổ trước bằng chính config, rồi mới gọi verifier -> hai bên chắc chắn cùng số cửa sổ
             probe = score_cached_video(vid, config, normal_embs, abnormal_embs, cache_dir,
                                        normal_bank=normal_bank, calib_stats=calib_stats)
             verify = verify_windows(probe.windows, verifier, vid)
         elif verify_dir is not None:
-            saved_windows, verify = load_verify_results(Path(verify_dir) / f"{vid}.json", vid)
+            kind, source = resolve_verify_source(verify_dir, vid)
+            if kind == "dir":
+                saved_windows, verify, fake_tier2 = load_verify_window_dir(source, vid)
+            elif kind == "file":
+                saved_windows, verify = load_verify_results(source, vid)
+            # kind == "missing": video không có cửa sổ thì hợp lệ; có cửa sổ thì build_video_result báo lỗi.
 
         res = build_video_result(vid, config, normal_embs, abnormal_embs, cache_dir, verify_results=verify,
                                  policy=policy, camera=camera, zone=zone, hour=hour, ablation=ablation,
                                  commit=commit, extra_note=extra_note, tier2_source=tier2_source,
                                  threshold_source=threshold_source, calib_manifest=calib_manifest,
                                  normal_bank=normal_bank, saved_windows=saved_windows,
-                                 calib_stats=calib_stats)
+                                 calib_stats=calib_stats, tier2_fake=fake_tier2)
         check_lengths(vid, np.asarray(res.anomaly_scores), row, res.sample_fps)
         if write:
             res.to_json(root=out_dir)
@@ -316,7 +470,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--verifier", choices=("none", "fake"), default="none",
                    help="fake = FakeVerifier (chỉ để dựng hình dạng file, tự khai là giả)")
     p.add_argument("--verify-dir", default=None,
-                   help="thư mục chứa <video_id>.json (định dạng results/windows/) từ tier-2 thật")
+                   help="thư mục tier-2 thật: <video_id>.json (một file/video) hoặc "
+                        "<video_id>/window_NNNN.json (một file/cửa sổ, đúng thứ scripts/run_verify.py ghi)")
     p.add_argument("--limit", type=int, default=None, help="chỉ chạy N video cách đều (chạy thử)")
     p.add_argument("--out-dir", default=str(DEFAULT_RESULTS_DIR))
     p.add_argument("--cache-dir", default=str(DEFAULT_CACHE_DIR))

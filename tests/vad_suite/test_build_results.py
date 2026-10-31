@@ -24,7 +24,7 @@ from vad import pipeline as pl  # noqa: E402
 from vad.embed.cache import save_embeddings  # noqa: E402
 from vad.fakes import FakeVerifier  # noqa: E402
 from vad.graph.policy import GraphPolicy  # noqa: E402
-from vad.results import RunResult  # noqa: E402
+from vad.results import RunResult, make_metadata  # noqa: E402
 from vad.types import EventType, VerifyResult, Window  # noqa: E402
 
 DIM = 8
@@ -217,8 +217,8 @@ def test_verify_dir_empty_verify_with_windows_raises(world):
         _build(world, limit=1, verify_dir=vdir)
 
 
-def test_verify_dir_missing_file_is_an_error(world):
-    with pytest.raises(br.BuildResultsError, match="Chưa có file tier-2"):
+def test_verify_dir_missing_root_is_an_error(world):
+    with pytest.raises(br.BuildResultsError, match="không tồn tại"):
         _build(world, limit=1, verify_dir=world["tmp"] / "nope")
 
 
@@ -380,3 +380,283 @@ def test_ablation_a4c_with_calib_stats_builds(world):
     assert len(res) == 2
     assert res[0].metadata["ablation"] == "A4c"
     assert np.isfinite(res[0].anomaly_scores).all()
+
+
+# --- C7a: tier-2 ghi theo từng cửa sổ (run_verify) ghép được vào build_results -------------------
+#
+# `run_verify.py` ghi `results/verify/<video_id>/window_NNNN.json` (một cửa sổ/file), còn bản đầu của
+# `build_results.py` chỉ đọc `<verify_dir>/<video_id>.json` (một video/file). Hai bên không nói chuyện được.
+# Phần dưới canh đúng cái seam đó, gồm cả các kiểu hỏng im lặng: thiếu index, trộn hai lần chạy, sửa tay
+# một cửa sổ.
+
+TWO_SEG_SEC = ((8, 14), (24, 30))
+VERIFIER_NAME = "Qwen/Qwen2.5-VL-3B-Instruct"
+VERIFIER_CONFIG = {"quantization": "4bit", "max_attempts": 2, "max_new_tokens": 128,
+                   "prompt_hash": "3d71fdba"}
+
+
+@pytest.fixture()
+def wworld(tmp_path):
+    """Một video 40 s có HAI đoạn bất thường -> tier-1 cắt ra đúng 2 cửa sổ (8-14 s, 24-30 s).
+
+    Không dùng chung fixture `world`: thêm video thứ ba sẽ đổi kết quả `select_rows(limit=2)` của các test
+    cũ, và các test đó đang canh ngưỡng/độ dài khác.
+    """
+    rng = np.random.default_rng(1)
+    normal_dir = _unit(rng.normal(size=DIM))
+    raw = rng.normal(size=DIM)
+    abn_dir = _unit(raw - (raw @ normal_dir) * normal_dir)
+
+    def frames(seconds: int) -> np.ndarray:
+        out = []
+        for t in range(seconds):
+            hit = any(a <= t < b for a, b in TWO_SEG_SEC)
+            center = abn_dir if hit else normal_dir
+            out.append(_unit(center + 0.05 * rng.normal(size=DIM)))
+        return np.stack(out)
+
+    vid = "Assault002_x264"
+    cache = tmp_path / "cache"
+    for model in (SIGLIP, CLIP):
+        save_embeddings(frames(40), model, vid, 1.0, cache)
+
+    manifest = tmp_path / "mini2.csv"
+    manifest.write_text("video_id,path,dataset,split,n_frames,fps\n"
+                        f"{vid},{vid}.mp4,ucf_crime,test,1200,30\n", encoding="utf-8")
+    return {"tmp": tmp_path, "cache": cache, "manifest": manifest, "video_id": vid,
+            "normal_embs": normal_dir[None, :].astype(np.float32),
+            "abnormal_embs": abn_dir[None, :].astype(np.float32)}
+
+
+def _build2(wworld, **kw):
+    kw.setdefault("config", _config("A1", 0.5))
+    out_dir = kw.pop("out_dir", wworld["tmp"] / "results")
+    rows = br.select_rows(br.read_benchmark_manifest(wworld["manifest"]), None)
+    return br.build_from_manifest(rows, kw.pop("config"), wworld["normal_embs"], wworld["abnormal_embs"],
+                                  cache_dir=wworld["cache"], out_dir=out_dir, **kw)
+
+
+def _window_file(root, video_id, index, window, result, *, k=4, name=VERIFIER_NAME,
+                 config=None, max_chunk_s=30.0, fake=False, fingerprint=None, filename=None,
+                 extra_meta=None):
+    """Ghi MỘT file đúng như `run_verify.py` ghi (RunResult 1 cửa sổ + 1 kết quả + fingerprint)."""
+    from run_verify import make_fingerprint
+    conf = dict(VERIFIER_CONFIG if config is None else config)
+    fp = fingerprint if fingerprint is not None else make_fingerprint(window, k, name, conf, max_chunk_s)
+    meta = make_metadata(model=name, commit="test", window_index=index, k=k,
+                         source_windows=f"results/windows/{video_id}.json", fingerprint=fp,
+                         fake=fake, verifier_config=conf, max_chunk_s=max_chunk_s,
+                         n_chunks=1, chunks=[], elapsed_s=1.0)
+    if extra_meta:
+        meta.update(extra_meta)
+    payload = RunResult(video_id=video_id, sample_fps=1.0, anomaly_scores=(),
+                        candidate_windows=(window,), verify_results=(result,),
+                        alerts=(), metadata=meta).to_dict()
+    path = Path(root) / video_id / (filename or f"window_{index:04d}.json")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    return path
+
+
+def _write_tier2(wworld, res, root, verdicts, **kw):
+    root = Path(root)
+    for i, (w, v) in enumerate(zip(res.candidate_windows, verdicts)):
+        _window_file(root, wworld["video_id"], i, w, v, **kw)
+    return root
+
+
+def test_verify_window_dir_rebuilds_alerts_for_each_window(wworld):
+    """Đúng mục tiêu C7a: output của `run_verify.py` (mỗi cửa sổ một file) phải ghép được thành cảnh báo."""
+    res = _build2(wworld)[0]
+    assert [(w.start_s, w.end_s) for w in res.candidate_windows] == [(8.0, 14.0), (24.0, 30.0)]
+
+    vdir = _write_tier2(wworld, res, wworld["tmp"] / "verify", [
+        VerifyResult(False, EventType.FIGHTING, "street, no incident", 0.9),
+        VerifyResult(True, EventType.ROAD_ACCIDENT, "a car crash", 0.8),
+    ])
+    out = _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out",
+                  threshold_source="calib_normal",
+                  calib_manifest="manifests/ucf_calib_normal.csv")[0]
+
+    assert [v.is_anomaly for v in out.verify_results] == [False, True]      # đúng cửa sổ, đúng thứ tự
+    assert [a.start_s for a in out.alerts] == [24.0]                        # chỉ cửa sổ được xác nhận
+    assert out.alerts[0].event_type is EventType.ROAD_ACCIDENT
+    assert out.metadata["tier"] == "1+2" and out.metadata["tier2"] == "json"
+    assert out.metadata["note"] == ""                                       # tier-2 thật -> không banner
+    assert not dash.is_placeholder(out)
+
+
+def test_window_files_match_what_run_verify_would_accept(wworld):
+    """File do test sinh ra phải đúng thứ `run_verify.is_completed` chấp nhận, không phải định dạng tự chế."""
+    import run_verify as rv
+
+    res = _build2(wworld)[0]
+    w = res.candidate_windows[0]
+    fp = rv.make_fingerprint(w, 4, VERIFIER_NAME, VERIFIER_CONFIG, 30.0)
+    p = _window_file(wworld["tmp"] / "v", wworld["video_id"], 0, w,
+                     VerifyResult(True, EventType.FIGHTING, "c", 0.9))
+    assert rv.is_completed(p, wworld["video_id"], 0, w, fp)
+
+
+def test_verify_dir_with_both_layouts_is_ambiguous(wworld):
+    """Có cả `<id>.json` và `<id>/window_*.json` -> hai nguồn có thể nói khác nhau, phải lỗi."""
+    res = _build2(wworld)[0]
+    vdir = _write_tier2(wworld, res, wworld["tmp"] / "verify",
+                        [VerifyResult(True, EventType.FIGHTING, "c", 0.9)] * 2)
+    (vdir / f"{wworld['video_id']}.json").write_text(json.dumps({
+        "schema_version": 1, "video_id": wworld["video_id"], "sample_fps": 1.0,
+        "candidate_windows": [], "verify_results": []}), encoding="utf-8")
+    with pytest.raises(br.BuildResultsError, match="hai nguồn tier-2"):
+        _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out")
+
+
+def test_verify_window_dir_index_gap_raises(wworld):
+    """Thiếu một index ở GIỮA (0, 2; không có 1) -> lỗi rõ, không ghép lệch cặp."""
+    res = _build2(wworld)[0]
+    vid = wworld["video_id"]
+    w0, w1 = res.candidate_windows
+    vdir = wworld["tmp"] / "verify"
+    _window_file(vdir, vid, 0, w0, VerifyResult(True, EventType.FIGHTING, "c", 0.9))
+    _window_file(vdir, vid, 2, w1, VerifyResult(True, EventType.FIGHTING, "c", 0.9))
+    with pytest.raises(br.BuildResultsError, match="thiếu window_index"):
+        _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out")
+
+
+def test_verify_window_dir_truncated_tail_raises(wworld):
+    """Tier-2 chết ở cửa sổ cuối (chỉ còn index 0) -> số kết quả lệch số cửa sổ, phải lỗi.
+
+    Index đứt đoạn ở ĐUÔI không thể thấy nếu chỉ nhìn các file có mặt (0, 1, ... đều liền), nên chỗ bắt
+    là phép so số cửa sổ tính lại trong `build_video_result`.
+    """
+    res = _build2(wworld)[0]
+    vdir = wworld["tmp"] / "verify"
+    _window_file(vdir, wworld["video_id"], 0, res.candidate_windows[0],
+                 VerifyResult(True, EventType.FIGHTING, "c", 0.9))
+    with pytest.raises(br.BuildResultsError, match="lệch cặp"):
+        _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out")
+
+
+def test_verify_window_dir_without_files_raises(wworld):
+    vdir = wworld["tmp"] / "verify" / wworld["video_id"]
+    vdir.mkdir(parents=True)
+    with pytest.raises(br.BuildResultsError, match="không có file"):
+        _build2(wworld, verify_dir=vdir.parent, out_dir=wworld["tmp"] / "out")
+
+
+def test_verify_window_file_must_hold_exactly_one_window(wworld):
+    res = _build2(wworld)[0]
+    vid = wworld["video_id"]
+    w0, w1 = res.candidate_windows
+    payload = RunResult(video_id=vid, sample_fps=1.0, anomaly_scores=(),
+                        candidate_windows=(w0, w1),
+                        verify_results=(VerifyResult(True, EventType.FIGHTING, "c", 0.9),) * 2,
+                        metadata=make_metadata(window_index=0)).to_dict()
+    d = wworld["tmp"] / "verify" / vid
+    d.mkdir(parents=True)
+    (d / "window_0000.json").write_text(json.dumps(payload), encoding="utf-8")
+    with pytest.raises(br.BuildResultsError, match="đúng 1 cửa sổ"):
+        _build2(wworld, verify_dir=d.parent, out_dir=wworld["tmp"] / "out")
+
+
+def test_verify_window_file_name_must_match_index(wworld):
+    res = _build2(wworld)[0]
+    vid = wworld["video_id"]
+    _window_file(wworld["tmp"] / "verify", vid, 0, res.candidate_windows[0],
+                 VerifyResult(True, EventType.FIGHTING, "c", 0.9), filename="window_0001.json")
+    with pytest.raises(br.BuildResultsError, match="tên file không khớp"):
+        _build2(wworld, verify_dir=wworld["tmp"] / "verify", out_dir=wworld["tmp"] / "out")
+
+
+def test_verify_window_file_without_fingerprint_raises(wworld):
+    res = _build2(wworld)[0]
+    _window_file(wworld["tmp"] / "verify", wworld["video_id"], 0, res.candidate_windows[0],
+                 VerifyResult(True, EventType.FIGHTING, "c", 0.9), extra_meta={"fingerprint": ""})
+    with pytest.raises(br.BuildResultsError, match="fingerprint thiếu"):
+        _build2(wworld, verify_dir=wworld["tmp"] / "verify", out_dir=wworld["tmp"] / "out")
+
+
+def test_verify_window_file_tampered_score_raises(wworld):
+    """Cùng mốc giây nhưng `score` bị sửa tay -> fingerprint lệch. `check_pairs_match` không bắt được kiểu này."""
+    res = _build2(wworld)[0]
+    vdir = _write_tier2(wworld, res, wworld["tmp"] / "verify",
+                        [VerifyResult(True, EventType.FIGHTING, "c", 0.9)] * 2)
+    p = Path(vdir) / wworld["video_id"] / "window_0000.json"
+    data = json.loads(p.read_text(encoding="utf-8"))
+    data["candidate_windows"][0]["score"] += 0.5
+    p.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(br.BuildResultsError, match="fingerprint không khớp"):
+        _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out")
+
+
+def test_verify_window_dir_mixed_verifier_runs_raise(wworld):
+    """Hai cửa sổ do hai model/verifier khác nhau sinh ra -> không được trộn thành một lần chạy."""
+    res = _build2(wworld)[0]
+    vid = wworld["video_id"]
+    w0, w1 = res.candidate_windows
+    vdir = wworld["tmp"] / "verify"
+    _window_file(vdir, vid, 0, w0, VerifyResult(True, EventType.FIGHTING, "c", 0.9))
+    _window_file(vdir, vid, 1, w1, VerifyResult(True, EventType.FIGHTING, "c", 0.9),
+                 name="HuggingFaceTB/SmolVLM2-2.2B-Instruct")
+    with pytest.raises(br.BuildResultsError, match="cùng một cấu hình verifier"):
+        _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out")
+
+
+def test_verify_window_file_video_id_mismatch_raises(wworld):
+    res = _build2(wworld)[0]
+    vid = wworld["video_id"]
+    p = _window_file(wworld["tmp"] / "verify", vid, 0, res.candidate_windows[0],
+                     VerifyResult(True, EventType.FIGHTING, "c", 0.9))
+    data = json.loads(p.read_text(encoding="utf-8"))
+    data["video_id"] = "OtherVideo_x264"
+    p.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(br.BuildResultsError, match="video_id .* khác thư mục"):
+        _build2(wworld, verify_dir=wworld["tmp"] / "verify", out_dir=wworld["tmp"] / "out")
+
+
+def test_fake_verify_files_are_flagged_not_sold_as_real(wworld):
+    """Thư mục tier-2 chứa output FakeVerifier (`fake=true`) -> file kết quả phải có banner giả."""
+    res = _build2(wworld)[0]
+    vdir = _write_tier2(wworld, res, wworld["tmp"] / "verify",
+                        [VerifyResult(True, EventType.FIGHTING, "c", 0.9)] * 2, fake=True)
+    out = _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out")[0]
+    assert "TIER-2 GIẢ" in out.metadata["note"]
+    assert dash.is_placeholder(out)
+
+
+def test_missing_tier2_source_is_ok_for_video_without_windows(world):
+    """Video 0 cửa sổ thì không có gì để verify: thiếu file/thư mục tier-2 KHÔNG phải lỗi.
+
+    A5b chỉ verify các video có cửa sổ (114/290), nên C7d chạy cả manifest sẽ chết ở video đầu tiên
+    nếu coi "thiếu nguồn" là lỗi.
+    """
+    rows = [r for r in _rows(world) if r["video_id"].startswith("Normal")]
+    vdir = world["tmp"] / "empty_verify"
+    vdir.mkdir()                                                  # thư mục có, nhưng không có video nào
+    out = _build(world, rows=rows, verify_dir=vdir)
+    assert out[0].verify_results == () and out[0].alerts == ()
+    assert out[0].metadata["tier"] == "1"
+
+
+def test_verify_dir_root_must_exist(world):
+    """Gõ sai `--verify-dir` phải lỗi ngay, không "thành công" với 0 cửa sổ rồi ghi tier2=json."""
+    rows = [r for r in _rows(world) if r["video_id"].startswith("Normal")]
+    with pytest.raises(br.BuildResultsError, match="không tồn tại"):
+        _build(world, rows=rows, verify_dir=world["tmp"] / "typo")
+
+
+def test_video_with_windows_but_missing_tier2_still_fails(wworld):
+    """Ngược lại: video CÓ cửa sổ mà không có kết quả tier-2 -> vẫn lỗi to, không ghi metadata nói dối."""
+    vdir = wworld["tmp"] / "verify"
+    vdir.mkdir()
+    with pytest.raises(br.BuildResultsError, match="Chưa có file tier-2"):
+        _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out")
+
+
+def test_resolve_verify_source_layouts(tmp_path):
+    vid = "v1"
+    assert br.resolve_verify_source(tmp_path, vid)[0] == "missing"
+    (tmp_path / f"{vid}.json").write_text("{}", encoding="utf-8")
+    assert br.resolve_verify_source(tmp_path, vid)[0] == "file"
+    (tmp_path / vid).mkdir()
+    with pytest.raises(br.BuildResultsError, match="hai nguồn"):
+        br.resolve_verify_source(tmp_path, vid)
