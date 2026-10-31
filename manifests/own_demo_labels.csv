@@ -1,6 +1,8 @@
 video_id,event_type,start_s,end_s,staged,consent,source,valid_for_e3,notes
-own_normal_01,Normal,0.0,18.0,false,,stock_preview,false,"iStock preview; HCMC traffic; copyright metadata author Witthaya"
-own_normal_02,Normal,0.0,21.0,false,,stock_preview,false,"iStock preview; aerial traffic circle; visible iStock watermark; copyright metadata author kwhi02"
-own_fight_01,Fight,0.0,24.0,false,,stock_preview,false,"birds fighting on the ground; NOT a human event; visible iStock watermark"
-own_steal_01,Robbery,1.0,8.0,false,,stock_preview,false,"bag snatch by force; identifiable people; visible iStock watermark; no consent"
-own_vandalism_01,Vandalism,0.0,16.0,false,,stock_preview,false,"aftermath only: bins already knocked over; no actor visible; visible iStock watermark"
+own_normal_01,Normal,,,false,,stock_preview,false,"iStock preview; HCMC traffic; copyright metadata author Witthaya"
+own_normal_02,Normal,,,false,,stock_preview,false,"iStock preview; aerial traffic circle; visible iStock watermark; copyright metadata author kwhi02"
+own_normal_03,Normal,,,,,team_drive,false,"6.16 s (shorter than E3 10-30 s); provenance and consent not confirmed"
+own_fight_01,Fighting,0.0,12.0,,,team_drive,false,"duration 12.14 s; provenance and consent not confirmed"
+own_fight_02,Fighting,0.0,12.68,,,team_drive,false,"duration 12.68 s; requested end 13.0 clamped to duration; provenance and consent not confirmed"
+own_fight_03,Fighting,5.0,15.0,,,team_drive,false,"duration 15.42 s; provenance and consent not confirmed"
+own_steal_01,Stealing,1.0,10.0,false,,stock_preview,false,"bag snatch by force; identifiable people; visible iStock watermark; no consent; same file as earlier stock preview (13.85 s)"
