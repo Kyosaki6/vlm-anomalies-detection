@@ -489,6 +489,8 @@ def run_verify(manifest_path: str | Path, windows_dir: str | Path = DEFAULT_WIND
         if not pending:
             continue
         if dry_run:
+            # Ước lượng: dry-run không mở video nên KHÔNG clamp được biên (không biết duration).
+            # Số chunk thật có thể lệch nếu clamp làm cửa sổ cắt qua ngưỡng max_chunk_s (chưa gặp ở 307 cửa sổ).
             n_calls = sum(len(split_into_chunks(w.start_s, w.end_s, max_chunk_s))
                           for _, w, _, _ in pending if w.end_s > w.start_s)
             summary.chunk_calls += n_calls

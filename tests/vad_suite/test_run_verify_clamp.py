@@ -92,3 +92,57 @@ def test_plan_reports_error_when_window_too_short_after_clamp(monkeypatch):
     monkeypatch.setattr(rv, "probe_video", lambda _p: (N_FRAMES, FPS))
     plans = plan_window_frames("dummy.mp4", [_window(DURATION - 0.001, 12.0)], k=4)
     assert isinstance(plans[0], ValueError)
+
+
+# --- end-to-end: contract với scripts/eval_tier2.py ----------------------------------------------
+
+def test_run_verify_stores_original_window_but_clamped_chunks(tmp_path):
+    """`candidate_windows` PHẢI giữ cửa sổ tier-1 gốc (eval_tier2._same_window so với cửa sổ đóng băng);
+    biên đã clamp chỉ nằm ở `metadata["chunks"]` và `context["start_s"/"end_s"]`.
+
+    Nếu ai "sửa" để lưu cửa sổ đã clamp, eval_tier2 sẽ báo 'tầng 1 đã đổi' cho cả 48 file -> test này chặn.
+    """
+    import csv
+
+    import cv2
+    import numpy as np
+
+    from vad.fakes import FakeVerifier
+    from vad.results import RunResult, make_metadata
+
+    video = tmp_path / "v.mp4"                      # 90 frame @30fps = 3.0 s
+    writer = cv2.VideoWriter(str(video), cv2.VideoWriter_fourcc(*"mp4v"), 30.0, (64, 48))
+    if not writer.isOpened():
+        pytest.skip("OpenCV build này không ghi được mp4v")
+    for i in range(90):
+        writer.write(np.full((48, 64, 3), 40 + 60 * (i // 30), dtype=np.uint8))
+    writer.release()
+
+    manifest = tmp_path / "manifest.csv"
+    with open(manifest, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["video_id", "path", "dataset", "split"])
+        w.writerow(["v1", video.as_posix(), "ucf_crime", "test"])
+
+    original = Window("v1", 2.0, 3.4, 0.9)          # end_s vượt duration 3.0
+    RunResult(video_id="v1", sample_fps=1.0, anomaly_scores=(), candidate_windows=(original,),
+              metadata=make_metadata(model="test")).save_windows(root=tmp_path / "results")
+
+    contexts: list[dict] = []
+
+    class Spy(FakeVerifier):
+        def verify(self, frames, context):
+            contexts.append(dict(context))
+            return super().verify(frames, context)
+
+    out = tmp_path / "verify"
+    summary = rv.run_verify(manifest, tmp_path / "results" / "windows", out, verifier=Spy(), k=4)
+    assert (summary.verified, summary.failed) == (1, 0)
+
+    loaded = RunResult.from_json(next((out / "v1").glob("window_*.json")))
+    assert loaded.candidate_windows == (original,)              # gốc, KHÔNG clamp
+    (chunk,) = loaded.metadata["chunks"]
+    assert (chunk["start_s"], chunk["end_s"]) == (2.0, pytest.approx(3.0))   # đã clamp
+    assert all(2.0 < t < 3.0 for t in chunk["frame_times_s"])
+    assert contexts[0]["end_s"] == pytest.approx(3.0)
+    assert contexts[0]["window_end_s"] == 3.4                   # cửa sổ gốc vẫn có trong context
