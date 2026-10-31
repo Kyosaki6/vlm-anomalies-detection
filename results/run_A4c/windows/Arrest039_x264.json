@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "video_id": "Arrest039_x264",
+  "sample_fps": 1.0,
+  "candidate_windows": [
+    {
+      "video_id": "Arrest039_x264",
+      "start_s": 59.0,
+      "end_s": 80.0,
+      "score": 1.320534475498408
+    },
+    {
+      "video_id": "Arrest039_x264",
+      "start_s": 132.0,
+      "end_s": 139.0,
+      "score": 1.2340790431125617
+    },
+    {
+      "video_id": "Arrest039_x264",
+      "start_s": 160.0,
+      "end_s": 186.0,
+      "score": 1.2654587640817665
+    },
+    {
+      "video_id": "Arrest039_x264",
+      "start_s": 211.0,
+      "end_s": 231.0,
+      "score": 1.2270241766779766
+    },
+    {
+      "video_id": "Arrest039_x264",
+      "start_s": 238.0,
+      "end_s": 244.0,
+      "score": 1.2528605410924496
+    },
+    {
+      "video_id": "Arrest039_x264",
+      "start_s": 260.0,
+      "end_s": 263.0,
+      "score": 1.2583003136855229
+    },
+    {
+      "video_id": "Arrest039_x264",
+      "start_s": 280.0,
+      "end_s": 526.0,
+      "score": 1.4890278286333543
+    }
+  ],
+  "verify_results": [],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "2a7f9c6",
+    "timestamp": "2026-10-31T13:05:17+00:00",
+    "schema_version": 1,
+    "tier": "1",
+    "ablation": "A4c",
+    "sample_fps": 1.0,
+    "threshold": 1.1686,
+    "threshold_source": "calib_normal",
+    "calib_manifest": "manifests/ucf_calib_normal.csv",
+    "camera": "Arrest039_x264",
+    "zone": "default",
+    "hour": null,
+    "tier2": "none",
+    "config": {
+      "model_id": "google/siglip2-base-patch16-384",
+      "sample_fps": 1.0,
+      "prompt_set": "ensemble",
+      "logit_scale": 100.0,
+      "per_video_norm": true,
+      "norm_ref": "calib",
+      "pool_window_s": 5.0,
+      "pool_k": 3,
+      "smoothing": "ema",
+      "ema_alpha": 0.3,
+      "median_kernel": 5,
+      "use_memory": false,
+      "memory_weight": 0.5,
+      "threshold": 1.1686,
+      "min_len_s": 1.0,
+      "merge_gap_s": 2.0
+    },
+    "note": ""
+  }
+}

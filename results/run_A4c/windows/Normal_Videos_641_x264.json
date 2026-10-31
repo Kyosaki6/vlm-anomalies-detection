@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_641_x264",
+  "sample_fps": 1.0,
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_641_x264",
+      "start_s": 7.0,
+      "end_s": 17.0,
+      "score": 1.282584480646211
+    },
+    {
+      "video_id": "Normal_Videos_641_x264",
+      "start_s": 22.0,
+      "end_s": 45.0,
+      "score": 1.2727903523228197
+    },
+    {
+      "video_id": "Normal_Videos_641_x264",
+      "start_s": 50.0,
+      "end_s": 55.0,
+      "score": 1.1811359710198128
+    },
+    {
+      "video_id": "Normal_Videos_641_x264",
+      "start_s": 75.0,
+      "end_s": 76.0,
+      "score": 1.1714526016179374
+    },
+    {
+      "video_id": "Normal_Videos_641_x264",
+      "start_s": 84.0,
+      "end_s": 114.0,
+      "score": 1.3072101834069556
+    }
+  ],
+  "verify_results": [],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "2a7f9c6",
+    "timestamp": "2026-10-31T13:05:20+00:00",
+    "schema_version": 1,
+    "tier": "1",
+    "ablation": "A4c",
+    "sample_fps": 1.0,
+    "threshold": 1.1686,
+    "threshold_source": "calib_normal",
+    "calib_manifest": "manifests/ucf_calib_normal.csv",
+    "camera": "Normal_Videos_641_x264",
+    "zone": "default",
+    "hour": null,
+    "tier2": "none",
+    "config": {
+      "model_id": "google/siglip2-base-patch16-384",
+      "sample_fps": 1.0,
+      "prompt_set": "ensemble",
+      "logit_scale": 100.0,
+      "per_video_norm": true,
+      "norm_ref": "calib",
+      "pool_window_s": 5.0,
+      "pool_k": 3,
+      "smoothing": "ema",
+      "ema_alpha": 0.3,
+      "median_kernel": 5,
+      "use_memory": false,
+      "memory_weight": 0.5,
+      "threshold": 1.1686,
+      "min_len_s": 1.0,
+      "merge_gap_s": 2.0
+    },
+    "note": ""
+  }
+}
