@@ -1,11 +1,15 @@
 # E3 — clip demo: trạng thái và checklist
 
-**Trạng thái: BỘ CLIP DEMO 7 FILE TỪ GOOGLE DRIVE CỦA NHÓM — CHƯA ĐẠT E3 GỐC (`valid_for_e3=false`).**
+**Trạng thái: BỘ CLIP DEMO 7 FILE — NGUỒN iStock PREVIEW, CHƯA ĐẠT E3 GỐC (`valid_for_e3=false`).**
 
-Nhóm đổi sang bộ clip mới trên Drive (7 file). Trong đó `own_normal_01`, `own_normal_02`, `own_steal_01` vẫn là **file
-stock preview** (watermark iStock, metadata bản quyền, không có consent); 4 file còn lại (`own_fight_01..03`,
-`own_normal_03`) chưa có ghi nhận nguồn gốc/consent. Vì vậy mọi dòng nhãn đều `valid_for_e3=false`. Không dùng các
-clip này trong báo cáo/bảo vệ như bằng chứng "clip tự quay" nếu chưa xác nhận nguồn và license.
+Ngày 2026-10-31, Huy xác nhận cả 7 clip được tải từ trang tìm kiếm iStock dưới đây, chỉ là **bản preview có watermark,
+chưa mua licence**. Đây không phải clip tự quay hay cảnh dàn dựng có consent. Vì vậy mọi dòng nhãn vẫn
+`valid_for_e3=false`; không dùng các clip này trong báo cáo/bảo vệ như bằng chứng "clip tự quay", không dùng cho bất kỳ
+số liệu benchmark nào. Video không được commit (`/datasets/` bị ignore); chỉ dùng cục bộ cho demo dashboard.
+
+- Nguồn (theo xác nhận của nhóm): https://www.istockphoto.com/vi/search/2/film?family=creative&phrase=fight%20street
+- Licence: chưa mua; bản preview/comp có watermark. Chưa có asset ID hoặc hoá đơn cho từng clip.
+- Ngoại lệ cần kiểm tra: `own_normal_03` là 1920x1080 (6 clip còn lại 768x432).
 
 ## 1. Lấy video
 
@@ -22,13 +26,13 @@ trên Drive thì phải cập nhật bảng đó và chạy lại `build_manifes
 
 | File | Thời lượng | Nhãn | Ghi chú |
 |---|---:|---|---|
-| `own_normal_01.mp4` | 18.28 s | `Normal` | Stock preview, giao thông TP.HCM, metadata tác giả `Witthaya` |
-| `own_normal_02.mp4` | 21.02 s | `Normal` | Stock preview, vòng xoay nhìn từ trên cao, watermark iStock |
-| `own_normal_03.mp4` | 6.16 s | `Normal` | Ngắn hơn yêu cầu E3 (10–30 s); chưa rõ nguồn |
-| `own_fight_01.mp4` | 12.14 s | `Fighting` 0.0–12.0 | Chưa rõ nguồn/consent |
-| `own_fight_02.mp4` | 12.68 s | `Fighting` 0.0–12.68 | Yêu cầu ghi 0–13 s nhưng clip chỉ dài 12.68 s: kẹp `end_s` về thời lượng |
-| `own_fight_03.mp4` | 15.42 s | `Fighting` 5.0–15.0 | Chưa rõ nguồn/consent |
-| `own_steal_01.mp4` | 13.85 s | `Stealing` 1.0–10.0 | Stock preview, giật túi, người thật mặt rõ, watermark iStock, không consent |
+| `own_normal_01.mp4` | 18.28 s | `Normal` | iStock preview, giao thông TP.HCM, watermark, metadata tác giả `Witthaya` |
+| `own_normal_02.mp4` | 21.02 s | `Normal` | iStock preview, vòng xoay nhìn từ trên cao, watermark iStock, tác giả `kwhi02` |
+| `own_normal_03.mp4` | 6.16 s | `Normal` | iStock preview (theo xác nhận), 1920x1080, ngắn hơn yêu cầu E3 (10–30 s) |
+| `own_fight_01.mp4` | 12.14 s | `Fighting` 0.0–12.0 | iStock preview; nhãn 0–12.0 s đã xem lại |
+| `own_fight_02.mp4` | 12.68 s | `Fighting` 0.0–12.68 | iStock preview; yêu cầu ghi 0–13 s nhưng clip chỉ dài 12.68 s: kẹp `end_s` về thời lượng |
+| `own_fight_03.mp4` | 15.42 s | `Fighting` 5.0–15.0 | iStock preview, watermark |
+| `own_steal_01.mp4` | 13.85 s | `Stealing` 1.0–10.0 | iStock preview, giật túi, người thật mặt rõ, watermark, không consent |
 
 Lưu ý: `own_steal_01` trước đây gán `Robbery` (1.0–8.0). Nay đổi sang `Stealing` 1.0–10.0 theo nhóm.
 
@@ -131,6 +135,8 @@ Checklist:
   ```
 
 ## 5. Liên hệ E4
+
+E4a (2026-10-31) đã chạy SigLIP 2 trên RTX 3050, fps 1, fp16: 7 file `.npy` trong `cache/embeddings/`.
 
 Sau khi có manifest chính thức, E4 chạy:
 
