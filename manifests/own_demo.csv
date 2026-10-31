@@ -1,5 +1,5 @@
 video_id,path,dataset,split,n_frames,fps
-own_fight_01,datasets/own/own_fight_01.mp4,own,demo,607,25
+own_fight_01,datasets/own/own_fight_01.mp4,own,demo,303,25
 own_fight_02,datasets/own/own_fight_02.mp4,own,demo,317,25
 own_fight_03,datasets/own/own_fight_03.mp4,own,demo,462,29.97
 own_normal_01,datasets/own/own_normal_01.mp4,own,demo,548,29.97
