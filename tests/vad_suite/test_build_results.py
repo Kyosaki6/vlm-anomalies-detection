@@ -660,3 +660,179 @@ def test_resolve_verify_source_layouts(tmp_path):
     (tmp_path / vid).mkdir()
     with pytest.raises(br.BuildResultsError, match="hai nguồn"):
         br.resolve_verify_source(tmp_path, vid)
+
+
+# --- C7b: nhãn cảnh báo do ZeroShotEventTyper quyết định (D-2) -----------------------------
+#
+# `vad/score/typing.py` đã có typer từ C3 nhưng chưa nối vào đường build kết quả: cảnh báo vẫn đi theo
+# nhãn VLM, trong khi quyết định D-2 nói nhãn lớp phải do typer quyết định. Phần dưới canh seam đó, cộng
+# hai chỗ dễ nói dối: (a) cửa sổ VLM nói "bình thường" không được đem đi phân loại rồi khoe là sự kiện;
+# (b) cache vector nhãn phải bị bỏ khi prompts.yaml đổi, nếu không cảnh báo sẽ mang nhãn của câu cũ.
+
+def _zero_shot_typer(worldish, first: str = "RoadAccidents", second: str = "Robbery"):
+    """Typer nhỏ: vector lớp đầu = hướng bất thường của fixture -> cửa sổ bất thường chọn lớp đầu."""
+    from vad.score.typing import ZeroShotEventTyper
+    embs = np.stack([worldish["abnormal_embs"][0], worldish["normal_embs"][0]]).astype(np.float32)
+    return ZeroShotEventTyper.from_label_embeddings([first, second], embs)
+
+
+class _CountingTyper:
+    def __init__(self, inner):
+        self.inner, self.sizes = inner, []
+
+    def classify(self, frames, **kw):
+        self.sizes.append(len(frames))
+        return self.inner.classify(frames, **kw)
+
+
+def test_typer_decides_alert_type_while_metadata_keeps_vlm_label(world):
+    """Kịch bản D-2: VLM nói Robbery, typer nói RoadAccidents -> cảnh báo phải là RoadAccidents."""
+    res = _build(world, limit=1, verifier=FakeVerifier(EventType.ROBBERY, 0.9),
+                 typer=_zero_shot_typer(world))[0]
+
+    assert res.alerts[0].event_type is EventType.ROAD_ACCIDENT        # typer thắng
+    assert res.verify_results[0].event_type is EventType.ROAD_ACCIDENT
+    rec = res.metadata["event_typing"]
+    assert rec["source"] == "zeroshot_typer" and rec["typer_model"] == pl.ABLATIONS["A1"].model_id
+    assert rec["n_confirmed"] == 1
+    assert rec["windows"][0]["vlm_event_type"] == "Robbery"           # nhãn VLM vẫn còn để báo cáo
+    assert rec["windows"][0]["typer_event_type"] == "RoadAccidents"
+    assert rec["windows"][0]["start_s"] == pytest.approx(ANOMALY_SEC[0])
+
+
+def test_typer_skips_windows_vlm_rejected(wworld):
+    """Cửa sổ VLM nói 'không có gì' -> không phân loại, không xuất hiện trong metadata.event_typing."""
+    base = _build2(wworld)[0]
+    vdir = _write_tier2(wworld, base, wworld["tmp"] / "verify", [
+        VerifyResult(False, EventType.FIGHTING, "street, no incident", 0.9),
+        VerifyResult(True, EventType.ROBBERY, "someone robbing a shop", 0.8),
+    ])
+    counting = _CountingTyper(_zero_shot_typer(wworld))
+    out = _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out", typer=counting)[0]
+
+    assert counting.sizes == [6]                                      # chỉ cửa sổ 24-30 s (6 mẫu @1fps)
+    assert out.verify_results[0].event_type is EventType.FIGHTING      # giữ nguyên, không bị typer đổi
+    assert out.verify_results[1].event_type is EventType.ROAD_ACCIDENT
+    assert [a.start_s for a in out.alerts] == [24.0]
+    assert [r["window_index"] for r in out.metadata["event_typing"]["windows"]] == [1]
+
+
+def test_window_sample_slice_maps_seconds_to_cached_samples():
+    w = Window("v", 10.0, 20.0, 1.0)
+    assert br.window_sample_slice(w, 40, 1.0) == slice(10, 20)
+    assert br.window_sample_slice(w, 40, 2.0) == slice(20, 40)
+    assert br.window_sample_slice(Window("v", 0.0, 0.5, 1.0), 40, 1.0) == slice(0, 1)   # luôn >= 1 mẫu
+    assert br.window_sample_slice(Window("v", 39.5, 40.0, 1.0), 40, 1.0) == slice(39, 40)
+    clipped = br.window_sample_slice(Window("v", 38.0, 50.0, 1.0), 40, 1.0)
+    assert clipped == slice(38, 40)                                   # cache ngắn hơn video: kẹp, không tràn
+    with pytest.raises(br.BuildResultsError, match="cache rỗng"):
+        br.window_sample_slice(w, 0, 1.0)
+
+
+def _typing_prompts(tmp_path, template: str):
+    path = tmp_path / "prompts.yaml"
+    path.write_text(f"event_typing:\n  template: {template!r}\n  labels:\n"
+                    "    Fighting: \"people fighting\"\n    Robbery: \"a robbery\"\n", encoding="utf-8")
+    return path
+
+
+class _FakeTextEmbedder:
+    def __init__(self, model_id: str = "fake/model"):
+        self.model_id, self.calls = model_id, 0
+
+    def embed_texts(self, texts):
+        self.calls += 1
+        return np.random.default_rng(len(texts)).normal(size=(len(texts), 4)).astype(np.float32)
+
+
+def test_typing_cache_is_reused_and_invalidated_when_prompts_change(tmp_path):
+    """Cache chỉ embed 1 lần; sửa câu mô tả -> vector cũ không còn đúng nên phải embed lại."""
+    fake = _FakeTextEmbedder()
+    kw = dict(model_id="fake/model", cache_dir=tmp_path / "typing", embedder_factory=lambda: fake)
+    br.load_or_embed_typer(prompts_path=_typing_prompts(tmp_path, "a frame of {label}"), **kw)
+    assert fake.calls == 1 and br.typing_cache_path("fake/model", tmp_path / "typing").is_file()
+
+    br.load_or_embed_typer(prompts_path=_typing_prompts(tmp_path, "a frame of {label}"), **kw)
+    assert fake.calls == 1                                            # lần hai đọc cache, không nạp model
+
+    br.load_or_embed_typer(prompts_path=_typing_prompts(tmp_path, "a clip of {label}"), **kw)
+    assert fake.calls == 2                                            # chữ prompt đổi -> cache bị bỏ
+
+
+def test_from_label_embeddings_rejects_bad_names_and_shape():
+    from vad.score.typing import ZeroShotEventTyper
+    embs = np.eye(2, 4, dtype=np.float32)
+    with pytest.raises(ValueError, match="không có trong prompts.yaml"):
+        ZeroShotEventTyper.from_label_embeddings(["NotAClass", "Robbery"], embs)
+    with pytest.raises(ValueError, match="shape"):
+        ZeroShotEventTyper.from_label_embeddings(["Fighting", "Robbery"], np.eye(3, 4))
+    with pytest.raises(ValueError, match="rỗng"):
+        ZeroShotEventTyper.from_label_embeddings([], np.zeros((0, 4)))
+
+
+def _write_typing_cache(typing_dir, model_id, embeddings):
+    """Ghi cache đúng định dạng `load_or_embed_typer` ghi, để CLI không phải nạp SigLIP text tower."""
+    from vad.score.typing import load_typing_prompts
+    template, labels = load_typing_prompts()
+    names = list(labels)
+    texts = [template.format(label=labels[n]) for n in names]
+    path = br.typing_cache_path(model_id, typing_dir)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez(path, names=np.array(names), texts=np.array(texts), model_id=np.array(model_id),
+             embeddings=np.asarray(embeddings, dtype=np.float32))
+
+
+def _typing_embeddings(worldish, dim: int = DIM):
+    from vad.score.typing import load_typing_prompts
+    rng = np.random.default_rng(7)
+    embs = rng.normal(size=(13, dim)).astype(np.float32)
+    names = list(load_typing_prompts()[1])                            # đúng thứ tự trong prompts.yaml
+    embs[names.index("RoadAccidents")] = worldish["abnormal_embs"][0]
+    embs[names.index("Robbery")] = worldish["normal_embs"][0]
+    return embs
+
+
+def test_cli_types_alerts_with_cached_label_vectors(wworld):
+    """Đường CLI thật: --verify-dir + cache nhãn -> cảnh báo mang nhãn typer, không cần nạp model."""
+    config = _config("A1", 0.5)
+    prompts_cache = wworld["tmp"] / "prompts"
+    _write_prompt_cache(config, prompts_cache, wworld["normal_embs"], wworld["abnormal_embs"])
+    base = _build2(wworld)[0]
+    vdir = _write_tier2(wworld, base, wworld["tmp"] / "verify", [
+        VerifyResult(False, EventType.FIGHTING, "street, no incident", 0.9),
+        VerifyResult(True, EventType.ROBBERY, "someone robbing a shop", 0.8),
+    ])
+    typing_dir = wworld["tmp"] / "typing"
+    _write_typing_cache(typing_dir, config.model_id, _typing_embeddings(wworld))
+
+    out = wworld["tmp"] / "out"
+    rc = br.main(["--manifest", str(wworld["manifest"]), "--ablation", "A1", "--threshold", "0.5",
+                  "--verify-dir", str(vdir), "--typing-cache-dir", str(typing_dir),
+                  "--cache-dir", str(wworld["cache"]), "--prompt-cache-dir", str(prompts_cache),
+                  "--out-dir", str(out)])
+    assert rc == 0
+    loaded = dash.load_run(wworld["video_id"], out)
+    assert [a.event_type for a in loaded.alerts] == [EventType.ROAD_ACCIDENT]
+    assert loaded.metadata["event_typing"]["windows"][0]["vlm_event_type"] == "Robbery"
+
+
+def test_cli_typer_none_keeps_vlm_labels(wworld):
+    """Cờ lui `--typer none`: giữ nhãn VLM, không ghi metadata.event_typing — để còn đường lùi nếu
+    eval typer (C4) ra số tệ hơn nhãn VLM."""
+    config = _config("A1", 0.5)
+    prompts_cache = wworld["tmp"] / "prompts"
+    _write_prompt_cache(config, prompts_cache, wworld["normal_embs"], wworld["abnormal_embs"])
+    base = _build2(wworld)[0]
+    vdir = _write_tier2(wworld, base, wworld["tmp"] / "verify", [
+        VerifyResult(True, EventType.ROBBERY, "someone robbing a shop", 0.8),
+        VerifyResult(True, EventType.ROBBERY, "someone robbing a shop", 0.8),
+    ])
+    out = wworld["tmp"] / "out_none"
+    rc = br.main(["--manifest", str(wworld["manifest"]), "--ablation", "A1", "--threshold", "0.5",
+                  "--verify-dir", str(vdir), "--typer", "none",
+                  "--cache-dir", str(wworld["cache"]), "--prompt-cache-dir", str(prompts_cache),
+                  "--out-dir", str(out)])
+    assert rc == 0
+    loaded = dash.load_run(wworld["video_id"], out)
+    assert [a.event_type for a in loaded.alerts] == [EventType.ROBBERY]
+    assert "event_typing" not in loaded.metadata

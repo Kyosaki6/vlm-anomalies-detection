@@ -110,6 +110,43 @@ class ZeroShotEventTyper:
         self._label_embs = _l2(embs)      # chuẩn hoá 1 lần, dùng lại cho mọi cửa sổ
         self.embedding_dim = int(self._label_embs.shape[1])
 
+    @classmethod
+    def from_label_embeddings(cls, names: Sequence[str], embeddings: np.ndarray,
+                              prompts_path: str | Path = DEFAULT_PROMPTS,
+                              logit_scale: float = DEFAULT_LOGIT_SCALE) -> "ZeroShotEventTyper":
+        """Dựng typer từ vector nhãn ĐÃ CACHE — không cần embedder, không nạp text tower.
+
+        Dùng cho đường build kết quả (C7b): 13 câu mô tả lớp được embed một lần rồi lưu npz, các lần
+        build sau chỉ đọc lại. `names` vẫn phải có trong prompts.yaml — sai tên là lỗi cấu hình, không
+        được âm thầm thành UNKNOWN. Caller chịu trách nhiệm kiểm vector cache khớp ĐÚNG chữ prompt
+        hiện tại (xem `scripts/build_results.py`); ở đây chỉ kiểm tên + shape.
+        """
+        _, all_labels = load_typing_prompts(prompts_path)
+        picked = [str(n) for n in names]
+        if not picked:
+            raise ValueError("names rỗng: không có lớp nào để phân loại")
+        missing = [n for n in picked if n not in all_labels]
+        if missing:
+            raise ValueError(f"names không có trong prompts.yaml: {missing}")
+
+        embs = np.asarray(embeddings, dtype=np.float64)
+        if embs.ndim != 2 or embs.shape[0] != len(picked) or embs.shape[1] == 0:
+            raise ValueError(f"embeddings shape {embs.shape} không khớp {len(picked)} lớp")
+
+        obj = cls.__new__(cls)               # bỏ qua __init__: không gọi embed_texts
+        obj.embedder = None
+        obj.logit_scale = float(logit_scale)
+        obj._names = picked
+        obj._types = {}
+        for name in picked:
+            et = EventType.from_label(name)
+            if et is EventType.UNKNOWN:
+                raise ValueError(f"Tên lớp {name!r} không map được sang EventType (xem vad/types.py)")
+            obj._types[name] = et
+        obj._label_embs = _l2(embs)
+        obj.embedding_dim = int(embs.shape[1])
+        return obj
+
     def classify(self, frame_embs: np.ndarray, aggregate: str = "mean", top_k: int = 3) -> TypingResult:
         """frame_embs: (T, D) embedding các khung trong cửa sổ -> TypingResult.
 

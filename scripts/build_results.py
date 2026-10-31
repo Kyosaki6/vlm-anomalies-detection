@@ -14,6 +14,11 @@
     một cấu hình verifier, và fingerprint tính lại từ cửa sổ tier-1 hiện tại phải khớp fingerprint đã lưu.
     Video không có cửa sổ nào thì không cần file tier-2 (đúng: không có gì để verify).
 
+Nhãn sự kiện của cảnh báo (quyết định D-2, C7b): với tier-2 thật, nhãn lớp do `ZeroShotEventTyper` quyết
+định trên embedding của chính cửa sổ (`--typer none` để tắt); nhãn VLM chỉ được lưu trong
+`metadata.event_typing` để báo cáo, KHÔNG quyết định severity/responders/protocol. Vector 13 câu nhãn nằm
+ở `cache/typing/`, chỉ embed lại khi cache thiếu hoặc prompts.yaml đổi.
+
 Vì sao có script này: `run_benchmark.py` trả lời "các ablation được bao nhiêu AUC"; nó không sinh ra thứ
 dashboard đọc. Script này là mảnh nối cuối: chạy tier-1 trên cache, cắt cửa sổ bằng một ngưỡng, gắn kết
 quả tier-2 (nếu đã có), dựng "bản tin cảnh báo" bằng `vad/graph/alerts.py`, rồi ghi file.
@@ -34,6 +39,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import sys
 from dataclasses import asdict, replace
 from pathlib import Path
@@ -47,19 +53,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from run_benchmark import (BenchmarkInputError, build_calib_stats, expected_samples, git_commit,  # noqa: E402
                            load_or_embed_prompts, read_benchmark_manifest, select_rows)
-from vad.embed.cache import DEFAULT_CACHE_DIR, has_cached, load_embeddings  # noqa: E402
+from vad.embed.cache import DEFAULT_CACHE_DIR, _slug, has_cached, load_embeddings  # noqa: E402
 from vad.fakes import FakeVerifier  # noqa: E402
 from vad.graph.alerts import build_alert_feed  # noqa: E402
 from vad.graph.policy import DEFAULT_POLICY, GraphPolicy  # noqa: E402
 from vad.pipeline import ABLATIONS, DEFAULT_PROMPTS, CalibStats, PipelineConfig, build_memory_bank, score_cached_video  # noqa: E402
 from vad.results import DEFAULT_RESULTS_DIR, RunResult, make_metadata  # noqa: E402
+from vad.score.text import DEFAULT_LOGIT_SCALE  # noqa: E402
+from vad.score.typing import ZeroShotEventTyper, load_typing_prompts  # noqa: E402
 from vad.types import Alert, VerifyResult, Window  # noqa: E402
 
 DEFAULT_PROMPT_CACHE = ROOT / "cache" / "prompts"
+DEFAULT_TYPING_CACHE = ROOT / "cache" / "typing"
 LENGTH_TOLERANCE = 2                    # số mẫu lệch cho phép (làm tròn fps), giống run_benchmark
 PAIR_TOLERANCE = 1e-3                   # sai số giây khi đối chiếu cửa sổ tính lại vs cửa sổ trong file tier-2
 THRESHOLD_SOURCES = ("placeholder", "calib_normal")
 TIER2_SOURCES = ("none", "fake", "json")
+TYPER_SOURCES = ("zeroshot", "none")
 VERIFY_WINDOW_GLOB = "window_*.json"
 PLACEHOLDER_TIER2_NOTE = ("TIER-2 GIẢ: nhãn sự kiện do FakeVerifier sinh, KHÔNG phải VLM. "
                           "FakeVerifier luôn trả cùng một nhãn (Fighting, 0.9) nên MỌI cảnh báo trong "
@@ -281,6 +291,111 @@ def load_verify_window_dir(path: str | Path, video_id: str
     return (tuple(w for w, _, _ in ordered), tuple(v for _, v, _ in ordered), fake)
 
 
+# --- C7b: nhãn sự kiện lấy từ ZeroShotEventTyper (quyết định D-2) --------------------------
+#
+# Vì sao không dùng `event_type` của VLM: VLM sinh câu tự do, nhãn lớp của nó phụ thuộc cách đặt câu hỏi
+# và hay trả UNKNOWN; còn typer so khớp embedding với 13 câu mô tả cố định, cùng một thang điểm với tier-1.
+# D-2: cảnh báo (severity, responders, protocol) đi theo nhãn của TYPER; nhãn VLM giữ lại trong
+# `metadata.event_typing` để báo cáo, KHÔNG ghi đè lẫn nhau.
+
+def window_sample_slice(window: Window, n_samples: int, sample_fps: float) -> slice:
+    """Cửa sổ (giây) -> slice các mẫu embedding đã cache (1 mẫu = 1/sample_fps giây).
+
+    Cửa sổ do tier-1 cắt ra nên biên rơi đúng trên mẫu; vẫn kẹp vào [0, n_samples) để cache ngắn hơn
+    video một hai mẫu (dung sai `LENGTH_TOLERANCE`) không làm tràn mảng. Luôn trả ít nhất 1 mẫu.
+    """
+    if n_samples <= 0:
+        raise BuildResultsError("Không có mẫu embedding nào để phân loại sự kiện (cache rỗng).")
+    i0 = int(round(window.start_s * sample_fps))
+    i1 = int(round(window.end_s * sample_fps))
+    i0 = max(0, min(i0, n_samples - 1))
+    i1 = max(i0 + 1, min(i1, n_samples))
+    return slice(i0, i1)
+
+
+def typing_cache_path(model_id: str, cache_dir: str | Path = DEFAULT_TYPING_CACHE) -> Path:
+    """`cache/typing/<model>__typing.npz` — một file cho cả bộ 13 nhãn của prompts.yaml hiện tại."""
+    return Path(cache_dir) / f"{_slug(model_id)}__typing.npz"
+
+
+def load_or_embed_typer(model_id: str, prompts_path: str | Path = DEFAULT_PROMPTS,
+                        cache_dir: str | Path = DEFAULT_TYPING_CACHE, device: str = "cpu",
+                        embedder_factory: Any | None = None,
+                        logit_scale: float = DEFAULT_LOGIT_SCALE) -> ZeroShotEventTyper:
+    """Typer cho batch: đọc vector nhãn từ cache, chỉ nạp text tower khi cache thiếu/lệch.
+
+    Cache hợp lệ khi khớp CẢ BA: model_id, danh sách tên lớp, và ĐÚNG CHỮ câu mô tả sau khi format.
+    Sửa prompts.yaml (thêm/bớt nhãn, đổi câu) là cache cũ tự động bị bỏ — nếu chỉ so tên lớp thì
+    vector của câu cũ sẽ lặng lẽ được dùng cho câu mới.
+    """
+    template, labels = load_typing_prompts(prompts_path)
+    names = list(labels)
+    texts = [template.format(label=labels[n]) for n in names]
+    path = typing_cache_path(model_id, cache_dir)
+
+    if path.is_file():
+        try:
+            with np.load(path, allow_pickle=False) as z:
+                cached_names = [str(x) for x in z["names"]]
+                cached_texts = [str(x) for x in z["texts"]]
+                cached_model = str(z["model_id"])
+                emb = z["embeddings"]
+        except (KeyError, ValueError, OSError) as e:
+            raise BuildResultsError(f"{path}: cache nhãn sự kiện hỏng ({e}) — xoá file rồi chạy lại.") from e
+        if cached_model == model_id and cached_names == names and cached_texts == texts:
+            return ZeroShotEventTyper.from_label_embeddings(names, emb, prompts_path, logit_scale)
+        print(f"[typing] cache {path.name} lệch model/prompt hiện tại -> embed lại {len(texts)} câu.")
+
+    if embedder_factory is None:
+        from vad.embed.siglip import SigLIPEmbedder   # nạp model chỉ khi thật sự cần
+
+        embedder_factory = lambda: SigLIPEmbedder(model_id=model_id, device=device)  # noqa: E731
+
+    embedder = embedder_factory()
+    if getattr(embedder, "model_id", model_id) != model_id:
+        raise BuildResultsError(f"Embedder {getattr(embedder, 'model_id', '?')!r} không phải {model_id!r}.")
+    embs = np.asarray(embedder.embed_texts(texts), dtype=np.float32)
+    if embs.ndim != 2 or embs.shape[0] != len(texts):
+        raise BuildResultsError(f"Embed {len(texts)} câu nhãn nhưng nhận shape {embs.shape}.")
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    with open(tmp, "wb") as f:                        # ghi nguyên tử: không để lại npz dở dang
+        np.savez(f, names=np.array(names), texts=np.array(texts), model_id=np.array(model_id),
+                 embeddings=embs)
+    os.replace(tmp, path)
+    return ZeroShotEventTyper.from_label_embeddings(names, embs, prompts_path, logit_scale)
+
+
+def apply_event_typing(windows: Sequence[Window], verify: Sequence[VerifyResult],
+                       frame_embs: np.ndarray, typer: Any, sample_fps: float) -> tuple[tuple[VerifyResult, ...], dict[str, Any]]:
+    """Gán lại `event_type` của các cửa sổ VLM ĐÃ xác nhận bằng typer; trả kèm bản ghi để báo cáo.
+
+    Chỉ phân loại cửa sổ `is_anomaly=True`: cửa sổ VLM nói "bình thường" không sinh cảnh báo, phân loại
+    thêm chỉ tốn CPU và dễ khiến người đọc tưởng có sự kiện. Cửa sổ bị từ chối giữ nguyên kết quả VLM.
+    """
+    typed: list[VerifyResult] = []
+    records: list[dict[str, Any]] = []
+    for i, (w, r) in enumerate(zip(windows, verify)):
+        if not r.is_anomaly:
+            typed.append(r)
+            continue
+        frames = frame_embs[window_sample_slice(w, len(frame_embs), sample_fps)]
+        if frames.size == 0:
+            raise BuildResultsError(f"{w.video_id}: cửa sổ #{i} [{w.start_s:g}, {w.end_s:g}] không có mẫu nào.")
+        result = typer.classify(frames)
+        top = result.top_k
+        typed.append(replace(r, event_type=result.event_type))
+        records.append({
+            "window_index": i, "start_s": w.start_s, "end_s": w.end_s,
+            "vlm_event_type": r.event_type.value, "typer_event_type": result.event_type.value,
+            "typer_confidence": round(float(result.confidence), 6),
+            "typer_margin": round(float(top[0][1] - top[1][1]), 6) if len(top) >= 2 else None,
+        })
+    meta = {"source": "zeroshot_typer", "n_confirmed": len(records), "windows": records}
+    return tuple(typed), meta
+
+
 # --- dựng một video -------------------------------------------------------------------
 
 def check_pairs_match(video_id: str, windows: Sequence[Window],
@@ -309,7 +424,8 @@ def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.nd
                        normal_bank: np.ndarray | None = None,
                        saved_windows: Sequence[Window] | None = None,
                        calib_stats: CalibStats | None = None,
-                       tier2_fake: bool = False) -> RunResult:
+                       tier2_fake: bool = False,
+                        typer: Any | None = None) -> RunResult:
     """Một video -> RunResult đầy đủ (điểm, cửa sổ, tier-2 nếu có, cảnh báo, metadata).
 
     `config.threshold` quyết định có cắt cửa sổ hay không: None = chỉ có đường điểm (dashboard vẫn vẽ
@@ -317,6 +433,8 @@ def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.nd
 
     `saved_windows` = cửa sổ ghi trong file tier-2 (`--verify-dir`). Có nó thì từng cặp cửa sổ ↔ kết quả
     được đối chiếu mốc thời gian; `None` (FakeVerifier) thì bỏ qua vì cửa sổ tính từ chính config.
+
+    `typer` (D-2): gán lại `event_type` cho cửa sổ ĐÃ được VLM xác nhận, trước khi dựng cảnh báo.
     """
     if tier2_source not in TIER2_SOURCES:
         raise BuildResultsError(f"tier2_source phải thuộc {TIER2_SOURCES}, nhận {tier2_source!r}")
@@ -346,6 +464,13 @@ def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.nd
         # cùng SỐ cửa sổ chưa đủ: mốc thời gian phải trùng, nếu không là tier-2 của lần chạy khác.
         check_pairs_match(video_id, windows, saved_windows)
 
+    typing_meta: dict[str, Any] | None = None
+    if typer is not None and verify:
+        # D-2: nhãn cảnh báo do typer quyết định; nhãn VLM giữ nguyên trong records để báo cáo.
+        frame_embs = load_embeddings(config.model_id, video_id, config.sample_fps, cache_dir)
+        verify, typing_meta = apply_event_typing(windows, verify, frame_embs, typer, config.sample_fps)
+        typing_meta["typer_model"] = config.model_id
+
     alerts: tuple[Alert, ...] = ()
     if verify:
         cam = camera if camera is not None else video_id     # một video = một camera (cooldown lùi về video_id)
@@ -371,6 +496,8 @@ def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.nd
         tier2=tier2_source, config=asdict(config),
         note=_join_notes(*notes),
     )
+    if typing_meta is not None:                       # không ghi key rỗng: metadata thiếu = chưa phân loại
+        metadata["event_typing"] = typing_meta
     return RunResult(video_id=video_id, sample_fps=config.sample_fps, anomaly_scores=tier1.scores,
                      candidate_windows=windows, verify_results=verify, alerts=alerts, metadata=metadata)
 
@@ -406,8 +533,13 @@ def build_from_manifest(rows: Sequence[dict[str, Any]], config: PipelineConfig, 
                         threshold_source: str = "placeholder", calib_manifest: str = "",
                         normal_bank: np.ndarray | None = None,
                         calib_stats: CalibStats | None = None,
+                        typer: Any | None = None,
                         write: bool = True) -> list[RunResult]:
-    """Chạy mọi video trong `rows` và (mặc định) ghi `results/<id>.json` + `results/windows/<id>.json`."""
+    """Chạy mọi video trong `rows` và (mặc định) ghi `results/<id>.json` + `results/windows/<id>.json`.
+
+    `typer` (tuỳ chọn) gán lại nhãn sự kiện cho các cửa sổ tier-2 đã xác nhận (D-2). `None` = giữ nhãn
+    VLM — dùng cho test và cho lần chạy chỉ muốn dựng hình dạng file.
+    """
     check_cache(rows, config, cache_dir)
     if verify_dir is not None and not Path(verify_dir).is_dir():
         # Sai đường dẫn thì mọi video đều "không có tier-2"; nếu manifest tình cờ không có cửa sổ nào,
@@ -438,7 +570,7 @@ def build_from_manifest(rows: Sequence[dict[str, Any]], config: PipelineConfig, 
                                  commit=commit, extra_note=extra_note, tier2_source=tier2_source,
                                  threshold_source=threshold_source, calib_manifest=calib_manifest,
                                  normal_bank=normal_bank, saved_windows=saved_windows,
-                                 calib_stats=calib_stats, tier2_fake=fake_tier2)
+                                 calib_stats=calib_stats, tier2_fake=fake_tier2, typer=typer)
         check_lengths(vid, np.asarray(res.anomaly_scores), row, res.sample_fps)
         if write:
             res.to_json(root=out_dir)
@@ -472,6 +604,11 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--verify-dir", default=None,
                    help="thư mục tier-2 thật: <video_id>.json (một file/video) hoặc "
                         "<video_id>/window_NNNN.json (một file/cửa sổ, đúng thứ scripts/run_verify.py ghi)")
+    p.add_argument("--typer", choices=TYPER_SOURCES, default="zeroshot",
+                   help="zeroshot = nhãn sự kiện do ZeroShotEventTyper quyết định (D-2, mặc định khi có "
+                        "--verify-dir); none = giữ nguyên nhãn VLM")
+    p.add_argument("--typing-cache-dir", default=str(DEFAULT_TYPING_CACHE),
+                   help="cache vector 13 nhãn của event_typing (chỉ embed lại khi cache thiếu/lệch)")
     p.add_argument("--limit", type=int, default=None, help="chỉ chạy N video cách đều (chạy thử)")
     p.add_argument("--out-dir", default=str(DEFAULT_RESULTS_DIR))
     p.add_argument("--cache-dir", default=str(DEFAULT_CACHE_DIR))
@@ -540,13 +677,18 @@ def main(argv: list[str] | None = None) -> int:
                 p.error(f"{args.ablation} chuẩn hoá theo calib_normal: cần --calib-manifest manifests/ucf_calib_normal.csv")
             stats = build_calib_stats(args.calib_manifest, config, args.cache_dir, (normal_embs, abnormal_embs),
                                       args.bank_max_frames)
+        typer = None
+        if args.typer == "zeroshot" and args.verify_dir is not None:
+            # Chỉ tier-2 THẬT mới cần typer; --verifier fake giữ nhãn fake để ghi chú "TIER-2 GIẢ" còn đúng.
+            typer = load_or_embed_typer(config.model_id, args.prompts, args.typing_cache_dir,
+                                        device=args.device)
         results = build_from_manifest(
             rows, config, normal_embs, abnormal_embs, cache_dir=args.cache_dir, out_dir=args.out_dir,
             verify_dir=args.verify_dir, verifier=FakeVerifier() if args.verifier == "fake" else None,
             policy=GraphPolicy(), camera=args.camera, zone=args.zone, hour=args.hour,
             ablation=args.ablation, commit=git_commit(), extra_note=args.note,
             threshold_source=args.threshold_source, calib_manifest=args.calib_manifest or "",
-            normal_bank=bank, calib_stats=stats,
+            normal_bank=bank, calib_stats=stats, typer=typer,
         )
     except BenchmarkInputError as e:
         raise BuildResultsError(str(e)) from e
