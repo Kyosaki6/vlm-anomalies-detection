@@ -510,6 +510,15 @@ def test_verify_dir_with_both_layouts_is_ambiguous(wworld):
         _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out")
 
 
+def test_verify_window_dir_truncated_json_raises_build_error(wworld):
+    """File bị cắt dở (Colab ngắt giữa lúc ghi) -> BuildResultsError nêu tên file, không phải JSONDecodeError thô."""
+    vid = wworld["video_id"]
+    d = wworld["tmp"] / "verify" / vid
+    d.mkdir(parents=True)
+    (d / "window_0000.json").write_text('{"schema_version": 1, "video_id": ', encoding="utf-8")
+    with pytest.raises(br.BuildResultsError, match=r"window_0000\.json: không đọc được JSON"):
+        br.load_verify_window_dir(d, vid)
+
 def test_verify_window_dir_index_gap_raises(wworld):
     """Thiếu một index ở GIỮA (0, 2; không có 1) -> lỗi rõ, không ghép lệch cặp."""
     res = _build2(wworld)[0]

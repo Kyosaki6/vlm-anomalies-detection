@@ -191,8 +191,12 @@ def resolve_verify_source(verify_dir: str | Path, video_id: str) -> tuple[str, P
 
 
 def _read_json_object(path: Path) -> dict[str, Any]:
-    with open(path, encoding="utf-8-sig") as f:
-        data = json.load(f)
+    try:
+        with open(path, encoding="utf-8-sig") as f:
+            data = json.load(f)
+    except (OSError, ValueError) as e:      # JSONDecodeError là ValueError; file cắt dở khi Colab ngắt
+        raise BuildResultsError(f"{path.name}: không đọc được JSON ({e}) — file hỏng hoặc ghi dở, "
+                                "xoá rồi chạy lại run_verify.py (resume sẽ làm lại cửa sổ này).") from e
     if not isinstance(data, dict):
         raise BuildResultsError(f"{path.name}: phải là JSON object, nhận {type(data).__name__}")
     return data
