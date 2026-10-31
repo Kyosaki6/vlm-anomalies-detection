@@ -611,3 +611,256 @@ def test_cli_dry_run_with_verifier_model_builds_lazy_verifier(synthetic_video, t
 
     assert rc == 0 and built == ["org/m"]
     assert "[dry-run] v1: 2 window" in capsys.readouterr().out
+
+# --- A3b: chunking (D-1), timing, shard -------------------------------------------
+
+from vad.datasets.sharding import parse_shard_spec  # noqa: E402
+
+
+@pytest.fixture()
+def long_video(tmp_path):
+    """70 giây ở 2 fps (140 khung); độ sáng = 10 * (giây // 10) để thấy chunk nào lấy khung nào."""
+    path = tmp_path / "long.mp4"
+    writer = cv2.VideoWriter(str(path), cv2.VideoWriter_fourcc(*"mp4v"), 2.0, (64, 48))
+    if not writer.isOpened():
+        pytest.skip("OpenCV build này không ghi được mp4v")
+    for i in range(140):
+        writer.write(np.full((48, 64, 3), 20 + 30 * (i // 20), dtype=np.uint8))
+    writer.release()
+    return path
+
+
+class ScriptedVerifier(FakeVerifier):
+    """Trả lần lượt các VerifyResult định sẵn (mỗi chunk một cái)."""
+
+    def __init__(self, results):
+        super().__init__()
+        self._queue = list(results)
+        self.contexts: list[dict] = []
+
+    def verify(self, frames, context):
+        self.contexts.append(dict(context))
+        return self._queue.pop(0)
+
+
+def vr(is_anomaly, confidence, caption="c", event_type=EventType.FIGHTING):
+    return VerifyResult(is_anomaly=is_anomaly, event_type=event_type, caption=caption,
+                        confidence=confidence)
+
+
+@pytest.mark.parametrize("start,end,expected_n", [
+    (10.0, 40.0, 1),      # đúng 30.0 s -> không chia
+    (0.0, 30.0, 1),
+    (0.0, 31.0, 2),       # 31 s -> 2 chunk 15.5 s
+    (5.0, 65.0, 2),       # 60 s -> 2 chunk 30 s
+    (0.0, 60.5, 3),
+    (0.0, 490.0, 17),     # window dài nhất thật: ceil(490/30)
+    (0.0, 1.0, 1),
+])
+def test_split_into_chunks_boundaries(start, end, expected_n):
+    chunks = rv.split_into_chunks(start, end, 30.0)
+    assert len(chunks) == expected_n
+    assert chunks[0][0] == start and chunks[-1][1] == end        # phủ kín, không trôi biên
+    assert all(b - a <= 30.0 + 1e-9 for a, b in chunks)          # không chunk nào vượt mức
+    assert all(a2 == b1 for (_, b1), (a2, _) in zip(chunks, chunks[1:]))  # liền nhau, không chồng
+
+
+def test_split_into_chunks_honours_non_default_max():
+    chunks = rv.split_into_chunks(0.0, 25.0, 10.0)
+    assert len(chunks) == 3 and chunks[0] == pytest.approx((0.0, 25.0 / 3))
+
+
+@pytest.mark.parametrize("bad", [(5.0, 5.0, 30.0), (-1.0, 3.0, 30.0), (0.0, 3.0, 0.0),
+                                 (0.0, float("nan"), 30.0), (0.0, 3.0, float("inf"))])
+def test_split_into_chunks_rejects_hostile_input(bad):
+    with pytest.raises(ValueError):
+        rv.split_into_chunks(*bad)
+
+
+def test_merge_is_or_and_takes_strongest_anomalous_chunk():
+    merged = rv.merge_chunk_results([
+        vr(False, 0.99, "calm street"),
+        vr(True, 0.60, "weak fight", EventType.ROBBERY),
+        vr(True, 0.80, "strong fight", EventType.FIGHTING),
+    ])
+    assert merged.is_anomaly is True
+    assert (merged.caption, merged.event_type, merged.confidence) == (
+        "strong fight", EventType.FIGHTING, 0.80)   # KHÔNG lấy chunk bình thường 0.99
+
+
+def test_merge_all_normal_takes_most_confident_and_ties_keep_first():
+    merged = rv.merge_chunk_results([vr(False, 0.7, "a"), vr(False, 0.9, "b"), vr(False, 0.9, "c")])
+    assert merged.is_anomaly is False and merged.caption == "b"
+    with pytest.raises(ValueError):
+        rv.merge_chunk_results([])
+
+
+def test_long_window_is_chunked_with_one_json_and_or_verdict(long_video, tmp_path):
+    manifest = write_manifest(tmp_path, "v1", long_video)
+    windows_file, _ = write_windows(tmp_path, windows=(Window("v1", 2.0, 66.0, 0.9),))  # 64 s
+    out = tmp_path / "verify"
+    verifier = ScriptedVerifier([vr(False, 0.9, "n1"), vr(True, 0.7, "hit", EventType.ROBBERY),
+                                 vr(False, 0.8, "n3")])
+
+    summary = rv.run_verify(manifest, windows_file.parent, out, verifier=verifier, k=4)
+
+    assert (summary.verified, summary.chunk_calls, summary.chunked) == (1, 3, 1)
+    files = list((out / "v1").glob("window_*.json"))
+    assert len(files) == 1                                          # vẫn MỘT json mỗi window
+    loaded = RunResult.from_json(files[0])
+    r = loaded.verify_results[0]
+    assert (r.is_anomaly, r.caption, r.event_type) == (True, "hit", EventType.ROBBERY)
+    meta = loaded.metadata
+    assert meta["n_chunks"] == 3 and len(meta["chunks"]) == 3
+    assert meta["max_chunk_s"] == 30.0
+    assert [c["is_anomaly"] for c in meta["chunks"]] == [False, True, False]
+    assert len(meta["frame_times_s"]) == 12
+    assert meta["elapsed_s"] >= 0.0
+    # mỗi chunk gọi VLM với đúng biên chunk, không phải biên cả window
+    starts = [c["start_s"] for c in verifier.contexts]
+    assert starts == pytest.approx([2.0, 2.0 + 64 / 3, 2.0 + 128 / 3])
+    assert all(c["window_start_s"] == 2.0 and c["window_end_s"] == 66.0 for c in verifier.contexts)
+
+
+def test_chunk_frames_come_from_each_chunk(long_video, tmp_path):
+    manifest = write_manifest(tmp_path, "v1", long_video)
+    windows_file, _ = write_windows(tmp_path, windows=(Window("v1", 2.0, 66.0, 0.9),))
+    verifier = BrightnessVerifier()
+
+    rv.run_verify(manifest, windows_file.parent, tmp_path / "verify", verifier=verifier, k=4)
+
+    assert len(verifier.means) == 3
+    firsts = [m[0] for m in verifier.means]
+    assert firsts == sorted(firsts) and len(set(firsts)) == 3       # chunk sau sáng hơn chunk trước
+
+
+def test_short_window_stays_one_chunk_and_not_counted_as_chunked(long_video, tmp_path):
+    manifest = write_manifest(tmp_path, "v1", long_video)
+    windows_file, _ = write_windows(tmp_path, windows=(Window("v1", 0.0, 30.0, 0.9),))
+    verifier = CountingVerifier()
+
+    summary = rv.run_verify(manifest, windows_file.parent, tmp_path / "verify",
+                            verifier=verifier, k=4)
+
+    assert (summary.chunk_calls, summary.chunked) == (1, 0)
+    assert len(verifier.calls) == 1
+
+
+def test_resume_skips_chunked_window_and_rerun_makes_no_vlm_calls(long_video, tmp_path):
+    manifest = write_manifest(tmp_path, "v1", long_video)
+    windows_file, _ = write_windows(tmp_path, windows=(Window("v1", 2.0, 66.0, 0.9),))
+    out = tmp_path / "verify"
+    first = CountingVerifier()
+    rv.run_verify(manifest, windows_file.parent, out, verifier=first, k=4)
+
+    second = CountingVerifier()
+    summary = rv.run_verify(manifest, windows_file.parent, out, verifier=second, k=4)
+
+    assert (summary.verified, summary.skipped, summary.chunk_calls) == (0, 1, 0)
+    assert second.calls == []
+
+
+def test_max_chunk_s_change_invalidates_resume(long_video, tmp_path):
+    manifest = write_manifest(tmp_path, "v1", long_video)
+    windows_file, _ = write_windows(tmp_path, windows=(Window("v1", 2.0, 66.0, 0.9),))
+    out = tmp_path / "verify"
+    rv.run_verify(manifest, windows_file.parent, out, verifier=CountingVerifier(), k=4)
+
+    summary = rv.run_verify(manifest, windows_file.parent, out, verifier=CountingVerifier(),
+                            k=4, max_chunk_s=60.0)
+
+    assert (summary.verified, summary.skipped, summary.chunk_calls) == (1, 0, 2)
+
+
+def test_failed_chunk_writes_no_json(long_video, tmp_path):
+    manifest = write_manifest(tmp_path, "v1", long_video)
+    windows_file, _ = write_windows(tmp_path, windows=(Window("v1", 2.0, 66.0, 0.9),))
+    out = tmp_path / "verify"
+
+    class Boom(FakeVerifier):
+        n = 0
+
+        def verify(self, frames, context):
+            Boom.n += 1
+            if Boom.n == 2:
+                raise RuntimeError("vlm boom")
+            return super().verify(frames, context)
+
+    with pytest.raises(RuntimeError, match="vlm boom"):
+        rv.run_verify(manifest, windows_file.parent, out, verifier=Boom(), k=4)
+    assert list(out.rglob("window_*.json")) == []                   # không ghi kết quả một nửa
+
+
+def test_timing_summary_reports_median_p90_and_percent_chunked(long_video, tmp_path):
+    manifest = write_manifest(tmp_path, "v1", long_video)
+    windows_file, _ = write_windows(tmp_path, windows=(
+        Window("v1", 0.0, 10.0, 0.9), Window("v1", 12.0, 66.0, 0.8)))
+    summary = rv.run_verify(manifest, windows_file.parent, tmp_path / "verify",
+                            verifier=CountingVerifier(), k=4)
+
+    assert (summary.chunk_calls, summary.chunked, len(summary.elapsed_s)) == (3, 1, 2)
+    report = summary.timing_report()
+    assert "median" in report and "p90" in report
+    assert "1/2 = 50.0%" in report and "chunk-call: 3" in report
+    assert "chưa có" in rv.VerifySummary().timing_report()
+
+
+def test_dry_run_counts_chunk_calls(long_video, tmp_path, capsys):
+    manifest = write_manifest(tmp_path, "v1", long_video)
+    windows_file, _ = write_windows(tmp_path, windows=(
+        Window("v1", 0.0, 10.0, 0.9), Window("v1", 2.0, 66.0, 0.8)))
+
+    summary = rv.run_verify(manifest, windows_file.parent, tmp_path / "verify", verifier=None,
+                            dry_run=True)
+
+    assert summary.chunk_calls == 4 and "4 chunk-call" in capsys.readouterr().out
+    assert not (tmp_path / "verify").exists()
+
+
+def test_shard_union_equals_full_list_and_is_disjoint(long_video, tmp_path):
+    n = 12
+    windows = tuple(Window("v1", float(i * 5), float(i * 5 + 4), 0.9) for i in range(n))
+    manifest = write_manifest(tmp_path, "v1", long_video)
+    windows_file, _ = write_windows(tmp_path, windows=windows)
+
+    full_out = tmp_path / "full"
+    rv.run_verify(manifest, windows_file.parent, full_out, verifier=CountingVerifier(), k=2)
+    full = {p.name for p in (full_out / "v1").glob("window_*.json")}
+    assert len(full) == n
+
+    seen: list[str] = []
+    for i in range(1, 4):
+        out = tmp_path / f"shard{i}"
+        idx, total = parse_shard_spec(f"{i}/3")
+        summary = rv.run_verify(manifest, windows_file.parent, out, verifier=CountingVerifier(),
+                                k=2, shard=(idx, total))
+        names = [p.name for p in (out / "v1").glob("window_*.json")] if (out / "v1").exists() else []
+        assert summary.examined == len(names)                       # ngoài shard không bị đếm
+        seen += names
+    assert sorted(seen) == sorted(full)                             # hợp = đủ, không trùng
+
+
+def test_shard_none_and_invalid(long_video, tmp_path):
+    assert rv.in_shard("v1", 0, None) is True
+    with pytest.raises(ValueError):
+        rv.in_shard("v1", 0, (2, 2))
+    manifest = write_manifest(tmp_path, "v1", long_video)
+    windows_file, _ = write_windows(tmp_path)
+    with pytest.raises(ValueError, match="shard"):
+        rv.run_verify(manifest, windows_file.parent, tmp_path / "o", verifier=CountingVerifier(),
+                      shard=(3, 2))
+
+
+def test_cli_shard_and_max_chunk_flags(long_video, tmp_path, capsys):
+    manifest = write_manifest(tmp_path, "v1", long_video)
+    windows_file, _ = write_windows(tmp_path, windows=(Window("v1", 2.0, 66.0, 0.9),))
+    base = ["--manifest", str(manifest), "--windows-dir", str(windows_file.parent), "--fake"]
+
+    assert rv.main(base + ["--out-dir", str(tmp_path / "a"), "--shard", "1/1",
+                           "--max-chunk-s", "20"]) == 0
+    out = capsys.readouterr().out
+    assert "chunk-call: 4" in out and "median" in out                # ceil(64/20) = 4
+    with pytest.raises(SystemExit):
+        rv.main(base + ["--out-dir", str(tmp_path / "b"), "--shard", "3/2"])
+    with pytest.raises(SystemExit):
+        rv.main(base + ["--out-dir", str(tmp_path / "c"), "--max-chunk-s", "0"])
