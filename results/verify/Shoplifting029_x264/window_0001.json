@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Shoplifting029_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shoplifting029_x264",
+      "start_s": 58.0,
+      "end_s": 65.0,
+      "score": 1.3155753228310627
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A man is browsing through clothing in a store.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:19:39+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      58.875,
+      60.625,
+      62.375,
+      64.125
+    ],
+    "source_windows": "results\\windows\\Shoplifting029_x264.json",
+    "fingerprint": "8b040d2d8635009e18075845eaa5865cd56e2f817815d32dee12bd7f1c6cc04a",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 58.0,
+        "end_s": 65.0,
+        "frame_times_s": [
+          58.875,
+          60.625,
+          62.375,
+          64.125
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A man is browsing through clothing in a store."
+      }
+    ],
+    "elapsed_s": 2.580929199932143
+  }
+}

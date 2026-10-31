@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "video_id": "Shooting019_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shooting019_x264",
+      "start_s": 34.0,
+      "end_s": 92.0,
+      "score": 1.4350291876637429
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Shooting",
+      "caption": "A person is shot multiple times while standing near a car.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:15:59+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      37.625,
+      44.875,
+      52.125,
+      59.375,
+      66.625,
+      73.875,
+      81.125,
+      88.375
+    ],
+    "source_windows": "results\\windows\\Shooting019_x264.json",
+    "fingerprint": "7470fc268f3c871d7e362ed5afb364b543fc889664fb629cca75a53206616a9d",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 2,
+    "chunks": [
+      {
+        "start_s": 34.0,
+        "end_s": 63.0,
+        "frame_times_s": [
+          37.625,
+          44.875,
+          52.125,
+          59.375
+        ],
+        "is_anomaly": true,
+        "event_type": "Shooting",
+        "confidence": 0.95,
+        "caption": "A person is shot multiple times while standing near a car."
+      },
+      {
+        "start_s": 63.0,
+        "end_s": 92.0,
+        "frame_times_s": [
+          66.625,
+          73.875,
+          81.125,
+          88.375
+        ],
+        "is_anomaly": true,
+        "event_type": "Robbery",
+        "confidence": 0.85,
+        "caption": "A person is seen approaching a car and opening its trunk."
+      }
+    ],
+    "elapsed_s": 6.350056100054644
+  }
+}

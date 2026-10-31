@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "video_id": "RoadAccidents121_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "RoadAccidents121_x264",
+      "start_s": 16.0,
+      "end_s": 62.0,
+      "score": 1.397521739438197
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "RoadAccidents",
+      "caption": "A car is overturned on its side, and several people are trying to right it.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:14:09+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      18.875,
+      24.625,
+      30.375,
+      36.125,
+      41.875,
+      47.625,
+      53.375,
+      59.125
+    ],
+    "source_windows": "results\\windows\\RoadAccidents121_x264.json",
+    "fingerprint": "d81af440d3fb0aaa744771bda9f8a522e3ccf07a05e5dc90954bc5707180204d",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 2,
+    "chunks": [
+      {
+        "start_s": 16.0,
+        "end_s": 39.0,
+        "frame_times_s": [
+          18.875,
+          24.625,
+          30.375,
+          36.125
+        ],
+        "is_anomaly": true,
+        "event_type": "RoadAccidents",
+        "confidence": 0.95,
+        "caption": "A car is overturned on its side, and several people are trying to right it."
+      },
+      {
+        "start_s": 39.0,
+        "end_s": 62.0,
+        "frame_times_s": [
+          41.875,
+          47.625,
+          53.375,
+          59.125
+        ],
+        "is_anomaly": false,
+        "event_type": "RoadAccidents",
+        "confidence": 0.85,
+        "caption": "A car is involved in a road accident, and people are gathered around it."
+      }
+    ],
+    "elapsed_s": 7.670580800040625
+  }
+}

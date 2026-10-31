@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "video_id": "Shooting043_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shooting043_x264",
+      "start_s": 1.0,
+      "end_s": 63.0,
+      "score": 1.4561082929822806
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Shooting",
+      "caption": "A person is seen holding a gun and pointing it at another person.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:17:28+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      3.5833333333333335,
+      8.75,
+      13.916666666666668,
+      19.083333333333336,
+      24.25,
+      29.416666666666668,
+      34.583333333333336,
+      39.75,
+      44.91666666666667,
+      50.083333333333336,
+      55.25,
+      60.41666666666667
+    ],
+    "source_windows": "results\\windows\\Shooting043_x264.json",
+    "fingerprint": "5f35d8d771c4e4bc66d5250f6f90add84639a7d59a9e52ea31375ee3d5ee55b6",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 3,
+    "chunks": [
+      {
+        "start_s": 1.0,
+        "end_s": 21.666666666666668,
+        "frame_times_s": [
+          3.5833333333333335,
+          8.75,
+          13.916666666666668,
+          19.083333333333336
+        ],
+        "is_anomaly": true,
+        "event_type": "Shooting",
+        "confidence": 0.95,
+        "caption": "A person is seen holding a gun and pointing it at another person."
+      },
+      {
+        "start_s": 21.666666666666668,
+        "end_s": 42.333333333333336,
+        "frame_times_s": [
+          24.25,
+          29.416666666666668,
+          34.583333333333336,
+          39.75
+        ],
+        "is_anomaly": true,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "A person is seen approaching a vehicle and then opening the trunk."
+      },
+      {
+        "start_s": 42.333333333333336,
+        "end_s": 63.0,
+        "frame_times_s": [
+          44.91666666666667,
+          50.083333333333336,
+          55.25,
+          60.41666666666667
+        ],
+        "is_anomaly": true,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "A person is seen approaching a vehicle and then opening the trunk."
+      }
+    ],
+    "elapsed_s": 9.917681300081313
+  }
+}

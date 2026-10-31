@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "video_id": "Shoplifting001_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shoplifting001_x264",
+      "start_s": 8.0,
+      "end_s": 77.0,
+      "score": 1.3234615984282747
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Shoplifting",
+      "caption": "A person in an orange shirt is seen attempting to steal items from a display.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:18:16+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      10.875,
+      16.625,
+      22.375,
+      28.125,
+      33.875,
+      39.625,
+      45.375,
+      51.125,
+      56.875,
+      62.625,
+      68.375,
+      74.125
+    ],
+    "source_windows": "results\\windows\\Shoplifting001_x264.json",
+    "fingerprint": "ebbb92b1c9b5fb0672eb6ab2401eb9a5eb5a732d7e7f119e170ea3573ee23219",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 3,
+    "chunks": [
+      {
+        "start_s": 8.0,
+        "end_s": 31.0,
+        "frame_times_s": [
+          10.875,
+          16.625,
+          22.375,
+          28.125
+        ],
+        "is_anomaly": true,
+        "event_type": "Shoplifting",
+        "confidence": 0.95,
+        "caption": "A person in an orange shirt is seen attempting to steal items from a display."
+      },
+      {
+        "start_s": 31.0,
+        "end_s": 54.0,
+        "frame_times_s": [
+          33.875,
+          39.625,
+          45.375,
+          51.125
+        ],
+        "is_anomaly": true,
+        "event_type": "Shoplifting",
+        "confidence": 0.95,
+        "caption": "A person in an orange hoodie is seen attempting to steal items from a display."
+      },
+      {
+        "start_s": 54.0,
+        "end_s": 77.0,
+        "frame_times_s": [
+          56.875,
+          62.625,
+          68.375,
+          74.125
+        ],
+        "is_anomaly": true,
+        "event_type": "Shoplifting",
+        "confidence": 0.95,
+        "caption": "A person is seen attempting to steal items from a checkout counter."
+      }
+    ],
+    "elapsed_s": 8.82343220000621
+  }
+}

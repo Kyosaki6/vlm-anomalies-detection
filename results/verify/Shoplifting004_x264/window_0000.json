@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "video_id": "Shoplifting004_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shoplifting004_x264",
+      "start_s": 28.0,
+      "end_s": 201.0,
+      "score": 1.433132146717742
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A man is seen handling money at a counter.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:18:39+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      31.604166666666664,
+      38.8125,
+      46.02083333333333,
+      53.229166666666664,
+      60.43749999999999,
+      67.64583333333333,
+      74.85416666666666,
+      82.0625,
+      89.27083333333333,
+      96.47916666666666,
+      103.6875,
+      110.89583333333333,
+      118.10416666666666,
+      125.3125,
+      132.52083333333331,
+      139.72916666666666,
+      146.93749999999997,
+      154.14583333333331,
+      161.35416666666666,
+      168.5625,
+      175.77083333333331,
+      182.97916666666666,
+      190.1875,
+      197.39583333333334
+    ],
+    "source_windows": "results\\windows\\Shoplifting004_x264.json",
+    "fingerprint": "7351734cf860daabf8665efd32660a5883a2d7dbd0d18f73eac54c9bc8d68a2f",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 6,
+    "chunks": [
+      {
+        "start_s": 28.0,
+        "end_s": 56.83333333333333,
+        "frame_times_s": [
+          31.604166666666664,
+          38.8125,
+          46.02083333333333,
+          53.229166666666664
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A man is seen handling money at a counter."
+      },
+      {
+        "start_s": 56.83333333333333,
+        "end_s": 85.66666666666666,
+        "frame_times_s": [
+          60.43749999999999,
+          67.64583333333333,
+          74.85416666666666,
+          82.0625
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A group of people is gathered around a table, engaged in a discussion or transaction."
+      },
+      {
+        "start_s": 85.66666666666666,
+        "end_s": 114.5,
+        "frame_times_s": [
+          89.27083333333333,
+          96.47916666666666,
+          103.6875,
+          110.89583333333333
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A group of people is gathered around a table, engaged in a discussion or transaction."
+      },
+      {
+        "start_s": 114.5,
+        "end_s": 143.33333333333331,
+        "frame_times_s": [
+          118.10416666666666,
+          125.3125,
+          132.52083333333331,
+          139.72916666666666
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A group of people is gathered around a table, engaged in a discussion or activity involving a tablet and some papers."
+      },
+      {
+        "start_s": 143.33333333333331,
+        "end_s": 172.16666666666666,
+        "frame_times_s": [
+          146.93749999999997,
+          154.14583333333331,
+          161.35416666666666,
+          168.5625
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person is seen sitting at a table with another individual who appears to be a shopkeeper. The person at the table is engaged in conversation with the shopkeeper."
+      },
+      {
+        "start_s": 172.16666666666666,
+        "end_s": 201.0,
+        "frame_times_s": [
+          175.77083333333331,
+          182.97916666666666,
+          190.1875,
+          197.39583333333334
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A man is seen placing items on a counter at a shop."
+      }
+    ],
+    "elapsed_s": 19.065407900023274
+  }
+}

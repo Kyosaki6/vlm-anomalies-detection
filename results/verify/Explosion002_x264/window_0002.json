@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Explosion002_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Explosion002_x264",
+      "start_s": 104.0,
+      "end_s": 110.0,
+      "score": 1.1834338857700004
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "A person is seen standing near a gas pump at night.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:08:55+00:00",
+    "schema_version": 1,
+    "window_index": 2,
+    "k": 4,
+    "frame_times_s": [
+      104.75,
+      106.25,
+      107.75,
+      109.25
+    ],
+    "source_windows": "results\\windows\\Explosion002_x264.json",
+    "fingerprint": "ce72549014ac7ff905ad28e0cbe0a57dfaf4ce3f4bbc81f1b037939d9af54b64",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 104.0,
+        "end_s": 110.0,
+        "frame_times_s": [
+          104.75,
+          106.25,
+          107.75,
+          109.25
+        ],
+        "is_anomaly": true,
+        "event_type": "Explosion",
+        "confidence": 0.95,
+        "caption": "A person is seen standing near a gas pump at night."
+      }
+    ],
+    "elapsed_s": 8.998056899989024
+  }
+}

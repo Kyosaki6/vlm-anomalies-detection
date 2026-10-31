@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "video_id": "Robbery137_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Robbery137_x264",
+      "start_s": 0.0,
+      "end_s": 73.0,
+      "score": 1.4967436416088553
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Robbery",
+      "caption": "A person is being robbed at a store by another individual who is threatening them.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:14:40+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      3.0416666666666665,
+      9.125,
+      15.208333333333332,
+      21.291666666666664,
+      27.375,
+      33.45833333333333,
+      39.541666666666664,
+      45.625,
+      51.70833333333333,
+      57.791666666666664,
+      63.875,
+      69.95833333333333
+    ],
+    "source_windows": "results\\windows\\Robbery137_x264.json",
+    "fingerprint": "ab2314371090d746a7ca6ff7b54d234e471314a975362686fedff07a2178c0e7",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 3,
+    "chunks": [
+      {
+        "start_s": 0.0,
+        "end_s": 24.333333333333332,
+        "frame_times_s": [
+          3.0416666666666665,
+          9.125,
+          15.208333333333332,
+          21.291666666666664
+        ],
+        "is_anomaly": true,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "A person is being robbed at a store by another individual who is threatening them."
+      },
+      {
+        "start_s": 24.333333333333332,
+        "end_s": 48.666666666666664,
+        "frame_times_s": [
+          27.375,
+          33.45833333333333,
+          39.541666666666664,
+          45.625
+        ],
+        "is_anomaly": true,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "A customer is being robbed at a store by two armed individuals."
+      },
+      {
+        "start_s": 48.666666666666664,
+        "end_s": 73.0,
+        "frame_times_s": [
+          51.70833333333333,
+          57.791666666666664,
+          63.875,
+          69.95833333333333
+        ],
+        "is_anomaly": true,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "A person is seen attempting to steal items from a store counter."
+      }
+    ],
+    "elapsed_s": 10.961679400061257
+  }
+}

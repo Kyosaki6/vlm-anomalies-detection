@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "video_id": "Arrest030_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Arrest030_x264",
+      "start_s": 15.0,
+      "end_s": 289.0,
+      "score": 1.4857491605736202
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Arrest",
+      "caption": "A person enters a room and is arrested by another individual.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T07:55:43+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      18.425,
+      25.275,
+      32.125,
+      38.974999999999994,
+      45.824999999999996,
+      52.675,
+      59.525,
+      66.375,
+      73.225,
+      80.075,
+      86.925,
+      93.775,
+      100.625,
+      107.475,
+      114.32499999999999,
+      121.175,
+      128.025,
+      134.875,
+      141.725,
+      148.575,
+      155.425,
+      162.275,
+      169.125,
+      175.975,
+      182.82500000000002,
+      189.675,
+      196.525,
+      203.375,
+      210.22500000000002,
+      217.075,
+      223.925,
+      230.77499999999998,
+      237.625,
+      244.475,
+      251.32500000000002,
+      258.175,
+      265.02500000000003,
+      271.875,
+      278.725,
+      285.575
+    ],
+    "source_windows": "results\\windows\\Arrest030_x264.json",
+    "fingerprint": "b338d95bffbab794bec3e8597d33110b72f8ea6dab2b3b7285f7032655b264a1",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 10,
+    "chunks": [
+      {
+        "start_s": 15.0,
+        "end_s": 42.4,
+        "frame_times_s": [
+          18.425,
+          25.275,
+          32.125,
+          38.974999999999994
+        ],
+        "is_anomaly": false,
+        "event_type": "Arrest",
+        "confidence": 0.95,
+        "caption": "A person enters a room and is arrested by another individual."
+      },
+      {
+        "start_s": 42.4,
+        "end_s": 69.8,
+        "frame_times_s": [
+          45.824999999999996,
+          52.675,
+          59.525,
+          66.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "A person is being arrested by two officers in a room."
+      },
+      {
+        "start_s": 69.8,
+        "end_s": 97.2,
+        "frame_times_s": [
+          73.225,
+          80.075,
+          86.925,
+          93.775
+        ],
+        "is_anomaly": false,
+        "event_type": "Arrest",
+        "confidence": 0.95,
+        "caption": "A person is being arrested by police officers."
+      },
+      {
+        "start_s": 97.2,
+        "end_s": 124.6,
+        "frame_times_s": [
+          100.625,
+          107.475,
+          114.32499999999999,
+          121.175
+        ],
+        "is_anomaly": false,
+        "event_type": "Arrest",
+        "confidence": 0.95,
+        "caption": "A person is being arrested by law enforcement."
+      },
+      {
+        "start_s": 124.6,
+        "end_s": 152.0,
+        "frame_times_s": [
+          128.025,
+          134.875,
+          141.725,
+          148.575
+        ],
+        "is_anomaly": false,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "A person enters a bank vault and is arrested by security guards."
+      },
+      {
+        "start_s": 152.0,
+        "end_s": 179.4,
+        "frame_times_s": [
+          155.425,
+          162.275,
+          169.125,
+          175.975
+        ],
+        "is_anomaly": false,
+        "event_type": "Arrest",
+        "confidence": 0.95,
+        "caption": "A person is being arrested by law enforcement."
+      },
+      {
+        "start_s": 179.4,
+        "end_s": 206.8,
+        "frame_times_s": [
+          182.82500000000002,
+          189.675,
+          196.525,
+          203.375
+        ],
+        "is_anomaly": false,
+        "event_type": "Arrest",
+        "confidence": 0.95,
+        "caption": "A person is being arrested by law enforcement."
+      },
+      {
+        "start_s": 206.8,
+        "end_s": 234.2,
+        "frame_times_s": [
+          210.22500000000002,
+          217.075,
+          223.925,
+          230.77499999999998
+        ],
+        "is_anomaly": false,
+        "event_type": "Arrest",
+        "confidence": 0.95,
+        "caption": "A person is being arrested by law enforcement."
+      },
+      {
+        "start_s": 234.2,
+        "end_s": 261.6,
+        "frame_times_s": [
+          237.625,
+          244.475,
+          251.32500000000002,
+          258.175
+        ],
+        "is_anomaly": false,
+        "event_type": "Arrest",
+        "confidence": 0.95,
+        "caption": "A person is being arrested by law enforcement."
+      },
+      {
+        "start_s": 261.6,
+        "end_s": 289.0,
+        "frame_times_s": [
+          265.02500000000003,
+          271.875,
+          278.725,
+          285.575
+        ],
+        "is_anomaly": false,
+        "event_type": "Arrest",
+        "confidence": 0.95,
+        "caption": "A person is being arrested by law enforcement."
+      }
+    ],
+    "elapsed_s": 98.02958460000809
+  }
+}

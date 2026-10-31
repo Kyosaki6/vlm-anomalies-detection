@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "RoadAccidents001_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "RoadAccidents001_x264",
+      "start_s": 24.0,
+      "end_s": 29.0,
+      "score": 1.2139953306633735
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "RoadAccidents",
+      "caption": "A vehicle is seen driving erratically on the road.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:13:49+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      24.625,
+      25.875,
+      27.125,
+      28.375
+    ],
+    "source_windows": "results\\windows\\RoadAccidents001_x264.json",
+    "fingerprint": "e4d60cdfc2bf1c7335c8c827e45df731e55342d45ff9b1909814d49862bfa184",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 24.0,
+        "end_s": 29.0,
+        "frame_times_s": [
+          24.625,
+          25.875,
+          27.125,
+          28.375
+        ],
+        "is_anomaly": true,
+        "event_type": "RoadAccidents",
+        "confidence": 0.95,
+        "caption": "A vehicle is seen driving erratically on the road."
+      }
+    ],
+    "elapsed_s": 3.506772499997169
+  }
+}

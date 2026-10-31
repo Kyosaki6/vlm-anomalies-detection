@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "video_id": "Shooting011_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shooting011_x264",
+      "start_s": 24.0,
+      "end_s": 57.0,
+      "score": 1.2988462428338658
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Robbery",
+      "caption": "A person wearing a yellow helmet and black clothing is seen holding a weapon and pointing it at another individual inside a room.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:15:15+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      26.0625,
+      30.1875,
+      34.3125,
+      38.4375,
+      42.5625,
+      46.6875,
+      50.8125,
+      54.9375
+    ],
+    "source_windows": "results\\windows\\Shooting011_x264.json",
+    "fingerprint": "5e5773d0d361ece17fb885457f69226cef7db6c3c4104d07ee04056b47579281",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 2,
+    "chunks": [
+      {
+        "start_s": 24.0,
+        "end_s": 40.5,
+        "frame_times_s": [
+          26.0625,
+          30.1875,
+          34.3125,
+          38.4375
+        ],
+        "is_anomaly": true,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "A person wearing a yellow helmet and black clothing is seen holding a weapon and pointing it at another individual inside a room."
+      },
+      {
+        "start_s": 40.5,
+        "end_s": 57.0,
+        "frame_times_s": [
+          42.5625,
+          46.6875,
+          50.8125,
+          54.9375
+        ],
+        "is_anomaly": true,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "A person is being robbed by another individual who is holding a gun."
+      }
+    ],
+    "elapsed_s": 7.097173599991947
+  }
+}

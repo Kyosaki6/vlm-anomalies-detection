@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Burglary032_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Burglary032_x264",
+      "start_s": 389.0,
+      "end_s": 397.0,
+      "score": 1.2211668011298673
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Burglary",
+      "caption": "A person is seen entering a building through a window.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:05:07+00:00",
+    "schema_version": 1,
+    "window_index": 6,
+    "k": 4,
+    "frame_times_s": [
+      390.0,
+      392.0,
+      394.0,
+      396.0
+    ],
+    "source_windows": "results\\windows\\Burglary032_x264.json",
+    "fingerprint": "358b26a5fa31b9a0839d0387b0ec30795e1dbc5949ae8271b79dced02903c443",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 389.0,
+        "end_s": 397.0,
+        "frame_times_s": [
+          390.0,
+          392.0,
+          394.0,
+          396.0
+        ],
+        "is_anomaly": true,
+        "event_type": "Burglary",
+        "confidence": 0.95,
+        "caption": "A person is seen entering a building through a window."
+      }
+    ],
+    "elapsed_s": 9.252999699907377
+  }
+}

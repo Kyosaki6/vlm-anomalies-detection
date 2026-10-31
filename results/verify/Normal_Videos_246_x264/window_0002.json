@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_246_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_246_x264",
+      "start_s": 76.0,
+      "end_s": 167.0,
+      "score": 1.381662895220987
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person in a red shirt and white hard hat is seated at a desk in a control room, while another individual in a black uniform approaches them.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T08:25:05+00:00",
+    "schema_version": 1,
+    "window_index": 2,
+    "k": 4,
+    "frame_times_s": [
+      78.84375,
+      84.53125,
+      90.21875,
+      95.90625,
+      101.59375,
+      107.28125,
+      112.96875,
+      118.65625,
+      124.34375,
+      130.03125,
+      135.71875,
+      141.40625,
+      147.09375,
+      152.78125,
+      158.46875,
+      164.15625
+    ],
+    "source_windows": "results\\windows\\Normal_Videos_246_x264.json",
+    "fingerprint": "462b3f5f5a7a8b2848cb710cc9fcaf7e97ca966a9e4c8db1913e44147fd4358d",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 4,
+    "chunks": [
+      {
+        "start_s": 76.0,
+        "end_s": 98.75,
+        "frame_times_s": [
+          78.84375,
+          84.53125,
+          90.21875,
+          95.90625
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A person in a red shirt and white hard hat is seated at a desk in a control room, while another individual in a black uniform approaches them."
+      },
+      {
+        "start_s": 98.75,
+        "end_s": 121.5,
+        "frame_times_s": [
+          101.59375,
+          107.28125,
+          112.96875,
+          118.65625
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A man in a red shirt walks towards a desk while another person in a blue shirt stands nearby."
+      },
+      {
+        "start_s": 121.5,
+        "end_s": 144.25,
+        "frame_times_s": [
+          124.34375,
+          130.03125,
+          135.71875,
+          141.40625
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "Two individuals stand near a desk in a surveillance room, engaged in conversation."
+      },
+      {
+        "start_s": 144.25,
+        "end_s": 167.0,
+        "frame_times_s": [
+          147.09375,
+          152.78125,
+          158.46875,
+          164.15625
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A group of individuals is gathered around a desk in a room with multiple computer monitors and desks."
+      }
+    ],
+    "elapsed_s": 15.719486500020139
+  }
+}

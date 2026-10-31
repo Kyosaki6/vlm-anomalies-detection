@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "video_id": "Shoplifting022_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Shoplifting022_x264",
+      "start_s": 32.0,
+      "end_s": 43.0,
+      "score": 1.2275481020203978
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A woman is browsing items in a grocery store aisle.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:19:22+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      33.375,
+      36.125,
+      38.875,
+      41.625
+    ],
+    "source_windows": "results\\windows\\Shoplifting022_x264.json",
+    "fingerprint": "868a14e457912712a2e0ba0e3d35724f75a86439343035d95d178c6070264d84",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 1,
+    "chunks": [
+      {
+        "start_s": 32.0,
+        "end_s": 43.0,
+        "frame_times_s": [
+          33.375,
+          36.125,
+          38.875,
+          41.625
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.95,
+        "caption": "A woman is browsing items in a grocery store aisle."
+      }
+    ],
+    "elapsed_s": 2.7268244000151753
+  }
+}

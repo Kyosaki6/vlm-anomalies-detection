@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "video_id": "Stealing019_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Stealing019_x264",
+      "start_s": 0.0,
+      "end_s": 164.0,
+      "score": 1.4504514577190262
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Stealing",
+      "caption": "A person is seen standing next to a white car, possibly attempting to steal something from it.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:21:09+00:00",
+    "schema_version": 1,
+    "window_index": 0,
+    "k": 4,
+    "frame_times_s": [
+      3.4166666666666665,
+      10.25,
+      17.083333333333332,
+      23.916666666666664,
+      30.75,
+      37.58333333333333,
+      44.416666666666664,
+      51.25,
+      58.08333333333333,
+      64.91666666666666,
+      71.75,
+      78.58333333333333,
+      85.41666666666667,
+      92.25,
+      99.08333333333333,
+      105.91666666666666,
+      112.75,
+      119.58333333333333,
+      126.41666666666666,
+      133.25,
+      140.08333333333331,
+      146.91666666666666,
+      153.75,
+      160.58333333333334
+    ],
+    "source_windows": "results\\windows\\Stealing019_x264.json",
+    "fingerprint": "053bc45b69204f9949f0520d54ab13779d4f7382811db816e389d01a623dd103",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 6,
+    "chunks": [
+      {
+        "start_s": 0.0,
+        "end_s": 27.333333333333332,
+        "frame_times_s": [
+          3.4166666666666665,
+          10.25,
+          17.083333333333332,
+          23.916666666666664
+        ],
+        "is_anomaly": true,
+        "event_type": "Stealing",
+        "confidence": 0.95,
+        "caption": "A person is seen standing next to a white car, possibly attempting to steal something from it."
+      },
+      {
+        "start_s": 27.333333333333332,
+        "end_s": 54.666666666666664,
+        "frame_times_s": [
+          30.75,
+          37.58333333333333,
+          44.416666666666664,
+          51.25
+        ],
+        "is_anomaly": false,
+        "event_type": "Stealing",
+        "confidence": 0.8,
+        "caption": "A person is seen standing next to a white car, holding a bag over their shoulder."
+      },
+      {
+        "start_s": 54.666666666666664,
+        "end_s": 82.0,
+        "frame_times_s": [
+          58.08333333333333,
+          64.91666666666666,
+          71.75,
+          78.58333333333333
+        ],
+        "is_anomaly": false,
+        "event_type": "Robbery",
+        "confidence": 0.95,
+        "caption": "A person is seen approaching a white car and opening its trunk."
+      },
+      {
+        "start_s": 82.0,
+        "end_s": 109.33333333333333,
+        "frame_times_s": [
+          85.41666666666667,
+          92.25,
+          99.08333333333333,
+          105.91666666666666
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.75,
+        "caption": "A person is standing next to a white car, possibly observing something."
+      },
+      {
+        "start_s": 109.33333333333333,
+        "end_s": 136.66666666666666,
+        "frame_times_s": [
+          112.75,
+          119.58333333333333,
+          126.41666666666666,
+          133.25
+        ],
+        "is_anomaly": false,
+        "event_type": "Normal",
+        "confidence": 0.85,
+        "caption": "A white car is parked on the side of the road."
+      },
+      {
+        "start_s": 136.66666666666666,
+        "end_s": 164.0,
+        "frame_times_s": [
+          140.08333333333331,
+          146.91666666666666,
+          153.75,
+          160.58333333333334
+        ],
+        "is_anomaly": false,
+        "event_type": "Robbery",
+        "confidence": 0.85,
+        "caption": "A person is seen approaching a white car and opening its door."
+      }
+    ],
+    "elapsed_s": 17.674225499969907
+  }
+}

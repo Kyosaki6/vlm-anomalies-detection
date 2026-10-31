@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "video_id": "Vandalism015_x264",
+  "sample_fps": 1.0,
+  "n_frames": 0,
+  "anomaly_scores": [],
+  "candidate_windows": [
+    {
+      "video_id": "Vandalism015_x264",
+      "start_s": 63.0,
+      "end_s": 94.0,
+      "score": 1.2925800738219237
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Vandalism",
+      "caption": "A person is seen breaking into a store through a window.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "commit": "7b3a174",
+    "timestamp": "2026-10-31T10:21:43+00:00",
+    "schema_version": 1,
+    "window_index": 1,
+    "k": 4,
+    "frame_times_s": [
+      64.9375,
+      68.8125,
+      72.6875,
+      76.5625,
+      80.4375,
+      84.3125,
+      88.1875,
+      92.0625
+    ],
+    "source_windows": "results\\windows\\Vandalism015_x264.json",
+    "fingerprint": "580dbc805755ab6b305c70ed3aa5ab1ad74f6159dd2ada337a2b3c8b60f2a9bd",
+    "fake": false,
+    "verifier_config": {
+      "quantization": "4bit",
+      "max_attempts": 2,
+      "max_new_tokens": 128,
+      "prompt_hash": "3d71fdba"
+    },
+    "max_chunk_s": 30.0,
+    "n_chunks": 2,
+    "chunks": [
+      {
+        "start_s": 63.0,
+        "end_s": 78.5,
+        "frame_times_s": [
+          64.9375,
+          68.8125,
+          72.6875,
+          76.5625
+        ],
+        "is_anomaly": true,
+        "event_type": "Vandalism",
+        "confidence": 0.95,
+        "caption": "A person is seen breaking into a store through a window."
+      },
+      {
+        "start_s": 78.5,
+        "end_s": 94.0,
+        "frame_times_s": [
+          80.4375,
+          84.3125,
+          88.1875,
+          92.0625
+        ],
+        "is_anomaly": true,
+        "event_type": "Vandalism",
+        "confidence": 0.95,
+        "caption": "A person is seen breaking into a store through a window."
+      }
+    ],
+    "elapsed_s": 5.815510699991137
+  }
+}
