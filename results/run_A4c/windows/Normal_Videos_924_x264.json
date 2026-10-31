@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "video_id": "Normal_Videos_924_x264",
+  "sample_fps": 1.0,
+  "candidate_windows": [
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 2.0,
+      "end_s": 13.0,
+      "score": 1.2067338667741603
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 47.0,
+      "end_s": 53.0,
+      "score": 1.1827646074575284
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 57.0,
+      "end_s": 88.0,
+      "score": 1.221726272771893
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 94.0,
+      "end_s": 105.0,
+      "score": 1.2187058539803985
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 131.0,
+      "end_s": 137.0,
+      "score": 1.1999750103160403
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 145.0,
+      "end_s": 194.0,
+      "score": 1.296134713646854
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 213.0,
+      "end_s": 226.0,
+      "score": 1.2445684100146654
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 262.0,
+      "end_s": 271.0,
+      "score": 1.2873242202460544
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 321.0,
+      "end_s": 811.0,
+      "score": 1.4529083075099418
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 814.0,
+      "end_s": 838.0,
+      "score": 1.2256703582294186
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 855.0,
+      "end_s": 1156.0,
+      "score": 1.4318244705509235
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 1205.0,
+      "end_s": 1241.0,
+      "score": 1.2982973979660213
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 1260.0,
+      "end_s": 1265.0,
+      "score": 1.1841532646223825
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 1301.0,
+      "end_s": 1306.0,
+      "score": 1.2046330894885242
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 1330.0,
+      "end_s": 1407.0,
+      "score": 1.426889647715465
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 1423.0,
+      "end_s": 1448.0,
+      "score": 1.312994738082648
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 1459.0,
+      "end_s": 1507.0,
+      "score": 1.3209190495818997
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 1555.0,
+      "end_s": 1582.0,
+      "score": 1.4051471431991072
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 1863.0,
+      "end_s": 1872.0,
+      "score": 1.2077502655846972
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 1939.0,
+      "end_s": 1944.0,
+      "score": 1.242050147634902
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 2105.0,
+      "end_s": 2113.0,
+      "score": 1.2273679055932472
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 2398.0,
+      "end_s": 2399.0,
+      "score": 1.1707656219372542
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 2471.0,
+      "end_s": 2474.0,
+      "score": 1.1813795153951272
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 2493.0,
+      "end_s": 2504.0,
+      "score": 1.1972734896130233
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 3204.0,
+      "end_s": 3209.0,
+      "score": 1.2292768922079498
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 3217.0,
+      "end_s": 3221.0,
+      "score": 1.2089115724784232
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 3230.0,
+      "end_s": 3239.0,
+      "score": 1.28592336623154
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 3321.0,
+      "end_s": 3324.0,
+      "score": 1.1808031493790836
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 3476.0,
+      "end_s": 3482.0,
+      "score": 1.2420469543740738
+    },
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 3541.0,
+      "end_s": 3568.0,
+      "score": 1.3290755871092075
+    }
+  ],
+  "verify_results": [],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "2a7f9c6",
+    "timestamp": "2026-10-31T13:05:22+00:00",
+    "schema_version": 1,
+    "tier": "1",
+    "ablation": "A4c",
+    "sample_fps": 1.0,
+    "threshold": 1.1686,
+    "threshold_source": "calib_normal",
+    "calib_manifest": "manifests/ucf_calib_normal.csv",
+    "camera": "Normal_Videos_924_x264",
+    "zone": "default",
+    "hour": null,
+    "tier2": "none",
+    "config": {
+      "model_id": "google/siglip2-base-patch16-384",
+      "sample_fps": 1.0,
+      "prompt_set": "ensemble",
+      "logit_scale": 100.0,
+      "per_video_norm": true,
+      "norm_ref": "calib",
+      "pool_window_s": 5.0,
+      "pool_k": 3,
+      "smoothing": "ema",
+      "ema_alpha": 0.3,
+      "median_kernel": 5,
+      "use_memory": false,
+      "memory_weight": 0.5,
+      "threshold": 1.1686,
+      "min_len_s": 1.0,
+      "merge_gap_s": 2.0
+    },
+    "note": ""
+  }
+}
