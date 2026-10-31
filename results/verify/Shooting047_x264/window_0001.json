@@ -34,7 +34,7 @@
       85.625,
       89.875
     ],
-    "source_windows": "results\\windows\\Shooting047_x264.json",
+    "source_windows": "results/windows/Shooting047_x264.json",
     "fingerprint": "462148dfbc0606b47c76b97a1be7f77261d9f3bf14362107689196fba2dcdfb9",
     "fake": false,
     "verifier_config": {

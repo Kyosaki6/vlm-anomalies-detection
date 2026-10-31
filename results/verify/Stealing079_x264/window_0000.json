@@ -34,7 +34,7 @@
       145.375,
       147.125
     ],
-    "source_windows": "results\\windows\\Stealing079_x264.json",
+    "source_windows": "results/windows/Stealing079_x264.json",
     "fingerprint": "5fc6088bc490c6e84b1e3c03c3ffc6c16d26a495f098fd31b3a35552bf24f9b5",
     "fake": false,
     "verifier_config": {

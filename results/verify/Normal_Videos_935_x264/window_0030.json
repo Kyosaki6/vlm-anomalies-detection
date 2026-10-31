@@ -34,7 +34,7 @@
       2098.125,
       2099.375
     ],
-    "source_windows": "results\\windows\\Normal_Videos_935_x264.json",
+    "source_windows": "results/windows/Normal_Videos_935_x264.json",
     "fingerprint": "44885dfcc1db4b830a1b18a71edb0572332c13d4048086ec75a7bb03a16d46ae",
     "fake": false,
     "verifier_config": {

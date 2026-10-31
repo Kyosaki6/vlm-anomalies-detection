@@ -34,7 +34,7 @@
       67.5,
       74.5
     ],
-    "source_windows": "results\\windows\\Arrest007_x264.json",
+    "source_windows": "results/windows/Arrest007_x264.json",
     "fingerprint": "a8c8798e9b3290a6eb0e0759b532759c1d3dddaa32cd75ba79ffa71627cc85a6",
     "fake": false,
     "verifier_config": {

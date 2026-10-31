@@ -34,7 +34,7 @@
       16.875,
       17.625
     ],
-    "source_windows": "results\\windows\\Vandalism017_x264.json",
+    "source_windows": "results/windows/Vandalism017_x264.json",
     "fingerprint": "43ab03a4f42704ed39dcf0c6ba9ee5ca9ae7808272fae847274b7b391d951faf",
     "fake": false,
     "verifier_config": {

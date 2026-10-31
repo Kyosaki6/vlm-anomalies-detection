@@ -46,7 +46,7 @@
       95.375,
       101.125
     ],
-    "source_windows": "results\\windows\\Fighting003_x264.json",
+    "source_windows": "results/windows/Fighting003_x264.json",
     "fingerprint": "5499131679c20435db6fcabdf794c94c5cb2763e1525b6239a5459a12316b134",
     "fake": false,
     "verifier_config": {

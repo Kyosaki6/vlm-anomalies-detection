@@ -34,7 +34,7 @@
       10.5,
       13.5
     ],
-    "source_windows": "results\\windows\\Shooting008_x264.json",
+    "source_windows": "results/windows/Shooting008_x264.json",
     "fingerprint": "ad7b9ce732c36578da2a24ee69f258c63e7c3167f0b1362bf148a3cb065fd475",
     "fake": false,
     "verifier_config": {

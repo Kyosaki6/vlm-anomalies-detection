@@ -42,7 +42,7 @@
       60.375,
       66.125
     ],
-    "source_windows": "results\\windows\\Explosion036_x264.json",
+    "source_windows": "results/windows/Explosion036_x264.json",
     "fingerprint": "65f0af6a412d306a875c13ab72d2ca8fb4c8eefa74894a537a1897c5f1787956",
     "fake": false,
     "verifier_config": {

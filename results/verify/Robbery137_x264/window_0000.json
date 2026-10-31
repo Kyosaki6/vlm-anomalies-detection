@@ -42,7 +42,7 @@
       63.875,
       69.95833333333333
     ],
-    "source_windows": "results\\windows\\Robbery137_x264.json",
+    "source_windows": "results/windows/Robbery137_x264.json",
     "fingerprint": "ab2314371090d746a7ca6ff7b54d234e471314a975362686fedff07a2178c0e7",
     "fake": false,
     "verifier_config": {

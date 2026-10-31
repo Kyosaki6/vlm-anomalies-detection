@@ -34,7 +34,7 @@
       40.375,
       44.125
     ],
-    "source_windows": "results\\windows\\Robbery048_x264.json",
+    "source_windows": "results/windows/Robbery048_x264.json",
     "fingerprint": "0537230d86c5e04893427968f2c43f790ddeb6d8822ac73b63245643f22b92ba",
     "fake": false,
     "verifier_config": {

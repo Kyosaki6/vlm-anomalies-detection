@@ -34,7 +34,7 @@
       474.875,
       475.625
     ],
-    "source_windows": "results\\windows\\Assault010_x264.json",
+    "source_windows": "results/windows/Assault010_x264.json",
     "fingerprint": "1688d20d46cd24ffa6f28a1e24e051cf5ac7eacf564bf5c38c06950fcc19a0e8",
     "fake": false,
     "verifier_config": {

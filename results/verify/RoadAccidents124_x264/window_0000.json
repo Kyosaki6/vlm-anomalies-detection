@@ -34,7 +34,7 @@
       28.375,
       32.125
     ],
-    "source_windows": "results\\windows\\RoadAccidents124_x264.json",
+    "source_windows": "results/windows/RoadAccidents124_x264.json",
     "fingerprint": "5e15018b5edd2fce08ebe2ed703280290e7fd32cb020eedeb0631db39574e9b5",
     "fake": false,
     "verifier_config": {

@@ -34,7 +34,7 @@
       62.5,
       63.5
     ],
-    "source_windows": "results\\windows\\Burglary032_x264.json",
+    "source_windows": "results/windows/Burglary032_x264.json",
     "fingerprint": "914e148bb3e3dc4a21f40d6d96153ad8e14c4a7f02baca45649789fe09187fb7",
     "fake": false,
     "verifier_config": {

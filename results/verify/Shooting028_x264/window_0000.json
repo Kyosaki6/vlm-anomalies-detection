@@ -38,7 +38,7 @@
       52.3125,
       59.4375
     ],
-    "source_windows": "results\\windows\\Shooting028_x264.json",
+    "source_windows": "results/windows/Shooting028_x264.json",
     "fingerprint": "efb5e79d384e755dbef323d12ce9c1febdec11133d4997faa67a8597e110f2bb",
     "fake": false,
     "verifier_config": {

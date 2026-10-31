@@ -74,7 +74,7 @@
       1145.7386363636363,
       1152.5795454545455
     ],
-    "source_windows": "results\\windows\\Normal_Videos_924_x264.json",
+    "source_windows": "results/windows/Normal_Videos_924_x264.json",
     "fingerprint": "5ae5331449165cf8007eb32f101a513b67139402326c4b1582e6f53db45c36c6",
     "fake": false,
     "verifier_config": {

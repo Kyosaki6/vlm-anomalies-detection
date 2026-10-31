@@ -70,7 +70,7 @@
       278.725,
       285.575
     ],
-    "source_windows": "results\\windows\\Arrest030_x264.json",
+    "source_windows": "results/windows/Arrest030_x264.json",
     "fingerprint": "b338d95bffbab794bec3e8597d33110b72f8ea6dab2b3b7285f7032655b264a1",
     "fake": false,
     "verifier_config": {

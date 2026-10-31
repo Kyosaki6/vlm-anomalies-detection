@@ -38,7 +38,7 @@
       88.1875,
       94.0625
     ],
-    "source_windows": "results\\windows\\Shoplifting020_x264.json",
+    "source_windows": "results/windows/Shoplifting020_x264.json",
     "fingerprint": "3005784431a78ad860203e18e35ba968bdd15e86bb2cdf49cf73dd7bd73e2fd6",
     "fake": false,
     "verifier_config": {

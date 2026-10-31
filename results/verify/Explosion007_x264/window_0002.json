@@ -34,7 +34,7 @@
       146.0,
       148.0
     ],
-    "source_windows": "results\\windows\\Explosion007_x264.json",
+    "source_windows": "results/windows/Explosion007_x264.json",
     "fingerprint": "b0e433b1113204fed120c39599e5af3cfaedc875eb1ec6e86d80e31f57267113",
     "fake": false,
     "verifier_config": {

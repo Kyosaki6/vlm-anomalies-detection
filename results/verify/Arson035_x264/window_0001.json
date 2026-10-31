@@ -34,7 +34,7 @@
       18.5,
       19.5
     ],
-    "source_windows": "results\\windows\\Arson035_x264.json",
+    "source_windows": "results/windows/Arson035_x264.json",
     "fingerprint": "8f42e2f9febf7fa92e4a1239703680e44de9bae6660ade5f19a6f1ac8442a506",
     "fake": false,
     "verifier_config": {

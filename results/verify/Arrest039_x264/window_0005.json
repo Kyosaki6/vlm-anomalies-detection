@@ -34,7 +34,7 @@
       261.875,
       262.625
     ],
-    "source_windows": "results\\windows\\Arrest039_x264.json",
+    "source_windows": "results/windows/Arrest039_x264.json",
     "fingerprint": "311f00d34b3d42df0e6e9e484802b02e81686598c1c7d30ded78bf003cf49755",
     "fake": false,
     "verifier_config": {

@@ -98,7 +98,7 @@
       800.1911764705883,
       807.3970588235294
     ],
-    "source_windows": "results\\windows\\Normal_Videos_924_x264.json",
+    "source_windows": "results/windows/Normal_Videos_924_x264.json",
     "fingerprint": "560b29e78ae7d072ed00204d6e07da584701338da5310119dbc9bfe6b751107e",
     "fake": false,
     "verifier_config": {
