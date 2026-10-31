@@ -139,9 +139,12 @@ def pick_frame_times(start_s: float, end_s: float, k: int) -> list[float]:
 def clamp_window_to_video(start_s: float, end_s: float, duration: float) -> tuple[float, float]:
     """Cắt cửa sổ về trong [0, duration] của video.
 
-    Tier-1 đôi khi xuất cửa sổ trôi quá cuối video (ví dụ video dài 11.567 s nhưng cửa sổ ghi
-    11.0..12.0 s) do làm tròn frame/fps lúc export. Trước A5b những cửa sổ này bị báo lỗi
-    "thời điểm nằm ngoài video" và bị bỏ lại (RoadAccidents002_x264, Vandalism017_x264).
+    Tier-1 đôi khi xuất cửa sổ trôi quá cuối video do làm tròn frame/fps lúc export:
+    48/307 cửa sổ có `end_s > duration` (lệch 0.03..0.93 s). Trong đó 2 cửa sổ có mốc thời gian
+    vượt hẳn video nên code cũ raise và bị bỏ (RoadAccidents002_x264, Vandalism017_x264);
+    46 cửa sổ còn lại vẫn chạy nhưng mốc thời gian/frame indices đổi sau khi cắt.
+    Đây là thay đổi sampling đã biết và được chấp nhận (dịch < 1 s); fingerprint KHÔNG đổi nên
+    rerun không tự chạy lại 46 cửa sổ cũ — xem review PR #35.
     Cắt về đúng độ dài video là cách hiểu duy nhất không bịa dữ liệu; nếu cửa sổ nằm HOÀN TOÀN
     ngoài video thì vẫn raise để không bao giờ verify một cửa sổ không tồn tại.
     """
