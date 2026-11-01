@@ -43,6 +43,10 @@ python scripts/build_results.py --manifest manifests/ucf_test.csv `
 7. **129 cửa sổ xác nhận → 101 cảnh báo:** chênh 28 do hai bước gộp của `vad/graph/alerts.py`:
    `merge_alerts` (cùng loại, cách nhau < 5 s) gộp 129 → 125, rồi `apply_cooldown` (30 s, cùng video +
    cùng loại) bỏ 24 → 101. Không cảnh báo nào bị mất vì lý do khác.
+   *Cẩn thận khi kiểm lại:* trên dữ liệu này, gộp **mọi cửa sổ kề nhau bất kể loại** (gap < 5 s) cũng ra
+   đúng **125**, rồi cooldown cũng ra **101** — tức là không có cặp cửa sổ kề nhau nào khác nhãn trong
+   129 cửa sổ đã xác nhận, nên hai cách kiểm cho cùng kết quả. Nếu ai đó ra một số khác 125/101 thì cách
+   gộp của họ khác `merge_alerts` (ví dụ dùng gap 10 s hoặc 30 s, cho ra 115/107 hoặc 100/83).
 
 ## Điều kiện kiểm này KHÔNG chứng minh
 

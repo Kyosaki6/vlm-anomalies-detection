@@ -790,6 +790,40 @@ def test_typer_skips_windows_vlm_rejected(wworld):
     assert [r["window_index"] for r in out.metadata["event_typing"]["windows"]] == [1]
 
 
+def test_all_rejected_windows_yield_zero_alerts_even_if_vlm_named_a_crime(wworld):
+    """Kế hoạch D4 §3 C7d mục (4): cửa sổ `is_anomaly=False` mà `event_type` KHÁC `Normal` -> không cảnh báo.
+
+    Trên dữ liệu thật có đúng 37 cửa sổ như vậy (VLM từ chối nhưng vẫn điền nhãn, ví dụ `Arrest`), nên nếu
+    ai bỏ điều kiện `r.is_anomaly` trong `build_alert_feed` thì 37 cảnh báo giả sẽ xuất hiện mà không ai thấy:
+    cảnh báo vẫn "hợp lệ" về schema và vẫn mang nhãn trông như thật.
+
+    Ca này là video mà MỌI cửa sổ đều bị từ chối -> `alerts == ()`. Ca xen kẽ (một nhận, một loại) đã có ở
+    `test_typer_skips_windows_vlm_rejected`; ở đây khẳng định đúng câu "không có cảnh báo nào".
+    """
+    base = _build2(wworld)[0]
+    assert len(base.candidate_windows) == 2                       # fixture có 2 cửa sổ để loại cả hai
+
+    vdir = _write_tier2(wworld, base, wworld["tmp"] / "verify", [
+        VerifyResult(False, EventType.ARREST, "two people talking, nothing happening", 0.9),
+        VerifyResult(False, EventType.SHOPLIFTING, "a person walking past a shelf", 0.85),
+    ])
+    counting = _CountingTyper(_zero_shot_typer(wworld))
+    out = _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out", typer=counting,
+                  threshold_source="calib_normal",
+                  calib_manifest="manifests/ucf_calib_normal.csv")[0]
+
+    assert out.alerts == ()                                        # không cảnh báo nào
+    assert counting.sizes == []                                    # typer cũng không được gọi
+    # nhãn VLM còn nguyên: từ chối không có nghĩa là xoá nhãn, báo cáo vẫn cần thấy nó
+    assert [v.event_type for v in out.verify_results] == [EventType.ARREST, EventType.SHOPLIFTING]
+    assert all(not v.is_anomaly for v in out.verify_results)
+    assert out.metadata["event_typing"]["n_confirmed"] == 0
+    assert out.metadata["event_typing"]["windows"] == []
+    # video vẫn là "đã chạy tier-2" (có 2 phán quyết), chỉ là không có cảnh báo
+    assert out.metadata["tier"] == "1+2" and out.metadata["tier2"] == "json"
+    assert out.metadata["note"] == ""
+
+
 def test_typer_rejects_embedding_dimension_mismatch(wworld):
     """Cache nhãn embed bằng model khác (D khác) -> lỗi nói rõ dimension, không để `classify` ném shape khó hiểu."""
     from vad.score.typing import ZeroShotEventTyper

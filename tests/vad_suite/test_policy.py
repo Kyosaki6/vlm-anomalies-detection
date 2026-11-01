@@ -23,6 +23,17 @@ def test_normal_or_low_confidence_gives_no_alert(policy):
     assert policy.to_alert(W, vr(EventType.NORMAL)) is None
 
 
+def test_rejected_window_gives_no_alert_even_when_type_is_a_crime(policy):
+    """`is_anomaly=False` + nhãn KHÁC `Normal` -> vẫn không cảnh báo.
+
+    Dòng trên chỉ khẳng định ca `Normal` + `anomaly=False`, nên bỏ vế `not result.is_anomaly` khỏi
+    `policy.py` vẫn xanh. Dữ liệu thật có 37 cửa sổ VLM từ chối mà vẫn mang nhãn (13 `Arrest`, 9
+    `Shoplifting`, ...), đúng loại mà vế đó chặn.
+    """
+    assert policy.to_alert(W, vr(EventType.ARREST, anomaly=False)) is None
+    assert policy.to_alert(W, vr(EventType.SHOPLIFTING, anomaly=False)) is None
+
+
 def test_base_alert_and_path(policy):
     a = policy.to_alert(W, vr(EventType.FIGHTING))
     assert a.severity == "medium" and a.protocol == "P-VIOLENCE"
