@@ -514,13 +514,17 @@ def build_video_result(video_id: str, config: PipelineConfig, normal_embs: np.nd
     if extra_note:
         notes.append(extra_note)
 
+    # `metadata.tier2` nói về CHÍNH video này, không phải về lần chạy: `--verify-dir` được truyền cho cả
+    # build, nhưng video 0 cửa sổ thì không có gì để verify. Ghi "json" cho cả 290 file sẽ khiến một video
+    # chưa từng qua tier-2 trông như đã qua (kế hoạch D4-3, mục kiểm 2).
+    tier2_label = tier2_source if verify else "none"
     metadata = make_metadata(
         model=config.model_id, commit=commit, tier="1+2" if verify else "1",
         ablation=ablation or infer_ablation(config), sample_fps=config.sample_fps, threshold=config.threshold,
         threshold_source=threshold_source if config.threshold is not None else None,
         calib_manifest=calib_manifest or None,
         camera=camera or video_id, zone=zone or "default", hour=hour,
-        tier2=tier2_source, config=asdict(config),
+        tier2=tier2_label, config=asdict(config),
         note=_join_notes(*notes),
     )
     if typing_meta is not None:                       # không ghi key rỗng: metadata thiếu = chưa phân loại

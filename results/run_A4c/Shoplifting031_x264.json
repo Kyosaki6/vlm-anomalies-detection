@@ -28,14 +28,21 @@
       "score": 1.3234544127009304
     }
   ],
-  "verify_results": [],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A customer is browsing items in a store.",
+      "confidence": 0.95
+    }
+  ],
   "alerts": [],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:23+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:58+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -44,7 +51,7 @@
     "camera": "Shoplifting031_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -63,6 +70,12 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 0,
+      "windows": [],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

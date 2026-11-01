@@ -334,13 +334,344 @@
       "score": 1.1805849941614526
     }
   ],
-  "verify_results": [],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People are walking around inside a shopping mall.",
+      "confidence": 0.9
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy indoor shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a shopping mall.",
+      "confidence": 0.9
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People are walking around inside a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a public space.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "Two individuals walking through a public space, possibly a train station or mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy indoor shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.9
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.9
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a busy indoor shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy indoor shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a public space, possibly a shopping mall or train station, and appears to be looking at something on their phone.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People are walking through a busy shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy indoor shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People are walking and standing in a busy indoor area.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People are walking around inside a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a busy shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a busy shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People are walking and standing in a busy indoor area.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy indoor shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People are walking through a busy indoor shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a public space.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a busy shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a public space.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking through a shopping mall.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "People walking through a shopping mall.",
+      "confidence": 0.95
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:22+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:58+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -349,7 +680,7 @@
     "camera": "Normal_Videos_935_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -368,6 +699,12 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 0,
+      "windows": [],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

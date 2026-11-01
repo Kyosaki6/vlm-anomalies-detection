@@ -16,13 +16,26 @@
       "score": 1.2834366547741247
     }
   ],
-  "verify_results": [],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Shoplifting",
+      "caption": "A person in an orange shirt is seen attempting to steal items from a display.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Shoplifting",
+      "caption": "A person is seen attempting to steal items from a checkout counter.",
+      "confidence": 0.95
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:23+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:58+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -31,7 +44,7 @@
     "camera": "Shoplifting001_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -50,6 +63,31 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 2,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 8.0,
+          "end_s": 77.0,
+          "vlm_event_type": "Shoplifting",
+          "typer_event_type": "Shoplifting",
+          "typer_confidence": 0.861219,
+          "typer_margin": 0.815346
+        },
+        {
+          "window_index": 1,
+          "start_s": 128.0,
+          "end_s": 145.0,
+          "vlm_event_type": "Shoplifting",
+          "typer_event_type": "Shoplifting",
+          "typer_confidence": 0.845214,
+          "typer_margin": 0.798164
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

@@ -22,13 +22,32 @@
       "score": 1.4200103430477902
     }
   ],
-  "verify_results": [],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Fighting",
+      "caption": "A person is seen kneeling on the ground near a manhole cover.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Fighting",
+      "caption": "A person is seen running away from an explosion.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Fighting",
+      "caption": "A person is lying on the ground after an explosion.",
+      "confidence": 0.95
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:18+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:57+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -37,7 +56,7 @@
     "camera": "Explosion036_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -56,6 +75,40 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 3,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 0.0,
+          "end_s": 69.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "Fighting",
+          "typer_confidence": 0.513782,
+          "typer_margin": 0.358565
+        },
+        {
+          "window_index": 1,
+          "start_s": 79.0,
+          "end_s": 81.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "Fighting",
+          "typer_confidence": 0.350048,
+          "typer_margin": 0.078562
+        },
+        {
+          "window_index": 2,
+          "start_s": 86.0,
+          "end_s": 178.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "Fighting",
+          "typer_confidence": 0.453315,
+          "typer_margin": 0.294308
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

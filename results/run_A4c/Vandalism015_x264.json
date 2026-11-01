@@ -119,14 +119,48 @@
       "score": 1.2925800738219237
     }
   ],
-  "verify_results": [],
-  "alerts": [],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Shoplifting",
+      "caption": "A person is seen breaking into a store through a window.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Shoplifting",
+      "caption": "A person is seen breaking into a store through a window.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [
+    {
+      "video_id": "Vandalism015_x264",
+      "start_s": 30.0,
+      "end_s": 40.0,
+      "event_type": "Shoplifting",
+      "severity": "low",
+      "responders": [
+        "security"
+      ],
+      "protocol": "P-THEFT",
+      "path": [
+        "camera:Vandalism015_x264",
+        "event:Shoplifting",
+        "severity:low",
+        "protocol:P-THEFT"
+      ],
+      "caption": "A person is seen breaking into a store through a window.",
+      "confidence": 0.95,
+      "camera": "Vandalism015_x264"
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:24+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:58+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -135,7 +169,7 @@
     "camera": "Vandalism015_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -154,6 +188,31 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 2,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 30.0,
+          "end_s": 40.0,
+          "vlm_event_type": "Vandalism",
+          "typer_event_type": "Shoplifting",
+          "typer_confidence": 0.412537,
+          "typer_margin": 0.145085
+        },
+        {
+          "window_index": 1,
+          "start_s": 63.0,
+          "end_s": 94.0,
+          "vlm_event_type": "Vandalism",
+          "typer_event_type": "Shoplifting",
+          "typer_confidence": 0.298729,
+          "typer_margin": 0.059187
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

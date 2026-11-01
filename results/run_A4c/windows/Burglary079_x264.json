@@ -22,13 +22,32 @@
       "score": 1.2527991089279704
     }
   ],
-  "verify_results": [],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Stealing",
+      "caption": "A person is seen breaking into a vehicle and removing items from it.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Arrest",
+      "caption": "Three individuals are seen breaking into a vehicle under a bridge.",
+      "confidence": 0.98
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Stealing",
+      "caption": "A person is seen entering a vehicle and then exiting it, possibly after searching for something inside.",
+      "confidence": 0.85
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:18+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:57+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -37,7 +56,7 @@
     "camera": "Burglary079_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -56,6 +75,40 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 3,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 94.0,
+          "end_s": 200.0,
+          "vlm_event_type": "Burglary",
+          "typer_event_type": "Stealing",
+          "typer_confidence": 0.264361,
+          "typer_margin": 0.058987
+        },
+        {
+          "window_index": 1,
+          "start_s": 256.0,
+          "end_s": 358.0,
+          "vlm_event_type": "Burglary",
+          "typer_event_type": "Arrest",
+          "typer_confidence": 0.383433,
+          "typer_margin": 0.265093
+        },
+        {
+          "window_index": 2,
+          "start_s": 447.0,
+          "end_s": 456.0,
+          "vlm_event_type": "Burglary",
+          "typer_event_type": "Stealing",
+          "typer_confidence": 0.232076,
+          "typer_margin": 0.052716
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

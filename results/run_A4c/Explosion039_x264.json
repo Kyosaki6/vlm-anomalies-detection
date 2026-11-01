@@ -53,14 +53,68 @@
       "score": 1.192634741880641
     }
   ],
-  "verify_results": [],
-  "alerts": [],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Shoplifting",
+      "caption": "A man in a blue jacket and pink hat is seen handling cash at a counter.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Fighting",
+      "caption": "A person is seen throwing a green object into the air.",
+      "confidence": 0.85
+    }
+  ],
+  "alerts": [
+    {
+      "video_id": "Explosion039_x264",
+      "start_s": 8.0,
+      "end_s": 21.0,
+      "event_type": "Shoplifting",
+      "severity": "low",
+      "responders": [
+        "security"
+      ],
+      "protocol": "P-THEFT",
+      "path": [
+        "camera:Explosion039_x264",
+        "event:Shoplifting",
+        "severity:low",
+        "protocol:P-THEFT"
+      ],
+      "caption": "A man in a blue jacket and pink hat is seen handling cash at a counter.",
+      "confidence": 0.95,
+      "camera": "Explosion039_x264"
+    },
+    {
+      "video_id": "Explosion039_x264",
+      "start_s": 30.0,
+      "end_s": 32.0,
+      "event_type": "Fighting",
+      "severity": "medium",
+      "responders": [
+        "security"
+      ],
+      "protocol": "P-VIOLENCE",
+      "path": [
+        "camera:Explosion039_x264",
+        "event:Fighting",
+        "severity:medium",
+        "protocol:P-VIOLENCE"
+      ],
+      "caption": "A person is seen throwing a green object into the air.",
+      "confidence": 0.85,
+      "camera": "Explosion039_x264"
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:19+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:57+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -69,7 +123,7 @@
     "camera": "Explosion039_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -88,6 +142,31 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 2,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 8.0,
+          "end_s": 21.0,
+          "vlm_event_type": "Robbery",
+          "typer_event_type": "Shoplifting",
+          "typer_confidence": 0.443594,
+          "typer_margin": 0.244263
+        },
+        {
+          "window_index": 1,
+          "start_s": 30.0,
+          "end_s": 32.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "Fighting",
+          "typer_confidence": 0.202824,
+          "typer_margin": 0.042713
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }
