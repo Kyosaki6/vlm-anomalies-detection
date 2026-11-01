@@ -5,7 +5,7 @@
 **Code:** `run_verify.py` @ `7b3a174` (305 file) + clamp PR #35 (2 file rerun)
 
 > Bằng chứng dùng trong note: 307 file `results/verify/**/window_*.json` (đọc lại 2026-11-01),
-> log phiên B `a5b_run.log` (còn trên máy), và pilot VRAM 10 cửa sổ chạy lại cùng ngày (§3.1).
+> log phiên B `notes/a5b-run-resume.log` (đã commit, 18 KB), và pilot VRAM 10 cửa sổ chạy lại cùng ngày (§3.1).
 > Mọi số ở §1, §2, §4 tính lại được từ 307 file; riêng VRAM là số đo mới, có ghi rõ cách đo.
 
 ## 1. Tổng quan
@@ -55,11 +55,11 @@ cùng `verifier_config` (đã đối chiếu cả 307 file: `4bit`, `max_attempt
 | Phiên | Cửa sổ | Thời gian (UTC) | Sum `elapsed_s` | Median s/cửa sổ | Bằng chứng |
 |---|---:|---|---:|---:|---|
 | A | 107 | 07:52:33 – 08:25:36 | 2028.3 s | 9.73 | file trong `results/verify/`; không có log trong repo |
-| B (resume) | 198 | 10:05:21 – 10:21:49 | 997.8 s | 3.24 | `a5b_run.log`: `307 window xét, 198 verify, 107 bỏ qua, 2 lỗi` |
+| B (resume) | 198 | 10:05:21 – 10:21:49 | 997.8 s | 3.24 | `notes/a5b-run-resume.log`: `307 window xét, 198 verify, 107 bỏ qua, 2 lỗi` |
 | Rerun clamp | 2 | 11:05:29 – 11:05:33 | 74.7 s | – | `RoadAccidents002[0]` 70.8 s, `Vandalism017[1]` 3.9 s |
 | **Tổng** | **307** | | **3100.8 s** | **3.71** | 2028.3 + 997.8 + 74.7 = 3100.8 |
 
-- Cả hai phiên chạy trên **RTX 3050 6GB (máy Phước)**; phiên B để lại `a5b_run.log` (log Windows, torch CUDA) ngay trên máy.
+- Cả hai phiên chạy trên **RTX 3050 6GB (máy Phước)**: phiên B để lại log Windows/torch CUDA `notes/a5b-run-resume.log` (đã commit).
 - **Gap 1 = 99.75 phút** (08:25:36 → 10:05:21): phiên A dừng giữa chừng (chủ động dừng, không crash, không OOM), sau đó resume và 107 file đã xong được **bỏ qua theo fingerprint** — log phiên B xác nhận đúng 107 skip.
 - **Gap 2 = 43.7 phút** (10:21:49 → 11:05:29): chờ lượt rerun clamp 2 cửa sổ, không phải thời gian xử lý.
 - Khác biệt tốc độ giữa 2 phiên (~3×: 9.27 vs 3.14 s/chunk-call) **không** do config hay workload — caption dài như nhau (51.0 vs 50.5 ký tự/chunk) và config giống hệt. Nguyên nhân khả dĩ là tải GPU/nhiệt độ lúc chạy; chưa đo lại nên ghi nhận là hạn chế, cost row vì vậy ghi số gộp 307 cửa sổ kèm median từng phiên.
@@ -117,7 +117,7 @@ A5b **không** ghi peak VRAM (metadata không có field, log phiên A không có
 - **48/307** cửa sổ có `end_s > duration` (lệch tối đa 0.933 s).
 - 2 cửa sổ từng raise (`RoadAccidents002_x264[0]`, `Vandalism017_x264[1]`) đã rerun sau clamp.
 - 46 cửa sổ còn lại vẫn dùng frame trước clamp; chunk count và verdict OR không đổi, fingerprint không đổi nên resume bỏ qua. Đây là hành vi đã biết trong PR #35, không phải bug mới; report phải ghi rõ nếu trích chi tiết frame.
-- **Nguồn của claim "rerun sau clamp"**: `timestamp` của 2 file là 11:05:29 / 11:05:33 (cách phiên B 43.7 phút) và `a5b_run.log` ghi đúng 2 dòng `[lỗi] RoadAccidents002_x264[0]` / `[lỗi] Vandalism017_x264[1]`. Cả 307 file đều ghi `commit: 7b3a174`, nên **`metadata.commit` không chứng minh được** điều này — bằng chứng là log + timestamp, không phải commit.
+- **Nguồn của claim "rerun sau clamp"**: `timestamp` của 2 file là 11:05:29 / 11:05:33 (cách phiên B 43.7 phút) và `notes/a5b-run-resume.log` ghi đúng 2 dòng `[lỗi] RoadAccidents002_x264[0]` / `[lỗi] Vandalism017_x264[1]`. Cả 307 file đều ghi `commit: 7b3a174`, nên **`metadata.commit` không chứng minh được** điều này — bằng chứng là log + timestamp, không phải commit.
 
 ## 5. Kết luận cho report
 
