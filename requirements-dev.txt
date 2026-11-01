@@ -1,2 +1,5 @@
 -r requirements.txt
 pytest>=8.0.0
+# C7f: vẽ hình cho báo cáo (scripts/make_figures.py); cần để test vẽ hình chạy thật trong CI,
+# không chỉ skip. Không kéo theo torch.
+matplotlib>=3.8.0
