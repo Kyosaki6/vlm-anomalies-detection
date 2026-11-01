@@ -517,14 +517,60 @@
       "score": 1.4124573535170808
     }
   ],
-  "verify_results": [],
-  "alerts": [],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Shoplifting",
+      "caption": "A man is seen in a store, looking at items on a shelf.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Shoplifting",
+      "caption": "A customer is seen attempting to steal a product from a shelf.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Shoplifting",
+      "caption": "A customer is caught stealing a product from the store.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Shoplifting",
+      "caption": "A customer is caught stealing an item from the counter.",
+      "confidence": 0.98
+    }
+  ],
+  "alerts": [
+    {
+      "video_id": "Shoplifting044_x264",
+      "start_s": 111.0,
+      "end_s": 149.0,
+      "event_type": "Shoplifting",
+      "severity": "low",
+      "responders": [
+        "security"
+      ],
+      "protocol": "P-THEFT",
+      "path": [
+        "camera:Shoplifting044_x264",
+        "event:Shoplifting",
+        "severity:low",
+        "protocol:P-THEFT"
+      ],
+      "caption": "A customer is caught stealing a product from the store.",
+      "confidence": 0.95,
+      "camera": "Shoplifting044_x264"
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:24+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:58+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -533,7 +579,7 @@
     "camera": "Shoplifting044_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -552,6 +598,31 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 2,
+      "windows": [
+        {
+          "window_index": 2,
+          "start_s": 111.0,
+          "end_s": 149.0,
+          "vlm_event_type": "Shoplifting",
+          "typer_event_type": "Shoplifting",
+          "typer_confidence": 0.684581,
+          "typer_margin": 0.546254
+        },
+        {
+          "window_index": 3,
+          "start_s": 154.0,
+          "end_s": 486.0,
+          "vlm_event_type": "Shoplifting",
+          "typer_event_type": "Shoplifting",
+          "typer_confidence": 0.645271,
+          "typer_margin": 0.485201
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

@@ -610,14 +610,200 @@
       "score": 1.3735776544523792
     }
   ],
-  "verify_results": [],
-  "alerts": [],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "An explosion is detected in the surveillance footage.",
+      "confidence": 0.98
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "The video captures an explosion occurring in a confined space.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "RoadAccidents",
+      "caption": "An explosion occurs in the distance, causing debris to fly and smoke to rise.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Fighting",
+      "caption": "A person is seen running away from an explosion.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "RoadAccidents",
+      "caption": "A vehicle is engulfed in flames and smoke as it is destroyed by an explosion.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "RoadAccidents",
+      "caption": "A person is seen running away from an explosion.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Fighting",
+      "caption": "A truck is seen on fire in the middle of a foggy street.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Fighting",
+      "caption": "A truck is on fire and a person is running away from it.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Fighting",
+      "caption": "A truck is involved in a road accident and explodes.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Fighting",
+      "caption": "A car is seen driving down a street and then explodes.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 57.0,
+      "end_s": 60.0,
+      "event_type": "Explosion",
+      "severity": "critical",
+      "responders": [
+        "fire_dept",
+        "ambulance",
+        "police"
+      ],
+      "protocol": "P-BLAST",
+      "path": [
+        "camera:Explosion007_x264",
+        "event:Explosion",
+        "severity:critical",
+        "protocol:P-BLAST"
+      ],
+      "caption": "An explosion is detected in the surveillance footage.",
+      "confidence": 0.98,
+      "camera": "Explosion007_x264"
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 141.0,
+      "end_s": 149.0,
+      "event_type": "RoadAccidents",
+      "severity": "high",
+      "responders": [
+        "traffic_police",
+        "ambulance"
+      ],
+      "protocol": "P-ACCIDENT",
+      "path": [
+        "camera:Explosion007_x264",
+        "event:RoadAccidents",
+        "severity:high",
+        "protocol:P-ACCIDENT"
+      ],
+      "caption": "An explosion occurs in the distance, causing debris to fly and smoke to rise.",
+      "confidence": 0.95,
+      "camera": "Explosion007_x264"
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 172.0,
+      "end_s": 182.0,
+      "event_type": "Fighting",
+      "severity": "medium",
+      "responders": [
+        "security"
+      ],
+      "protocol": "P-VIOLENCE",
+      "path": [
+        "camera:Explosion007_x264",
+        "event:Fighting",
+        "severity:medium",
+        "protocol:P-VIOLENCE"
+      ],
+      "caption": "A person is seen running away from an explosion.",
+      "confidence": 0.95,
+      "camera": "Explosion007_x264"
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 192.0,
+      "end_s": 203.0,
+      "event_type": "RoadAccidents",
+      "severity": "high",
+      "responders": [
+        "traffic_police",
+        "ambulance"
+      ],
+      "protocol": "P-ACCIDENT",
+      "path": [
+        "camera:Explosion007_x264",
+        "event:RoadAccidents",
+        "severity:high",
+        "protocol:P-ACCIDENT"
+      ],
+      "caption": "A vehicle is engulfed in flames and smoke as it is destroyed by an explosion.",
+      "confidence": 0.95,
+      "camera": "Explosion007_x264"
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 258.0,
+      "end_s": 282.0,
+      "event_type": "Fighting",
+      "severity": "medium",
+      "responders": [
+        "security"
+      ],
+      "protocol": "P-VIOLENCE",
+      "path": [
+        "camera:Explosion007_x264",
+        "event:Fighting",
+        "severity:medium",
+        "protocol:P-VIOLENCE"
+      ],
+      "caption": "A truck is on fire and a person is running away from it.",
+      "confidence": 0.95,
+      "camera": "Explosion007_x264"
+    },
+    {
+      "video_id": "Explosion007_x264",
+      "start_s": 313.0,
+      "end_s": 543.0,
+      "event_type": "Fighting",
+      "severity": "medium",
+      "responders": [
+        "security"
+      ],
+      "protocol": "P-VIOLENCE",
+      "path": [
+        "camera:Explosion007_x264",
+        "event:Fighting",
+        "severity:medium",
+        "protocol:P-VIOLENCE"
+      ],
+      "caption": "A car is seen driving down a street and then explodes.",
+      "confidence": 0.95,
+      "camera": "Explosion007_x264"
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:18+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:57+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -626,7 +812,7 @@
     "camera": "Explosion007_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -645,6 +831,103 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 10,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 57.0,
+          "end_s": 60.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "Explosion",
+          "typer_confidence": 0.653475,
+          "typer_margin": 0.575142
+        },
+        {
+          "window_index": 1,
+          "start_s": 68.0,
+          "end_s": 88.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "Explosion",
+          "typer_confidence": 0.39489,
+          "typer_margin": 0.28724
+        },
+        {
+          "window_index": 2,
+          "start_s": 141.0,
+          "end_s": 149.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "RoadAccidents",
+          "typer_confidence": 0.34535,
+          "typer_margin": 0.162854
+        },
+        {
+          "window_index": 3,
+          "start_s": 172.0,
+          "end_s": 182.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "Fighting",
+          "typer_confidence": 0.203126,
+          "typer_margin": 0.060562
+        },
+        {
+          "window_index": 4,
+          "start_s": 192.0,
+          "end_s": 197.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "RoadAccidents",
+          "typer_confidence": 0.211563,
+          "typer_margin": 0.023806
+        },
+        {
+          "window_index": 5,
+          "start_s": 201.0,
+          "end_s": 203.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "RoadAccidents",
+          "typer_confidence": 0.155531,
+          "typer_margin": 0.043161
+        },
+        {
+          "window_index": 6,
+          "start_s": 211.0,
+          "end_s": 222.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "Fighting",
+          "typer_confidence": 0.342625,
+          "typer_margin": 0.197511
+        },
+        {
+          "window_index": 7,
+          "start_s": 258.0,
+          "end_s": 282.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "Fighting",
+          "typer_confidence": 0.267488,
+          "typer_margin": 0.120639
+        },
+        {
+          "window_index": 8,
+          "start_s": 288.0,
+          "end_s": 300.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "Fighting",
+          "typer_confidence": 0.244111,
+          "typer_margin": 0.000588
+        },
+        {
+          "window_index": 9,
+          "start_s": 313.0,
+          "end_s": 543.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "Fighting",
+          "typer_confidence": 0.362346,
+          "typer_margin": 0.239397
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }
