@@ -37,7 +37,7 @@ Lenient (gộp nhóm tên gần nghĩa như C3): VLM 87,1 %, typer 38,7 %.
 chỉ chạm mép GT 33 ms (dưới 1 mẫu), 1 cửa sổ xác nhận trên video toàn bình thường, 178 cửa sổ bị VLM
 loại, 0 cửa sổ thiếu nhãn VLM, 0 video thiếu file kết quả (62 + 64 + 2 + 1 + 178 = 307).
 
-## Bốn điều phải đọc kèm, nếu không con số 83,9 % sẽ bị hiểu sai
+## Sáu điều phải đọc kèm, nếu không con số 83,9 % sẽ bị hiểu sai
 
 1. **Đây là mẫu CÓ ĐIỀU KIỆN, không phải toàn bộ 307 cửa sổ.** Chỉ 62 cửa sổ lọt cả hai điều kiện
    (VLM xác nhận + giao GT). Không suy ra "VLM gọi tên đúng 84 % mọi sự kiện UCF".
@@ -50,6 +50,11 @@ loại, 0 cửa sổ thiếu nhãn VLM, 0 video thiếu file kết quả (62 + 6
    nhãn của video, nên không phải rò rỉ GT, nhưng phải nói rõ là closed-set.
 4. **Đây không phải độ chính xác của tier-2.** Mọi cửa sổ trong mẫu đều đã được VLM xác nhận là bất
    thường; câu hỏi "cửa sổ này có thật sự bất thường không" là việc của TH7c (precision, FA/giờ).
+5. **Mẫu được chọn bằng chính phán quyết của VLM.** Điều kiện vào mẫu là `is_anomaly = true` do VLM
+   trả, nên những cửa sổ VLM lúng túng (bị loại, 178 cửa sổ) đã không còn trong mẫu. Con số này là
+   "VLM gọi tên đúng khi nó đã tự tin có sự cố", không phải "VLM gọi tên đúng trên mọi sự cố".
+6. **Không đặt cạnh C3 (40,4 % / 50,0 %).** C3 chấm trên đoạn GT; C7e chấm trên cửa sổ tier-1 dài
+   6-46 s và chỉ trên mẫu VLM đã xác nhận. Khác đơn vị, khác mẫu, không so trực tiếp được.
 
 ## Vì sao typer vẫn là bên quyết định nhãn cảnh báo (D-2)
 
@@ -58,6 +63,10 @@ vector 13 câu cố định, cùng không gian embedding với tier-1, không ph
 VLM là nhãn đổi), và kiểm lại được bằng cache. Nhưng báo cáo phải nói thẳng: **trên mẫu này VLM gọi
 tên tốt hơn typer**, và D-2 không được viện lý do "typer chính xác hơn". Nếu hội đồng hỏi, câu trả lời
 đúng là: "chọn typer vì tất định và rẻ, không phải vì nó gọi tên giỏi hơn".
+
+So cặp trên đúng 62 cửa sổ (đếm từ `results/vlm_typing_eval.json`): VLM đúng và typer sai = **37**,
+typer đúng và VLM sai = **0**. Đọc cặp này để nói "VLM hơn typer" thay vì so hai KTC rời nhau.
+Hướng nhầm của VLM (10 ca sai): `Shooting` -> `Robbery` 4, `Arson` -> `Explosion` 2, còn lại mỗi loại 1.
 
 Ghi chú thêm (giả thuyết, chưa đủ bằng chứng): cửa sổ typer gọi đúng có trung vị 25,0 giây, gọi sai
 38,0 giây — khớp với chuyện trung bình embedding của cửa sổ dài làm loãng sự kiện. VLM không có xu
