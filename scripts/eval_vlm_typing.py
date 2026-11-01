@@ -475,24 +475,32 @@ def main(argv: list[str] | None = None) -> int:
               file=sys.stderr)
         return 2
 
-    annotations = load_annotations(args.annotation)
-    wanted = list(annotations)
-    if args.limit:
-        wanted = wanted[:args.limit]
-    runs = _load_results(args.results_dir, wanted)
+    try:
+        annotations = load_annotations(args.annotation)
+        wanted = list(annotations)
+        if args.limit:
+            wanted = wanted[:args.limit]
+        runs = _load_results(args.results_dir, wanted)
 
-    # Nhãn VLM THÔ (results/verify), không phải verify_results đã bị typer ghi đè trong run_A4c.
-    verdicts: dict[str, tuple[VerifyResult, ...]] = {}
-    missing_verify: list[str] = []
-    for video_id in wanted:
-        run = runs.get(video_id)
-        if run is None or not run.candidate_windows:
-            continue
-        if not (args.verify_dir / video_id).is_dir():
-            missing_verify.append(video_id)
-            continue
-        verdicts[video_id] = load_raw_verdicts(args.verify_dir, video_id, run.candidate_windows,
-                                               allow_fake=args.allow_fake)
+        # Nhãn VLM THÔ (results/verify), không phải verify_results đã bị typer ghi đè trong run_A4c.
+        verdicts: dict[str, tuple[VerifyResult, ...]] = {}
+        missing_verify: list[str] = []
+        for video_id in wanted:
+            run = runs.get(video_id)
+            if run is None or not run.candidate_windows:
+                continue
+            if not (args.verify_dir / video_id).is_dir():
+                missing_verify.append(video_id)
+                continue
+            verdicts[video_id] = load_raw_verdicts(args.verify_dir, video_id, run.candidate_windows,
+                                                   allow_fake=args.allow_fake)
+    except TypingEvalError as e:
+        print(f"lỗi: {e}", file=sys.stderr)
+        return 2
+    except OSError as e:
+        # đường dẫn/quyền đọc: in một dòng, không đổ traceback ra màn hình cho người dùng CLI
+        print(f"lỗi đọc file: {e}", file=sys.stderr)
+        return 2
 
     cases, excluded = build_cases(runs, {k: annotations[k] for k in wanted}, verdicts,
                                   min_overlap_s=1.0 / args.fps)

@@ -317,3 +317,11 @@ def test_limit_without_explicit_out_refuses_to_overwrite_the_tracked_result(tmp_
     ann_path.write_text("Fighting001_x264 Fighting 0 30\n", encoding="utf-8")
     code = main(["--annotation", str(ann_path), "--limit", "1"])
     assert code == 2
+
+
+def test_missing_annotation_file_is_a_one_line_error_not_a_traceback(tmp_path, capsys):
+    code = main(["--annotation", str(tmp_path / "no_such.txt")])
+    assert code == 2
+    err = capsys.readouterr().err
+    assert "lỗi đọc file" in err
+    assert "Traceback" not in err
