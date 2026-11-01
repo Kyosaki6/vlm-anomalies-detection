@@ -1,0 +1,216 @@
+{
+  "ablation": "A6",
+  "source_ablation": "A4c",
+  "threshold": 1.1685914439041403,
+  "threshold_source": "calib_normal",
+  "manifest": "manifests/ucf_test.csv",
+  "seed": 42,
+  "n_bootstraps": 1000,
+  "verifier": "Qwen/Qwen2.5-VL-3B-Instruct",
+  "prompt_hash": "3d71fdba",
+  "verify_dir": "results/verify",
+  "fake_verifier": false,
+  "protocol_note": {
+    "path": "notes/a6-protocol.md",
+    "sha256": "83a7ffe07ca0f9ea5524c42b628f5917696fdb3bda506aed7d98dfbe33dc91b4",
+    "git_commit": "2ed90fc"
+  },
+  "n_windows": 307,
+  "n_confirmed": 129,
+  "n_rejected": 178,
+  "auc_micro": 0.6790206378435205,
+  "ci_lo": 0.5839401630377785,
+  "ci_hi": 0.7749175179170449,
+  "auc_micro_a4c": 0.7299980645982048,
+  "delta_auc": -0.05097742675468431,
+  "operating_before": {
+    "windows": 307,
+    "true_positive_windows": 86,
+    "window_precision": 0.28013029315960913,
+    "false_alarm_windows": 124,
+    "normal_hours": 6.00837962962963,
+    "fa_per_hour": 20.63784375216711,
+    "false_alarm_windows_excl_long": 39,
+    "normal_hours_excl_long": 4.008462962962964,
+    "fa_per_hour_excl_long": 9.729415080131385,
+    "excluded_long_videos": [
+      "Normal_Videos_935_x264",
+      "Normal_Videos_924_x264"
+    ],
+    "incidents": 156,
+    "incidents_detected": 81,
+    "incident_recall": 0.5192307692307693,
+    "latency_n": 81,
+    "mean_latency_s": 2.034567901234568,
+    "median_latency_s": 0.0
+  },
+  "operating_after": {
+    "windows": 129,
+    "true_positive_windows": 64,
+    "window_precision": 0.49612403100775193,
+    "false_alarm_windows": 1,
+    "normal_hours": 6.00837962962963,
+    "fa_per_hour": 0.1664342238077993,
+    "false_alarm_windows_excl_long": 0,
+    "normal_hours_excl_long": 4.008462962962964,
+    "fa_per_hour_excl_long": 0.0,
+    "excluded_long_videos": [
+      "Normal_Videos_935_x264",
+      "Normal_Videos_924_x264"
+    ],
+    "incidents": 156,
+    "incidents_detected": 62,
+    "incident_recall": 0.3974358974358974,
+    "latency_n": 62,
+    "mean_latency_s": 1.739247311827957,
+    "median_latency_s": 0.0
+  },
+  "latency_common_incidents": {
+    "n": 62,
+    "before": {
+      "mean_latency_s": 1.1908602150537635,
+      "median_latency_s": 0.0
+    },
+    "after": {
+      "mean_latency_s": 1.739247311827957,
+      "median_latency_s": 0.0
+    }
+  },
+  "rejected_split": {
+    "rejected_in_anomalous_videos": 55,
+    "rejected_in_normal_videos": 123,
+    "rejected_overlapping_gt": 22,
+    "rejected_not_overlapping_gt": 156
+  },
+  "lost_true_positive_windows": [
+    {
+      "video_id": "Arrest001_x264",
+      "start_s": 0.0,
+      "end_s": 80.0
+    },
+    {
+      "video_id": "Arrest007_x264",
+      "start_s": 50.0,
+      "end_s": 78.0
+    },
+    {
+      "video_id": "Arrest030_x264",
+      "start_s": 15.0,
+      "end_s": 289.0
+    },
+    {
+      "video_id": "Arrest039_x264",
+      "start_s": 238.0,
+      "end_s": 244.0
+    },
+    {
+      "video_id": "Arrest039_x264",
+      "start_s": 260.0,
+      "end_s": 263.0
+    },
+    {
+      "video_id": "Arrest039_x264",
+      "start_s": 280.0,
+      "end_s": 526.0
+    },
+    {
+      "video_id": "Burglary035_x264",
+      "start_s": 56.0,
+      "end_s": 58.0
+    },
+    {
+      "video_id": "Burglary037_x264",
+      "start_s": 20.0,
+      "end_s": 33.0
+    },
+    {
+      "video_id": "Fighting047_x264",
+      "start_s": 4.0,
+      "end_s": 149.0
+    },
+    {
+      "video_id": "RoadAccidents021_x264",
+      "start_s": 3.0,
+      "end_s": 5.0
+    },
+    {
+      "video_id": "Shooting047_x264",
+      "start_s": 75.0,
+      "end_s": 92.0
+    },
+    {
+      "video_id": "Shoplifting004_x264",
+      "start_s": 28.0,
+      "end_s": 201.0
+    },
+    {
+      "video_id": "Shoplifting005_x264",
+      "start_s": 23.0,
+      "end_s": 44.0
+    },
+    {
+      "video_id": "Shoplifting021_x264",
+      "start_s": 60.0,
+      "end_s": 75.0
+    },
+    {
+      "video_id": "Shoplifting022_x264",
+      "start_s": 13.0,
+      "end_s": 27.0
+    },
+    {
+      "video_id": "Shoplifting022_x264",
+      "start_s": 48.0,
+      "end_s": 55.0
+    },
+    {
+      "video_id": "Shoplifting028_x264",
+      "start_s": 12.0,
+      "end_s": 38.0
+    },
+    {
+      "video_id": "Shoplifting029_x264",
+      "start_s": 24.0,
+      "end_s": 55.0
+    },
+    {
+      "video_id": "Shoplifting031_x264",
+      "start_s": 0.0,
+      "end_s": 15.0
+    },
+    {
+      "video_id": "Stealing062_x264",
+      "start_s": 0.0,
+      "end_s": 52.0
+    },
+    {
+      "video_id": "Stealing079_x264",
+      "start_s": 141.0,
+      "end_s": 148.0
+    },
+    {
+      "video_id": "Vandalism036_x264",
+      "start_s": 20.0,
+      "end_s": 25.0
+    }
+  ],
+  "n_videos": 290,
+  "n_frames": 1111808,
+  "delta_auc_ci_lo": -0.11415776319883958,
+  "delta_auc_ci_hi": -0.002459562436406671,
+  "cost": {
+    "windows_per_video": 1.0586206896551724,
+    "chunk_calls": 480,
+    "windows_chunked": 65,
+    "pct_windows_chunked": 21.172638436482085,
+    "video_seconds_shown": 8371.266666666666,
+    "s_per_window_median": 3.7096712000202388,
+    "s_per_window_p90": 14.412735800025985,
+    "s_per_window_n": 307,
+    "s_per_window_total": 3100.8256635994185,
+    "peak_vram_gb": 2.93
+  },
+  "note": "",
+  "commit": "f589e25",
+  "timestamp": "2026-11-01T08:28:58+00:00"
+}
