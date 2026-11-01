@@ -66,11 +66,11 @@ tên tốt hơn typer**, và D-2 không được viện lý do "typer chính xá
 
 So cặp trên đúng 62 cửa sổ (đếm từ `results/vlm_typing_eval.json`): VLM đúng và typer sai = **37**,
 typer đúng và VLM sai = **0**. Đọc cặp này để nói "VLM hơn typer" thay vì so hai KTC rời nhau.
-Hướng nhầm của VLM (10 ca sai): `Shooting` -> `Robbery` 4, `Arson` -> `Explosion` 2, còn lại mỗi loại 1.
+Hướng nhầm của VLM (10 ca sai): 6/10 bị gọi là `Robbery` (`Shooting`->`Robbery` 4, `Arrest` 1, `Stealing` 1), 3/10 bị gọi là `Explosion` (`Arson` 2, `Shooting` 1), 1/10 là `Shooting`->`Shoplifting`. Một câu về hướng nhầm này trong báo cáo đáng giá hơn bảng confusion thô.
 
 Ghi chú thêm (giả thuyết, chưa đủ bằng chứng): cửa sổ typer gọi đúng có trung vị 25,0 giây, gọi sai
 38,0 giây — khớp với chuyện trung bình embedding của cửa sổ dài làm loãng sự kiện. VLM không có xu
-hướng đó (37,5 vs 32,5 giây). n = 62, chưa nên viết thành kết luận.
+hướng đó (37,5 vs 32,5 giây). n = 62, chưa nên viết thành kết luận. **Không đưa vào báo cáo.**
 
 ## Bẫy đã sập khi làm, ghi lại để người sau không sập lại
 
@@ -115,3 +115,4 @@ Con số `0/8` trong biên bản sanity cũ (A5a) là 8 cửa sổ, không cùng
 Đọc kèm: KTC của typer **phủ mức 25,8 %** của "luôn đoán Shooting", tức trên mẫu này không chứng minh
 được typer hơn đoán theo lớp phổ biến nhất; KTC của VLM thì tách hẳn khỏi mức đó. Resample theo cửa
 sổ (sai) sẽ cho KTC hẹp hơn và che mất điều này — xem `bootstrap_accuracy_ci`.
+Quy tắc gốc: `AGENTS.md`, mục ANTI-PATTERNS ("DO NOT report CIs resampled over frames; resample over videos").
