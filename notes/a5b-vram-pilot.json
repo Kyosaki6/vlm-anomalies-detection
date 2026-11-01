@@ -143,6 +143,7 @@
   "caveats": [
     "Cửa sổ đầu tiên (Arrest024_x264 window_0000) gồm cả model load + warmup CUDA nên elapsed_s 120.75 s; s/window của pilot KHÔNG dùng để tính cost row.",
     "10 cửa sổ chọn theo video (5 video × 2 cửa sổ), không phải mẫu ngẫu nhiên của 307.",
-    "Peak VRAM đo trong 1 lần chạy, không lặp lại; cùng config với A5b."
+    "Peak VRAM đo trong 1 lần chạy, không lặp lại; cùng config với A5b.",
+    "Tái lập verdict: 9/10 cửa sổ giống A5b; Arrest030_x264 window_0001 ra is_anomaly=true trong pilot nhưng false trong A5b (cùng event_type=Arrest, cùng 10 chunk)."
   ]
 }

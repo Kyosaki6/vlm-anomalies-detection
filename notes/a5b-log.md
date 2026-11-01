@@ -61,7 +61,7 @@ cùng `verifier_config` (đã đối chiếu cả 307 file: `4bit`, `max_attempt
 - Phiên B để lại log Windows/torch CUDA `notes/a5b-run-resume.log` (đã commit, UTF-8). Phiên A không có log trong repo: **máy của phiên A (RTX 3050 6GB) và việc dừng chủ động là theo ghi chú của Phước**, không kiểm chứng được từ file.
 - **Gap 1 = 99.75 phút** (08:25:36 → 10:05:21): phiên A dừng giữa chừng rồi resume; **theo ghi chú của Phước** là dừng chủ động (không crash, không OOM). Cái kiểm chứng được: 107 file đã xong được **bỏ qua theo fingerprint**, log phiên B xác nhận đúng 107 skip.
 - **Gap 2 = 43.7 phút** (10:21:49 → 11:05:29): chờ lượt rerun clamp 2 cửa sổ, không phải thời gian xử lý.
-- Khác biệt tốc độ giữa 2 phiên (~3×: 9.27 vs 3.14 s/chunk-call) **không** do config hay workload — caption dài như nhau (trung bình 64.9 vs 65.2 ký tự/chunk, median 61 vs 62) và config giống hệt. Nguyên nhân khả dĩ là tải GPU/nhiệt độ lúc chạy; chưa đo lại nên ghi nhận là hạn chế, cost row vì vậy ghi số gộp 307 cửa sổ kèm median từng phiên.
+- Khác biệt tốc độ giữa 2 phiên (~3×: 9.27 vs 3.14 s/chunk-call) **không** do config hay workload — caption dài như nhau (trung bình 64.9 vs 65.2 ký tự/chunk, median 61 vs 62) và config giống hệt. Nguyên nhân khả dĩ là tải GPU/nhiệt độ lúc chạy; chưa đo lại nên ghi nhận là hạn chế, cost row vì vậy ghi số gộp 307 cửa sổ kèm median từng phiên. Gợi ý ủng hộ "môi trường, không phải config": pilot §3.1 chạy lại 6 cửa sổ 1-chunk của A5b ở 3.42–3.82 s/cửa sổ, trong khi A5b ghi 7.0–11.1 s cho đúng các cửa sổ đó (cùng config).
 
 ### 2.2 Outlier 457 s
 
@@ -105,6 +105,7 @@ A5b **không** ghi peak VRAM (metadata không có field, log phiên A không có
 - Code đo: `torch.cuda.max_memory_allocated()` / `max_memory_reserved()` + sample `nvidia-smi memory.used` mỗi 0.25 s (baseline = max của 4 sample trước khi nạp model); output ghi vào thư mục tạm, **không ghi vào `results/verify/`**.
 - **2.37 GB là gì**: `torch.cuda.mem_get_info()` gọi lúc kết thúc pilot báo còn 2.37 GB trống, nhưng lúc đó **model vẫn nằm trong VRAM**: torch reserved 2.63 GB cộng ~1.0 GB CUDA context/workspace không do torch cấp → 6.0 − 3.63 = 2.37 GB. Đây là bộ nhớ còn trống sau khi chạy, **không phải headroom lúc chạy** (headroom là 3.09 GB ở bảng trên).
 - **Tái lập A1**: A1 trên T4 ghi 2.52 GB torch / 2.93 GB device → pilot trên 3050 cho 2.52 / 2.91. Hai GPU khác nhau, cùng model/config, cùng mức VRAM. Từ giờ câu "fits on 6 GB" có số first-party của đúng máy sản xuất, không phải suy từ benchmark.
+- **Tái lập verdict: 9/10 giống A5b.** `Arrest030_x264[1]` ra `is_anomaly=true` trong pilot nhưng `false` trong A5b (cùng `event_type=Arrest`, cùng 10 chunk); 9 cửa sổ còn lại giống hệt `is_anomaly`, `event_type` và số chunk. Nguyên nhân chưa xác định (khác phiên bản torch/transformers hoặc decode không tất định); verdict tier 2 vì vậy không được coi là tái lập 100% — ghi vào report.
 - Lưu ý: pilot chỉ dùng để đo VRAM. `s/window` của pilot **không** dùng cho cost row (10 cửa sổ, chọn theo video, không phải mẫu của 307; cửa sổ đầu tiên còn gồm cả model load + warmup CUDA nên 120.75 s).
 
 ### 3.2 Cái không đo được (ghi rõ để không ai trích nhầm)
@@ -135,5 +136,5 @@ Cost rows (mỗi dòng **một đơn vị**, không trộn % với cửa sổ/vi
 - `% escalated` **phải** lấy mẫu số là video: mọi cửa sổ ứng viên đều được chuyển lên tier 2, nên "tỉ lệ cửa sổ escalated" luôn bằng 100% và vô nghĩa. 1.06 cửa sổ/video là hàng riêng, không phải %.
 - Confirmation rate **42.0%**; normal-video false positive **1/124** cửa sổ.
 - Không dùng `confidence` (gần hằng số 0.95) và không dùng `event_type` của VLM làm verdict/alert type; typer C3 quyết định type.
-- Caveats phải ghi cùng bảng: **37 cửa sổ tự mâu thuẫn**, **46 cửa sổ chưa clamp frame**, **peak VRAM là pilot 10 cửa sổ trên RTX 3050 (§3.1), không phải lượt 307 cửa sổ**, **s/window khác ~3× giữa 2 phiên (9.73 vs 3.24) nên cost row ghi số gộp 307 kèm median từng phiên**.
+- Caveats phải ghi cùng bảng: **37 cửa sổ tự mâu thuẫn**, **46 cửa sổ chưa clamp frame**, **peak VRAM là pilot 10 cửa sổ trên RTX 3050 (§3.1), không phải lượt 307 cửa sổ**, **s/window khác ~3× giữa 2 phiên (9.73 vs 3.23) nên cost row ghi số gộp 307 kèm median từng phiên**.
 - **Cho TH8**: `report/04-thuc-nghiem.md` dòng "Tỉ lệ cửa sổ chuyển tiếp lên Tầng 2" đang ghi `1.1686 (307 cửa sổ, 1.06/video)` với đơn vị `%` — sửa thành 39.3% (đơn vị % video) và thêm hàng 1.06 cửa sổ/video.
