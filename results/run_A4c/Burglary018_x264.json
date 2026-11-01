@@ -51,14 +51,43 @@
       "score": 1.2233996705336985
     }
   ],
-  "verify_results": [],
-  "alerts": [],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Stealing",
+      "caption": "A person is seen breaking into a vehicle at night.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [
+    {
+      "video_id": "Burglary018_x264",
+      "start_s": 13.0,
+      "end_s": 36.0,
+      "event_type": "Stealing",
+      "severity": "medium",
+      "responders": [
+        "security",
+        "police"
+      ],
+      "protocol": "P-THEFT",
+      "path": [
+        "camera:Burglary018_x264",
+        "event:Stealing",
+        "severity:medium",
+        "protocol:P-THEFT"
+      ],
+      "caption": "A person is seen breaking into a vehicle at night.",
+      "confidence": 0.95,
+      "camera": "Burglary018_x264"
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:18+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:57+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -67,7 +96,7 @@
     "camera": "Burglary018_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -86,6 +115,22 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 1,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 13.0,
+          "end_s": 36.0,
+          "vlm_event_type": "Burglary",
+          "typer_event_type": "Stealing",
+          "typer_confidence": 0.321298,
+          "typer_margin": 0.040189
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

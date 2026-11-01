@@ -3787,14 +3787,216 @@
       "score": 1.3290755871092075
     }
   ],
-  "verify_results": [],
-  "alerts": [],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A man is sitting on the floor working on his phone while another man walks by.",
+      "confidence": 0.85
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is sitting on the floor in front of a counter, possibly working or shopping.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is sitting at a desk in front of a computer monitor.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is sitting on the floor in front of a counter, possibly working or resting.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A panda is sitting on the floor next to a bag.",
+      "confidence": 0.85
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is kneeling on the floor, possibly working on something.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is sitting on the floor next to a bag and a TV.",
+      "confidence": 0.85
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is sitting on a bed in a room with a TV and various items around them.",
+      "confidence": 0.85
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is working on a device on the floor.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is sitting on the floor in a room with another person standing nearby.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Fighting",
+      "caption": "A person is sitting on the floor while another person approaches them with a bag.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is sitting on the floor in front of a computer monitor.",
+      "confidence": 0.85
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is sitting on the floor in a room with various items around them.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is sitting on the floor in a room with various items around them.",
+      "confidence": 0.85
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is sitting on the floor near a table with various items, including a laptop and a red ball.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is sitting on the floor in front of a computer monitor.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking towards another individual who is sitting on the floor.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is bending down to pick something up on the floor.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is sitting at a desk in front of a computer monitor.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is standing near a green floor with glowing lights.",
+      "confidence": 0.85
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A man is standing near a table with electronic equipment and a TV monitor.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A woman walks across a green floor in a controlled environment.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking on a green mat.",
+      "confidence": 0.85
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is standing near a table with electronic equipment and a monitor displaying a live feed.",
+      "confidence": 0.8
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking across a green floor area.",
+      "confidence": 0.85
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is standing near a green floor area with a television screen displaying some content.",
+      "confidence": 0.85
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking on a green floor.",
+      "confidence": 0.85
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is walking on a green floor with glowing lights.",
+      "confidence": 0.85
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A person is standing near a TV monitor in an indoor setting.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A man is walking on a green floor in an indoor facility.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [
+    {
+      "video_id": "Normal_Videos_924_x264",
+      "start_s": 855.0,
+      "end_s": 1156.0,
+      "event_type": "Fighting",
+      "severity": "medium",
+      "responders": [
+        "security"
+      ],
+      "protocol": "P-VIOLENCE",
+      "path": [
+        "camera:Normal_Videos_924_x264",
+        "event:Fighting",
+        "severity:medium",
+        "protocol:P-VIOLENCE"
+      ],
+      "caption": "A person is sitting on the floor while another person approaches them with a bag.",
+      "confidence": 0.95,
+      "camera": "Normal_Videos_924_x264"
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:22+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:58+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -3803,7 +4005,7 @@
     "camera": "Normal_Videos_924_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -3822,6 +4024,22 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 1,
+      "windows": [
+        {
+          "window_index": 10,
+          "start_s": 855.0,
+          "end_s": 1156.0,
+          "vlm_event_type": "Robbery",
+          "typer_event_type": "Fighting",
+          "typer_confidence": 0.398087,
+          "typer_margin": 0.280647
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

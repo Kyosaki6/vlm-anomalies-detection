@@ -79,14 +79,81 @@
       "score": 1.2555371365591548
     }
   ],
-  "verify_results": [],
-  "alerts": [],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "RoadAccidents",
+      "caption": "Greater Manchester Police logo displayed.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "RoadAccidents",
+      "caption": "A white van is parked on the side of a street, and a person is seen approaching it.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "RoadAccidents",
+      "caption": "A car is on fire and emitting smoke.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Abuse",
+      "caption": "A fire is burning in a building.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [
+    {
+      "video_id": "Arson035_x264",
+      "start_s": 2.0,
+      "end_s": 5.0,
+      "event_type": "RoadAccidents",
+      "severity": "high",
+      "responders": [
+        "traffic_police",
+        "ambulance"
+      ],
+      "protocol": "P-ACCIDENT",
+      "path": [
+        "camera:Arson035_x264",
+        "event:RoadAccidents",
+        "severity:high",
+        "protocol:P-ACCIDENT"
+      ],
+      "caption": "Greater Manchester Police logo displayed.",
+      "confidence": 0.95,
+      "camera": "Arson035_x264"
+    },
+    {
+      "video_id": "Arson035_x264",
+      "start_s": 46.0,
+      "end_s": 48.0,
+      "event_type": "Abuse",
+      "severity": "high",
+      "responders": [
+        "police"
+      ],
+      "protocol": "P-ABUSE",
+      "path": [
+        "camera:Arson035_x264",
+        "event:Abuse",
+        "severity:high",
+        "protocol:P-ABUSE"
+      ],
+      "caption": "A fire is burning in a building.",
+      "confidence": 0.95,
+      "camera": "Arson035_x264"
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:18+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:57+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -95,7 +162,7 @@
     "camera": "Arson035_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -114,6 +181,49 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 4,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 2.0,
+          "end_s": 5.0,
+          "vlm_event_type": "Arson",
+          "typer_event_type": "RoadAccidents",
+          "typer_confidence": 0.208,
+          "typer_margin": 0.029667
+        },
+        {
+          "window_index": 1,
+          "start_s": 16.0,
+          "end_s": 20.0,
+          "vlm_event_type": "Arson",
+          "typer_event_type": "RoadAccidents",
+          "typer_confidence": 0.302353,
+          "typer_margin": 0.019893
+        },
+        {
+          "window_index": 2,
+          "start_s": 28.0,
+          "end_s": 29.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "RoadAccidents",
+          "typer_confidence": 0.617302,
+          "typer_margin": 0.51345
+        },
+        {
+          "window_index": 3,
+          "start_s": 46.0,
+          "end_s": 48.0,
+          "vlm_event_type": "Arson",
+          "typer_event_type": "Abuse",
+          "typer_confidence": 0.203625,
+          "typer_margin": 0.031558
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

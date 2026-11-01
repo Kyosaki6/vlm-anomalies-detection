@@ -176,6 +176,28 @@ def test_verify_dir_roundtrip_and_pair_mismatch(world):
         _build(world, limit=1, verify_dir=vdir)
 
 
+def test_tier2_metadata_speaks_per_video_not_per_run(world):
+    """`--verify-dir` thuộc về CẢ lần chạy, nhưng `metadata.tier2` phải nói về TỪNG video.
+
+    Video 0 cửa sổ thì không có gì để VLM xem; ghi "json" cho nó là nói dối người đọc file (kế hoạch D4-3,
+    mục kiểm 2). `metadata.tier` vốn đã theo từng video, `tier2` phải khớp với nó.
+    """
+    first = _build(world, limit=1)[0]                             # Abuse028: 1 cửa sổ
+    vdir = world["tmp"] / "tier2_per_video"
+    vdir.mkdir()
+    (vdir / f"{first.video_id}.json").write_text(json.dumps({
+        "schema_version": 1, "video_id": first.video_id, "sample_fps": 1.0,
+        "candidate_windows": [dataclasses.asdict(first.candidate_windows[0])],
+        "verify_results": [{"is_anomaly": True, "event_type": "RoadAccidents",
+                            "caption": "a car crash", "confidence": 0.8}]}), encoding="utf-8")
+
+    res = {r.video_id: r for r in _build(world, verify_dir=vdir)}   # cả hai video của manifest
+    assert res[first.video_id].metadata["tier2"] == "json"
+    assert res[first.video_id].metadata["tier"] == "1+2"
+    assert res["Normal_Videos586_x264"].metadata["tier2"] == "none"  # không cửa sổ -> không tier-2
+    assert res["Normal_Videos586_x264"].metadata["tier"] == "1"
+
+
 def test_verify_dir_same_count_shifted_windows_raises(world):
     """Số lượng khớp nhưng cửa sổ đã dịch (+100 s) -> phải lỗi, không được gán nhãn cho cửa sổ khác.
 
@@ -766,6 +788,40 @@ def test_typer_skips_windows_vlm_rejected(wworld):
     assert out.verify_results[1].event_type is EventType.ROAD_ACCIDENT
     assert [a.start_s for a in out.alerts] == [24.0]
     assert [r["window_index"] for r in out.metadata["event_typing"]["windows"]] == [1]
+
+
+def test_all_rejected_windows_yield_zero_alerts_even_if_vlm_named_a_crime(wworld):
+    """Kế hoạch D4 §3 C7d mục (4): cửa sổ `is_anomaly=False` mà `event_type` KHÁC `Normal` -> không cảnh báo.
+
+    Trên dữ liệu thật có đúng 37 cửa sổ như vậy (VLM từ chối nhưng vẫn điền nhãn, ví dụ `Arrest`), nên nếu
+    ai bỏ điều kiện `r.is_anomaly` trong `build_alert_feed` thì 37 cảnh báo giả sẽ xuất hiện mà không ai thấy:
+    cảnh báo vẫn "hợp lệ" về schema và vẫn mang nhãn trông như thật.
+
+    Ca này là video mà MỌI cửa sổ đều bị từ chối -> `alerts == ()`. Ca xen kẽ (một nhận, một loại) đã có ở
+    `test_typer_skips_windows_vlm_rejected`; ở đây khẳng định đúng câu "không có cảnh báo nào".
+    """
+    base = _build2(wworld)[0]
+    assert len(base.candidate_windows) == 2                       # fixture có 2 cửa sổ để loại cả hai
+
+    vdir = _write_tier2(wworld, base, wworld["tmp"] / "verify", [
+        VerifyResult(False, EventType.ARREST, "two people talking, nothing happening", 0.9),
+        VerifyResult(False, EventType.SHOPLIFTING, "a person walking past a shelf", 0.85),
+    ])
+    counting = _CountingTyper(_zero_shot_typer(wworld))
+    out = _build2(wworld, verify_dir=vdir, out_dir=wworld["tmp"] / "out", typer=counting,
+                  threshold_source="calib_normal",
+                  calib_manifest="manifests/ucf_calib_normal.csv")[0]
+
+    assert out.alerts == ()                                        # không cảnh báo nào
+    assert counting.sizes == []                                    # typer cũng không được gọi
+    # nhãn VLM còn nguyên: từ chối không có nghĩa là xoá nhãn, báo cáo vẫn cần thấy nó
+    assert [v.event_type for v in out.verify_results] == [EventType.ARREST, EventType.SHOPLIFTING]
+    assert all(not v.is_anomaly for v in out.verify_results)
+    assert out.metadata["event_typing"]["n_confirmed"] == 0
+    assert out.metadata["event_typing"]["windows"] == []
+    # video vẫn là "đã chạy tier-2" (có 2 phán quyết), chỉ là không có cảnh báo
+    assert out.metadata["tier"] == "1+2" and out.metadata["tier2"] == "json"
+    assert out.metadata["note"] == ""
 
 
 def test_typer_rejects_embedding_dimension_mismatch(wworld):

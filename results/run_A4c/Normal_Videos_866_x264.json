@@ -53,14 +53,21 @@
       "score": 1.2799010936346065
     }
   ],
-  "verify_results": [],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Normal",
+      "caption": "A man in a green vest is talking to another man in an office setting.",
+      "confidence": 0.95
+    }
+  ],
   "alerts": [],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:21+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:57+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -69,7 +76,7 @@
     "camera": "Normal_Videos_866_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -88,6 +95,12 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 0,
+      "windows": [],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

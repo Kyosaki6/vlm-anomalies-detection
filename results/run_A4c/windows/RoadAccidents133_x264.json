@@ -10,13 +10,20 @@
       "score": 1.2847286128458246
     }
   ],
-  "verify_results": [],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "RoadAccidents",
+      "caption": "A motorcyclist is involved in a collision on the road.",
+      "confidence": 0.95
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:23+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:58+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -25,7 +32,7 @@
     "camera": "RoadAccidents133_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -44,6 +51,22 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 1,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 14.0,
+          "end_s": 23.0,
+          "vlm_event_type": "RoadAccidents",
+          "typer_event_type": "RoadAccidents",
+          "typer_confidence": 0.92461,
+          "typer_margin": 0.892616
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

@@ -53,14 +53,50 @@
       "score": 1.185745249810167
     }
   ],
-  "verify_results": [],
-  "alerts": [],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "A person is seen breaking into a convenience store through a sliding glass door.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Explosion",
+      "caption": "A person is seen breaking into a convenience store through a sliding glass door.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [
+    {
+      "video_id": "Vandalism017_x264",
+      "start_s": 15.0,
+      "end_s": 18.0,
+      "event_type": "Explosion",
+      "severity": "critical",
+      "responders": [
+        "fire_dept",
+        "ambulance",
+        "police"
+      ],
+      "protocol": "P-BLAST",
+      "path": [
+        "camera:Vandalism017_x264",
+        "event:Explosion",
+        "severity:critical",
+        "protocol:P-BLAST"
+      ],
+      "caption": "A person is seen breaking into a convenience store through a sliding glass door.",
+      "confidence": 0.95,
+      "camera": "Vandalism017_x264"
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:24+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:58+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -69,7 +105,7 @@
     "camera": "Vandalism017_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -88,6 +124,31 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 2,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 15.0,
+          "end_s": 18.0,
+          "vlm_event_type": "Vandalism",
+          "typer_event_type": "Explosion",
+          "typer_confidence": 0.307843,
+          "typer_margin": 0.034537
+        },
+        {
+          "window_index": 1,
+          "start_s": 32.0,
+          "end_s": 34.0,
+          "vlm_event_type": "Vandalism",
+          "typer_event_type": "Explosion",
+          "typer_confidence": 0.309587,
+          "typer_margin": 0.04543
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

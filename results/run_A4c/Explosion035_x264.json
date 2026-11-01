@@ -121,14 +121,74 @@
       "score": 1.1724079497353943
     }
   ],
-  "verify_results": [],
-  "alerts": [],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Abuse",
+      "caption": "A person is seen holding a gun and pointing it at another individual.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Abuse",
+      "caption": "A person is seen in a room with a table and chairs, and there appears to be smoke or a small explosion.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Abuse",
+      "caption": "A person is seen in a room with a table and chairs.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [
+    {
+      "video_id": "Explosion035_x264",
+      "start_s": 39.0,
+      "end_s": 42.0,
+      "event_type": "Abuse",
+      "severity": "high",
+      "responders": [
+        "police"
+      ],
+      "protocol": "P-ABUSE",
+      "path": [
+        "camera:Explosion035_x264",
+        "event:Abuse",
+        "severity:high",
+        "protocol:P-ABUSE"
+      ],
+      "caption": "A person is seen holding a gun and pointing it at another individual.",
+      "confidence": 0.95,
+      "camera": "Explosion035_x264"
+    },
+    {
+      "video_id": "Explosion035_x264",
+      "start_s": 78.0,
+      "end_s": 79.0,
+      "event_type": "Abuse",
+      "severity": "high",
+      "responders": [
+        "police"
+      ],
+      "protocol": "P-ABUSE",
+      "path": [
+        "camera:Explosion035_x264",
+        "event:Abuse",
+        "severity:high",
+        "protocol:P-ABUSE"
+      ],
+      "caption": "A person is seen in a room with a table and chairs.",
+      "confidence": 0.95,
+      "camera": "Explosion035_x264"
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:18+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:57+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -137,7 +197,7 @@
     "camera": "Explosion035_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -156,6 +216,40 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 3,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 39.0,
+          "end_s": 42.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "Abuse",
+          "typer_confidence": 0.444101,
+          "typer_margin": 0.316208
+        },
+        {
+          "window_index": 1,
+          "start_s": 47.0,
+          "end_s": 50.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "Abuse",
+          "typer_confidence": 0.341238,
+          "typer_margin": 0.172213
+        },
+        {
+          "window_index": 2,
+          "start_s": 78.0,
+          "end_s": 79.0,
+          "vlm_event_type": "Explosion",
+          "typer_event_type": "Abuse",
+          "typer_confidence": 0.335723,
+          "typer_margin": 0.147965
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

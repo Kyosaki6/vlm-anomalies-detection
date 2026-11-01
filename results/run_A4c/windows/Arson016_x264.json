@@ -16,13 +16,26 @@
       "score": 1.321783742833527
     }
   ],
-  "verify_results": [],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Abuse",
+      "caption": "A person is seen throwing trash into a trash can.",
+      "confidence": 0.85
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Arson",
+      "caption": "A fire is burning on the floor of a bus.",
+      "confidence": 0.98
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:17+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:57+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -31,7 +44,7 @@
     "camera": "Arson016_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -50,6 +63,31 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 2,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 9.0,
+          "end_s": 27.0,
+          "vlm_event_type": "Vandalism",
+          "typer_event_type": "Abuse",
+          "typer_confidence": 0.179292,
+          "typer_margin": 0.010019
+        },
+        {
+          "window_index": 1,
+          "start_s": 35.0,
+          "end_s": 60.0,
+          "vlm_event_type": "Arson",
+          "typer_event_type": "Arson",
+          "typer_confidence": 0.932341,
+          "typer_margin": 0.902975
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }
