@@ -35,9 +35,7 @@ Hệ thống được phát triển và kiểm thử trên các cấu hình ph�
 
 ## 4.2. Kết quả thực nghiệm và Phân tích thành phần (Ablation Study)
 
-Bảng dưới đây tổng hợp tiến trình cải thiện độ chính xác qua từng thành phần thiết kế. Các ô A0 - A3 là số liệu thật (chạy trên cache embedding, 290 video, 1.111.808 khung hình; `results/ablation_A*.json`). Các ô còn lại đánh dấu `TBD` chờ kết quả chạy.
-
-<!-- TODO(TH8): Cập nhật số liệu A6 từ nhiệm vụ TH7 và A5 -->
+Bảng dưới đây tổng hợp tiến trình cải thiện độ chính xác qua từng thành phần thiết kế. Các ô A0 - A3 là số liệu thật (chạy trên cache embedding, 290 video, 1.111.808 khung hình; `results/ablation_A*.json`). Hàng A6 lấy từ `results/ablation_A6.json` (tầng 2 thật trên đủ 307 cửa sổ, 1000 lần bootstrap theo video; xem 4.3).
 
 | Mã | Biến thể thực nghiệm | Kiến trúc trích xuất | Kỹ thuật áp dụng | ROC-AUC (%) | 95% Bootstrap CI | Ghi chú kỹ thuật |
 |---|---|---|---|---|---|---|
@@ -50,7 +48,7 @@ Bảng dưới đây tổng hợp tiến trình cải thiện độ chính xác 
 | **A3c** | A3 chuẩn hóa theo `calib_normal` | SigLIP 2 Base | Như A3 nhưng median/MAD cố định tính trên 60 video `calib_normal` (gộp khung hình) | 72.39 | [64.14, 80.39] | Bằng đúng A2: phép biến đổi affine toàn cục là đơn điệu nên không đổi AUC. Giữ được chênh lệch giữa các video (xem 4.2.2) |
 | **A4c** | A4 chuẩn hóa theo `calib_normal` | SigLIP 2 Base | Như A4 với thống kê calib cố định | 73.00 | [64.45, 81.15] | Macro 63.35. Top-k và EMA cho +0.6 điểm so với A3c, nằm trong nhiễu |
 | **A5c** | A5 chuẩn hóa theo `calib_normal` | SigLIP 2 Base | Như A5; thống kê memory tính leave-one-video-out trên `calib_normal` | 64.95 | [55.19, 74.61] | Macro 57.87. Memory bank vẫn làm giảm (-8.1 điểm so với A4c): kết quả âm |
-| **A6** | + Thẩm định VLM | SigLIP 2 + VLM | Tầng 1 (A4/A5) + Kiểm chứng Generative VLM Tầng 2 | TBD <!-- TODO(TH8): TH7, A5 --> | [TBD, TBD] <!-- TODO(TH8): TH7, A5 --> | Đánh giá đóng góp của VLM trên các cửa sổ nghi vấn |
+| **A6** | + Thẩm định VLM | SigLIP 2 + VLM | Tầng 1 (A4/A5) + Kiểm chứng Generative VLM Tầng 2 | 67.90 | [58.39, 77.49] | Thấp hơn A4c 5.10 điểm (hiệu cặp theo video -5.10, CI 95% [-11.42, -0.25]). Tầng 2 chỉ hạ điểm các cửa sổ bị loại nên AUC chỉ có thể đổi qua 307 cửa sổ; chỉ tiêu được đăng ký trước là FA/hour và precision cửa sổ, không phải AUC (xem 4.3.2) |
 
 ### 4.2.1. Kết quả cổng kiểm chứng A0
 
@@ -62,14 +60,90 @@ Chuẩn hóa robust z-score theo từng video là phép đơn điệu trong mỗ
 
 **Quyết định (b): chuẩn hóa bằng thống kê cố định từ `calib_normal`.** Median và MAD của điểm được tính một lần trên toàn bộ khung hình của 60 video `calib_normal` (`PipelineConfig.norm_ref="calib"`, các biến thể A3c, A4c, A5c), rồi áp cho mọi video. Kết quả: A3c = 72.39, đúng bằng A2, như lý thuyết dự đoán (phép biến đổi affine chung cho mọi khung hình không đổi thứ hạng). Khác biệt là điểm sau chuẩn hóa có ý nghĩa tuyệt đối giữa các video, nên ngưỡng hiệu chỉnh trên `calib_normal` và FA/hour đo hệ thống thay vì đo phép chuẩn hóa. Với memory, mỗi video calib được chấm bằng bank dựng từ các video calib còn lại (leave-one-video-out), nếu không điểm memory của video nằm trong bank của chính nó bằng 0 và MAD bị đánh sập. Các biến thể chuẩn hóa theo video (A3, A4, A5) vẫn được giữ làm đối chứng.
 
-Khác với tác vụ phát hiện nhị phân, bộ phân loại sự kiện zero-shot 13 lớp (`vad/score/typing.py`) được đo lường riêng trên các đoạn video đã xác định có bất thường theo nhãn mặt đất.
+## 4.3. Tầng 2: kiểm chứng bằng Generative VLM
 
-<!-- TODO(TH8): Cập nhật số liệu Event Typing từ nhiệm vụ C3 -->
+### 4.3.1. Giao thức đánh giá (đăng ký trước)
 
-| Phương pháp định danh | Số lớp | Mức ngẫu nhiên (Chance Level) | Top-1 Accuracy (%) | Ghi chú |
+- **Giao thức** nằm trong `notes/a6-protocol.md`, commit `2ed90fc` (31/10/2026 15:33 +07), trước khi lượt A5b hoàn tất (file kết quả cuối ghi lúc 18:05 +07). Lưu ý minh bạch: phiên chạy đầu của A5b đã ghi 107 cửa sổ từ 14:52 +07, tức trước thời điểm commit; theo ghi chú giao thức, người viết giao thức chưa xem verdict nào. Sau khi có số, chỉ cho phép sửa lỗi cài đặt, không đổi định nghĩa, ngưỡng $\tau$ hay luật gộp.
+- **Đơn vị và verdict:** một cửa sổ ứng viên của tầng 1 (307 cửa sổ trong 114 video, đóng băng ở A4c, $\tau$ = 1.1686). Verdict chỉ lấy trường `is_anomaly` (OR trên các chunk, quy tắc D-1). Không dùng `confidence` (gần hằng số 0.95), `event_type` hay `caption` để quyết định verdict.
+- **Điểm sau tầng 2:** cửa sổ bị loại có điểm hạ về 0.0 (trung vị `calib_normal`); cửa sổ được xác nhận và mọi khung ngoài cửa sổ giữ nguyên. Tầng 2 không bao giờ nâng điểm hay thêm cửa sổ, nên recall chỉ có thể giữ nguyên hoặc giảm, và AUC chỉ đổi qua 307 cửa sổ.
+- **Chỉ tiêu được đăng ký trước:** tầng 2 được đánh giá bằng FA/hour và precision cửa sổ, không phải bằng AUC (`a6-protocol.md` mục 4). Nếu A6 không tăng hoặc giảm AUC thì báo cáo nguyên trạng.
+- **Mô hình:** `Qwen/Qwen2.5-VL-3B-Instruct`, lượng tử hóa 4-bit nf4, $k$ = 4 khung/chunk, chunk $\le$ 30 s, `prompt_hash` = `3d71fdba`, chạy thật (`fake=false`). Không tinh chỉnh prompt (cổng D4-2: bỏ qua A6c); hàng A6 là kết quả chưa chỉnh và là kết quả chính.
+
+### 4.3.2. Kết quả A6
+
+Tầng 2 chạy đủ 307/307 cửa sổ, 0 lỗi: 129 cửa sổ được xác nhận (42.0%), 178 cửa sổ bị loại (58.0%). Trong video bình thường, 123/124 cửa sổ bị loại; trong video bất thường, 128/183 được xác nhận.
+
+| Chỉ số (cùng $\tau$ = 1.1686) | Tầng 1 (A4c) | Sau tầng 2 (A6) | Thay đổi |
+|---|---|---|---|
+| ROC-AUC micro (%) [CI 95% theo video] | 73.00 [64.45, 81.15] | 67.90 [58.39, 77.49] | -5.10 (CI cặp [-11.42, -0.25]) |
+| Cửa sổ còn lại | 307 | 129 | -178 |
+| Cửa sổ trong video bình thường (báo động giả) | 124 | 1 | -123 |
+| FA/hour, toàn bộ 150 video bình thường (6.01 giờ) | 20.64 | 0.17 | -99.2% |
+| FA/hour, bỏ `Normal_Videos_935` và `924` (4.01 giờ) | 9.73 | 0.00 | -100% |
+| Precision cửa sổ (giao nhãn mặt đất / số cửa sổ) | 28.0% (86/307) | 49.6% (64/129) | +21.6 điểm |
+| Incident recall | 51.9% (81/156) | 39.7% (62/156) | -12.2 điểm |
+| Độ trễ trung bình (s) | 2.03 (n = 81) | 1.74 (n = 62) | xem ghi chú |
+
+Cách đọc:
+
+1. **Chỉ tiêu đăng ký trước đạt:** FA/hour giảm từ 20.64 xuống 0.17 và precision cửa sổ tăng từ 28.0% lên 49.6%.
+2. **Cái giá phải trả:** 22 cửa sổ bị loại giao với nhãn mặt đất (lost true positive), nên incident recall giảm từ 81 xuống 62 trên 156 sự cố. Đây là cơ chế khiến AUC giảm: hạ điểm cửa sổ giao nhãn mặt đất làm mất khung dương tính thật nhiều hơn phần khung bình thường được hạ điểm đem lại (chưa tách riêng hai phần này bằng số). Hiệu AUC cặp theo video là -5.10 với CI 95% [-11.42, -0.25], nghĩa là giảm có ý nghĩa thống kê sát biên; không được viết "tầng 2 không đổi AUC".
+3. **Độ trễ không so trực tiếp được** vì tập sự cố được phát hiện đổi (81 so với 62). Trên 62 sự cố được phát hiện ở cả hai trạng thái, độ trễ trung bình tăng từ 1.19 s lên 1.74 s (trung vị đều 0.0 s).
+4. **FA/hour phụ thuộc hai video dài.** `Normal_Videos_935` và `924` chứa 85/124 cửa sổ bình thường của tầng 1, nên báo cáo cả hai số. Sau tầng 2 chỉ còn 1 cửa sổ bình thường sống sót (thuộc `924`); 1 cửa sổ trên 6 giờ không đủ để ước lượng tỉ lệ báo động giả ổn định.
+5. **Footnote 37 cửa sổ tự mâu thuẫn.** Có 37/307 cửa sổ VLM trả `is_anomaly=false` nhưng `event_type` khác `Normal`. Theo quy tắc đăng ký trước, verdict chỉ lấy `is_anomaly`, nên 37 cửa sổ này tính là bị loại. Phân tích hậu nghiệm (không thuộc kết quả chính): nếu đảo cả 37 thành xác nhận thì precision là 47.6% (79 TP / 87 FP) so với 49.6% (64 / 65) và thêm 3 báo động giả ở video bình thường, nên việc đảo không có lợi rõ ràng.
+6. **Kết quả VLM không tái lập 100%:** pilot chạy lại 10 cửa sổ giống 9/10 verdict so với A5b (`Arrest030_x264[1]` đổi từ `false` sang `true`), nguyên nhân chưa xác định (khác phiên bản thư viện hoặc giải mã không tất định).
+
+### 4.3.3. Kiểm tay 20 cửa sổ (A6b)
+
+Mẫu 20 cửa sổ phân tầng (10 được xác nhận, 10 bị loại) được rút trước khi xem verdict (`notes/a6-handcheck-sample.csv`). Người chấm xem 12 khung hình mỗi cửa sổ, không thấy verdict hay mô tả của VLM, nhãn được commit trước khi mở khóa (`notes/a6-handcheck.md`).
+
+| VLM \ Người chấm | bất thường | bình thường | không chắc |
+|---|---:|---:|---:|
+| Xác nhận | 6 | 4 | 0 |
+| Bị loại | 0 | 9 | 1 |
+
+- Precision của cửa sổ được xác nhận trên mẫu là **6/10 = 60%** (Wilson 95%: 31.3 - 83.2%). Đây là độ chính xác do người đánh giá, khác với precision theo giao nhãn mặt đất ở 4.3.2 (một cửa sổ có sự cố thật nhưng nằm ngoài đoạn chú thích UCF vẫn được tính đúng ở đây). Mẫu chỉ có 1 cửa sổ xác nhận ở video bình thường nên con số này không thể thay cho precision theo trọng số của toàn bộ 129 cửa sổ (ước lượng khoảng 66%, CI rất rộng).
+- Mẫu **không kiểm tra được bỏ sót**: không có false negative trong 9 cửa sổ bị loại đã được quyết định, nhưng 22/178 cửa sổ bị loại thật sự giao nhãn mặt đất và chỉ 3/10 cửa sổ bị loại của mẫu thuộc video bất thường. Không được trích "VLM không bỏ sót".
+- Rủi ro quan sát được trong mẫu là **xác nhận thừa** (4 false positive, toàn bộ là bằng chứng yếu: cửa sổ rất ngắn 1 - 4 s hoặc rất dài 301 s).
+- Giới hạn: người chấm đồng thời là tác giả bộ rút mẫu và người chạy VLM, nên tính độc lập là kỷ luật chứ không phải cơ chế; `video_id` lộ lớp video.
+
+### 4.3.4. Phân tích lỗi và hình minh họa
+
+Các trường hợp được chọn bằng luật trong `scripts/make_figures.py` (không chọn bằng mắt), mỗi hình có đường $\tau$, đoạn nhãn mặt đất và các cửa sổ tô màu theo verdict:
+
+| Hình | Loại | Video | Ý nghĩa |
+|---|---|---|---|
+| ![](../results/figures/01_confirmed_hit.png) | Xác nhận đúng | `Assault006_x264` | Cửa sổ 38 - 270 s giao nhãn mặt đất 230.4 s, được VLM xác nhận |
+| ![](../results/figures/02_removed_false_alarm.png) | Báo động giả bị loại | `Normal_Videos_924_x264` | Cửa sổ có điểm tầng 1 cao nhất trên video bình thường (1.453) bị VLM loại |
+| ![](../results/figures/03_surviving_false_alarm.png) | Báo động giả còn sống | `Normal_Videos_924_x264` | Cửa sổ duy nhất còn lại (855 - 1156 s) |
+| ![](../results/figures/04_missed_incident.png) | Bỏ sót ở tầng 1 | `Shooting021_x264` | Không cửa sổ nào vượt $\tau$, tầng 2 không cứu được |
+| ![](../results/figures/05_lost_true_positive.png) | Mất cửa sổ đúng | `Shoplifting004_x264` | Cửa sổ 28 - 201 s giao nhãn mặt đất 90 s bị VLM loại |
+
+Các nguyên nhân lặp (`notes/a7-fp-analysis.md`; phân tích đọc từ JSON, chưa xem khung hình, nên chỉ là suy luận từ mô tả):
+
+- **Mâu thuẫn `event_type` và verdict:** 15/22 cửa sổ mất nhãn đúng có `event_type` khác `Normal` (ví dụ `Arrest`, `Fighting`) dù `is_anomaly=false`.
+- **Hành vi nhỏ trong cửa sổ dài:** với cửa sổ 173 s, 24 khung cho khoảng 1 khung mỗi 7 s, một hành vi ngắn có thể rơi giữa hai khung (`Shoplifting004`, `Stealing062`).
+- **Luật OR trên chunk:** báo động giả sống sót duy nhất (`Normal_Videos_924_x264`, 11 chunk) bị xác nhận vì đúng 1 chunk trả `true` còn 10 chunk trả `Normal`. Cửa sổ càng dài càng dễ có một chunk bắn sai; sửa prompt không xử lý được cơ chế này.
+
+### 4.3.5. Định danh sự kiện (Event Typing)
+
+Khác với tác vụ phát hiện nhị phân, việc gán nhãn 13 lớp được đo riêng. Ba phép đo dưới đây có đơn vị và mẫu khác nhau, **không đặt cạnh nhau như cùng một thước đo**.
+
+| Phương pháp | Đơn vị và mẫu | Top-1 | KTC 95% (theo video) | Mức đoán mò |
 |---|---|---|---|---|
-| Zero-shot Text Typer (Cosine Mean Window) | 13 lớp | 7.69% (1/13) | TBD <!-- TODO(TH8): C3 --> | So khớp vector nhúng trung bình cửa sổ với 13 prompt |
-| Generative VLM Typing (JSON output) | 13 lớp | 7.69% (1/13) | TBD <!-- TODO(TH8): A5 --> | Dự đoán trực tiếp từ trường `event_type` của VLM |
+| Zero-shot Text Typer, strict (C3) | 156 đoạn nhãn mặt đất, 140 video bất thường | 40.4% (63/156) | - | 7.69% (1/13) |
+| Zero-shot Text Typer, lenient (C3) | như trên, gộp nhóm tên gần nghĩa | 50.0% (78/156) | - | 7.69% |
+| Zero-shot Text Typer (C7e) | 62 cửa sổ do VLM xác nhận và giao nhãn mặt đất, 56 video | 24.2% (15/62) | [14.1, 35.6] | 7.69%; luôn đoán `Shooting`: 25.8% |
+| Generative VLM Typing (C7e) | cùng 62 cửa sổ | 83.9% (52/62) | [74.6, 92.8] | 7.69%; luôn đoán `Shooting`: 25.8% |
+
+Lưu ý khi đọc (`notes/2026-11-01-c7e-vlm-typing.md`):
+
+1. **Mẫu C7e có điều kiện và lệch lớp:** chỉ gồm cửa sổ VLM đã tự xác nhận bất thường và có giao nhãn mặt đất; `Shooting`, `Explosion`, `Burglary`, `Arson` chiếm 45/62 = 73%. Không suy ra "VLM gọi tên đúng 84% mọi sự cố UCF".
+2. **VLM làm bài chọn đóng:** prompt liệt kê sẵn 13 tên lớp cộng `Normal` (không chứa nhãn của video nên không rò rỉ nhãn, nhưng phải gọi là closed-set).
+3. **Typer không hơn đoán theo lớp phổ biến nhất trên mẫu này:** KTC 95% của typer [14.1, 35.6] phủ mức 25.8%, còn KTC của VLM tách hẳn khỏi mức đó. Trên cùng 62 cửa sổ, VLM đúng và typer sai ở 37 ca, typer đúng và VLM sai ở 0 ca.
+4. **Hướng nhầm của VLM** (10 ca sai): 6/10 bị gọi là `Robbery` (chủ yếu `Shooting`), 3/10 là `Explosion`, 1/10 là `Shoplifting`.
+5. **Quyết định D-2:** nhãn của cảnh báo do typer quyết định, không do `event_type` của VLM. Lý do là tính tất định và tái lập (13 câu cố định, cùng không gian nhúng với tầng 1, không đổi khi thay mô hình VLM), **không** phải vì typer chính xác hơn; trên mẫu này VLM gọi tên tốt hơn. Hạn chế này được nêu ở mục 5.2.
 
 ## 4.4. Các chỉ số vận hành thực tế (Operational Metrics)
 
@@ -84,12 +158,22 @@ Khác với tác vụ phát hiện nhị phân, bộ phân loại sự kiện ze
 3. **Tỉ lệ bao phủ sự cố (Incident-level Recall):**
    Tỉ lệ phần trăm các sự kiện thực tế có ít nhất một cảnh báo chính xác rơi vào khoảng thời gian xảy ra sự cố.
 
-Ngưỡng $\tau$ = 1.1686 chọn bằng phân vị 95% của điểm A4c gộp trên 60 video `calib_normal` (`scripts/calibrate_threshold.py`, `results/threshold_A4c.json`), FPR đạt được trên calib là 4.99%. Trên các khung hình bình thường của tập test, cùng ngưỡng cho FPR 10.57%, gấp đôi ngân sách: `calib_normal` lấy từ tập huấn luyện nên khác camera và cảnh so với tập test (lệch phân phối), không phải lỗi tính toán. Các số liệu dưới đây là của riêng tầng 1; tầng 2 chỉ có thể loại bớt cửa sổ nên cải thiện FA/hour chứ không tăng recall.
+Ngưỡng $\tau$ = 1.1686 chọn bằng phân vị 95% của điểm A4c gộp trên 60 video `calib_normal` (`scripts/calibrate_threshold.py`, `results/threshold_A4c.json`), FPR đạt được trên calib là 4.99%. Trên các khung hình bình thường của tập test, cùng ngưỡng cho FPR 10.57%, gấp đôi ngân sách: `calib_normal` lấy từ tập huấn luyện nên khác camera và cảnh so với tập test (lệch phân phối), không phải lỗi tính toán. Bảng dưới báo cáo cả hai trạng thái, tầng 1 (A4c) và sau tầng 2 (A6), vì tầng 2 chỉ có thể loại bớt cửa sổ: nó giảm FA/hour nhưng không tăng recall (số liệu từ `results/ablation_A6.json`, xem 4.3.2).
 
-| Chỉ số vận hành | Ngưỡng hiệu chỉnh $\tau$ (tại FPR calib = 5%) | Giá trị đo được | Đơn vị tính | Nguồn đo kiểm |
-|---|---|---|---|---|
-| Báo động giả mỗi giờ (FA/hour) | 1.1686 (A4c, tier 1) | 20.64 (tier 1, chưa có VLM) <!-- TODO(TH8): cập nhật sau tầng 2 (TH7) --> | sự cố / giờ | Đo trên 150 video bình thường tập test |
-| Độ trễ phát hiện trung bình (Mean Latency) | 1.1686 | 2.03 (chỉ tính 81 sự cố được phát hiện; trung vị 0.0) | giây | Đo trên 140 video bất thường tập test |
-| Tỉ lệ phát hiện sự cố (Incident Recall) | 1.1686 | 51.9 (81/156, tier 1) | % | Cửa sổ cảnh báo giao với nhãn mặt đất |
-| Tỉ lệ cửa sổ chuyển tiếp lên Tầng 2 | 1.1686 (307 cửa sổ, 1.06/video) | TBD <!-- TODO(TH8): A5 --> | % tổng số cửa sổ | Đo tải suy luận chuyển lên VLM |
-| Thời gian xử lý trung bình mỗi cửa sổ VLM | - | TBD <!-- TODO(TH8): A1, A5 --> | giây / cửa sổ | Đo trên GPU RTX 3050 6GB (4-bit) |
+| Chỉ số vận hành | Ngưỡng hiệu chỉnh $\tau$ (tại FPR calib = 5%) | Tầng 1 (A4c) | Sau tầng 2 (A6) | Đơn vị tính | Nguồn đo kiểm |
+|---|---|---|---|---|---|
+| Báo động giả mỗi giờ (FA/hour), toàn bộ | 1.1686 | 20.64 (124 cửa sổ / 6.01 giờ) | 0.17 (1 cửa sổ / 6.01 giờ) | sự cố / giờ | 150 video bình thường tập test |
+| Báo động giả mỗi giờ, bỏ `Normal_Videos_935` và `924` | 1.1686 | 9.73 (39 / 4.01 giờ) | 0.00 (0 / 4.01 giờ) | sự cố / giờ | Số thứ hai, báo cáo kèm số đầy đủ |
+| Precision cửa sổ (giao nhãn mặt đất) | 1.1686 | 28.0 (86/307) | 49.6 (64/129) | % | Cửa sổ trong video bình thường luôn là dương tính giả |
+| Độ trễ phát hiện trung bình (Mean Latency) | 1.1686 | 2.03 (n = 81; trung vị 0.0) | 1.74 (n = 62; trung vị 0.0) | giây | 140 video bất thường; trên 62 sự cố chung: 1.19 so với 1.74 |
+| Tỉ lệ phát hiện sự cố (Incident Recall) | 1.1686 | 51.9 (81/156) | 39.7 (62/156) | % | Cửa sổ cảnh báo giao với nhãn mặt đất |
+| Video có cửa sổ lên Tầng 2 | 1.1686 | - | 39.3 (114/290) | % số video | Mọi cửa sổ ứng viên đều lên tầng 2 nên mẫu số là video, không phải cửa sổ |
+| Mật độ cửa sổ ứng viên | 1.1686 | - | 1.06 (307/290) | cửa sổ / video | Tải đẩy lên VLM; 65 cửa sổ (21.2%) bị chia chunk, 480 lượt gọi VLM |
+| Thời gian xử lý mỗi cửa sổ VLM | - | - | median 3.71; p90 14.41 | giây / cửa sổ | Qwen2.5-VL-3B 4-bit; tổng 51.7 phút cho 307 cửa sổ (bản chạy A5b) |
+| Peak VRAM | - | - | 2.91 (nvidia-smi); 2.52 (torch allocated) | GB | Pilot 10 cửa sổ trên RTX 3050 6GB, không phải lượt 307 cửa sổ |
+
+Ghi chú cho bảng cost (`notes/a5b-log.md`):
+
+- Tổng thời gian có một cửa sổ ngoại lệ 457 s (`Explosion017_x264[0]`, nhiều khả năng là nghẽn đọc video); trừ ngoại lệ còn 44.1 phút. Tốc độ lệch khoảng 3 lần giữa hai phiên chạy (median 9.73 s so với 3.23 s mỗi cửa sổ) không do cấu hình khác nhau và chưa xác định được nguyên nhân, nên số liệu báo cáo là số gộp 307 cửa sổ.
+- Peak VRAM không được ghi trong lượt 307 cửa sổ; số trên lấy từ pilot chạy lại cùng cấu hình sản xuất, khớp với benchmark A1 trên T4 (2.52 GB torch, 2.93 GB thiết bị).
+- 46/307 cửa sổ chưa dùng khung đã kẹp biên video (PR #35) nên chunk và verdict không đổi nhưng chi tiết khung có thể lệch tối đa 0.93 s ở các cửa sổ này.
