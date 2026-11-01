@@ -65,14 +65,67 @@
       "score": 1.2406913643345179
     }
   ],
-  "verify_results": [],
-  "alerts": [],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Arrest",
+      "caption": "A vehicle is seen driving erratically on the road.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Assault",
+      "caption": "A person is lying on the ground near a vehicle, possibly injured.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [
+    {
+      "video_id": "RoadAccidents001_x264",
+      "start_s": 24.0,
+      "end_s": 29.0,
+      "event_type": "Arrest",
+      "severity": "low",
+      "responders": [],
+      "protocol": "P-LOG",
+      "path": [
+        "camera:RoadAccidents001_x264",
+        "event:Arrest",
+        "severity:low",
+        "protocol:P-LOG"
+      ],
+      "caption": "A vehicle is seen driving erratically on the road.",
+      "confidence": 0.95,
+      "camera": "RoadAccidents001_x264"
+    },
+    {
+      "video_id": "RoadAccidents001_x264",
+      "start_s": 34.0,
+      "end_s": 46.0,
+      "event_type": "Assault",
+      "severity": "high",
+      "responders": [
+        "police",
+        "security"
+      ],
+      "protocol": "P-VIOLENCE",
+      "path": [
+        "camera:RoadAccidents001_x264",
+        "event:Assault",
+        "severity:high",
+        "protocol:P-VIOLENCE"
+      ],
+      "caption": "A person is lying on the ground near a vehicle, possibly injured.",
+      "confidence": 0.95,
+      "camera": "RoadAccidents001_x264"
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:22+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:58+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -81,7 +134,7 @@
     "camera": "RoadAccidents001_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -100,6 +153,31 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 2,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 24.0,
+          "end_s": 29.0,
+          "vlm_event_type": "RoadAccidents",
+          "typer_event_type": "Arrest",
+          "typer_confidence": 0.276265,
+          "typer_margin": 0.045234
+        },
+        {
+          "window_index": 1,
+          "start_s": 34.0,
+          "end_s": 46.0,
+          "vlm_event_type": "RoadAccidents",
+          "typer_event_type": "Assault",
+          "typer_confidence": 0.224875,
+          "typer_margin": 0.008441
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

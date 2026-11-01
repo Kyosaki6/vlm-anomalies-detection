@@ -52,13 +52,62 @@
       "score": 1.2676932223605988
     }
   ],
-  "verify_results": [],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Shoplifting",
+      "caption": "A person is seen entering a room and then exiting with a bag, indicating a burglary.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Shoplifting",
+      "caption": "A person is seen entering a room and then exiting with a bag, indicating a burglary.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Shoplifting",
+      "caption": "A person is seen entering a room and searching through shelves.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Robbery",
+      "caption": "A person is seen entering a room through a door.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Robbery",
+      "caption": "A person wearing a white hoodie is seen moving around a room that appears to be a classroom or office, possibly searching for something valuable.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Shoplifting",
+      "caption": "A person is seen entering a room and then exiting with a bag, indicating a burglary.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": true,
+      "event_type": "Robbery",
+      "caption": "A person is seen entering a building through a window.",
+      "confidence": 0.95
+    },
+    {
+      "is_anomaly": false,
+      "event_type": "Burglary",
+      "caption": "A person wearing a white hat and jacket is seen entering a room through a door.",
+      "confidence": 0.95
+    }
+  ],
   "metadata": {
     "model": "google/siglip2-base-patch16-384",
-    "commit": "2a7f9c6",
-    "timestamp": "2026-10-31T13:05:18+00:00",
+    "commit": "45bca1b",
+    "timestamp": "2026-11-01T03:17:57+00:00",
     "schema_version": 1,
-    "tier": "1",
+    "tier": "1+2",
     "ablation": "A4c",
     "sample_fps": 1.0,
     "threshold": 1.1686,
@@ -67,7 +116,7 @@
     "camera": "Burglary032_x264",
     "zone": "default",
     "hour": null,
-    "tier2": "none",
+    "tier2": "json",
     "config": {
       "model_id": "google/siglip2-base-patch16-384",
       "sample_fps": 1.0,
@@ -86,6 +135,76 @@
       "min_len_s": 1.0,
       "merge_gap_s": 2.0
     },
-    "note": ""
+    "note": "",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 7,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 41.0,
+          "end_s": 49.0,
+          "vlm_event_type": "Burglary",
+          "typer_event_type": "Shoplifting",
+          "typer_confidence": 0.232915,
+          "typer_margin": 0.084725
+        },
+        {
+          "window_index": 1,
+          "start_s": 60.0,
+          "end_s": 64.0,
+          "vlm_event_type": "Burglary",
+          "typer_event_type": "Shoplifting",
+          "typer_confidence": 0.390874,
+          "typer_margin": 0.294744
+        },
+        {
+          "window_index": 2,
+          "start_s": 78.0,
+          "end_s": 90.0,
+          "vlm_event_type": "Burglary",
+          "typer_event_type": "Shoplifting",
+          "typer_confidence": 0.222923,
+          "typer_margin": 0.059053
+        },
+        {
+          "window_index": 3,
+          "start_s": 134.0,
+          "end_s": 135.0,
+          "vlm_event_type": "Burglary",
+          "typer_event_type": "Robbery",
+          "typer_confidence": 0.195015,
+          "typer_margin": 0.067287
+        },
+        {
+          "window_index": 4,
+          "start_s": 159.0,
+          "end_s": 163.0,
+          "vlm_event_type": "Burglary",
+          "typer_event_type": "Robbery",
+          "typer_confidence": 0.170709,
+          "typer_margin": 0.023546
+        },
+        {
+          "window_index": 5,
+          "start_s": 191.0,
+          "end_s": 198.0,
+          "vlm_event_type": "Burglary",
+          "typer_event_type": "Shoplifting",
+          "typer_confidence": 0.160027,
+          "typer_margin": 0.015982
+        },
+        {
+          "window_index": 6,
+          "start_s": 389.0,
+          "end_s": 397.0,
+          "vlm_event_type": "Burglary",
+          "typer_event_type": "Robbery",
+          "typer_confidence": 0.183157,
+          "typer_margin": 0.046413
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
   }
 }

@@ -176,6 +176,28 @@ def test_verify_dir_roundtrip_and_pair_mismatch(world):
         _build(world, limit=1, verify_dir=vdir)
 
 
+def test_tier2_metadata_speaks_per_video_not_per_run(world):
+    """`--verify-dir` thuộc về CẢ lần chạy, nhưng `metadata.tier2` phải nói về TỪNG video.
+
+    Video 0 cửa sổ thì không có gì để VLM xem; ghi "json" cho nó là nói dối người đọc file (kế hoạch D4-3,
+    mục kiểm 2). `metadata.tier` vốn đã theo từng video, `tier2` phải khớp với nó.
+    """
+    first = _build(world, limit=1)[0]                             # Abuse028: 1 cửa sổ
+    vdir = world["tmp"] / "tier2_per_video"
+    vdir.mkdir()
+    (vdir / f"{first.video_id}.json").write_text(json.dumps({
+        "schema_version": 1, "video_id": first.video_id, "sample_fps": 1.0,
+        "candidate_windows": [dataclasses.asdict(first.candidate_windows[0])],
+        "verify_results": [{"is_anomaly": True, "event_type": "RoadAccidents",
+                            "caption": "a car crash", "confidence": 0.8}]}), encoding="utf-8")
+
+    res = {r.video_id: r for r in _build(world, verify_dir=vdir)}   # cả hai video của manifest
+    assert res[first.video_id].metadata["tier2"] == "json"
+    assert res[first.video_id].metadata["tier"] == "1+2"
+    assert res["Normal_Videos586_x264"].metadata["tier2"] == "none"  # không cửa sổ -> không tier-2
+    assert res["Normal_Videos586_x264"].metadata["tier"] == "1"
+
+
 def test_verify_dir_same_count_shifted_windows_raises(world):
     """Số lượng khớp nhưng cửa sổ đã dịch (+100 s) -> phải lỗi, không được gán nhãn cho cửa sổ khác.
 
