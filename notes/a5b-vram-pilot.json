@@ -1,0 +1,149 @@
+{
+  "schema": "a5b-vram-pilot/1",
+  "date": "2026-11-01",
+  "purpose": "Peak VRAM của tier 2 (A5b) trên đúng máy sản xuất. A5b không ghi VRAM; pilot này thay thế fallback A1 benchmark trong notes/a5b-log.md §3.1.",
+  "gpu": {
+    "name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+    "driver": "581.86",
+    "total_gb": 6.0
+  },
+  "env": {
+    "python": "3.11.9",
+    "torch": "2.14.1+cu126",
+    "transformers": "5.17.0",
+    "bitsandbytes": "0.50.2",
+    "accelerate": "1.15.0"
+  },
+  "config": {
+    "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    "quantization": "4bit",
+    "prompt_hash": "3d71fdba",
+    "k": 4,
+    "max_chunk_s": 30.0,
+    "max_new_tokens": 128,
+    "max_attempts": 2
+  },
+  "code": {
+    "commit": "48739a3",
+    "note": "run_verify.py @ 48739a3 khác 7b3a174 chỉ ở clamp cửa sổ (PR #35); vad/verify/vlm.py và configs/prompts.yaml không đổi. Các file khác trong khoảng 7b3a174..48739a3 (build_results, eval_tier2, typing, cache slug) không tham gia đường verify nên không ảnh hưởng VRAM hay sinh."
+  },
+  "command": "python scripts/run_verify.py --manifest manifests/ucf_test.csv --windows-dir results/windows --out-dir <temp> --verifier-model Qwen/Qwen2.5-VL-3B-Instruct --video-id Arrest024_x264 --video-id Arrest030_x264 --video-id Arson016_x264 --video-id Assault006_x264 --video-id Assault010_x264",
+  "windows": [
+    {
+      "video_id": "Arrest024_x264",
+      "window_index": 0,
+      "n_chunks": 1,
+      "elapsed_s": 120.754,
+      "is_anomaly": false,
+      "event_type": "Arrest"
+    },
+    {
+      "video_id": "Arrest024_x264",
+      "window_index": 1,
+      "n_chunks": 3,
+      "elapsed_s": 11.251,
+      "is_anomaly": true,
+      "event_type": "Robbery"
+    },
+    {
+      "video_id": "Arrest030_x264",
+      "window_index": 0,
+      "n_chunks": 1,
+      "elapsed_s": 3.42,
+      "is_anomaly": false,
+      "event_type": "Arrest"
+    },
+    {
+      "video_id": "Arrest030_x264",
+      "window_index": 1,
+      "n_chunks": 10,
+      "elapsed_s": 35.002,
+      "is_anomaly": true,
+      "event_type": "Arrest"
+    },
+    {
+      "video_id": "Arson016_x264",
+      "window_index": 0,
+      "n_chunks": 1,
+      "elapsed_s": 3.621,
+      "is_anomaly": true,
+      "event_type": "Vandalism"
+    },
+    {
+      "video_id": "Arson016_x264",
+      "window_index": 1,
+      "n_chunks": 1,
+      "elapsed_s": 3.515,
+      "is_anomaly": true,
+      "event_type": "Arson"
+    },
+    {
+      "video_id": "Assault006_x264",
+      "window_index": 0,
+      "n_chunks": 1,
+      "elapsed_s": 3.821,
+      "is_anomaly": true,
+      "event_type": "Assault"
+    },
+    {
+      "video_id": "Assault006_x264",
+      "window_index": 1,
+      "n_chunks": 8,
+      "elapsed_s": 30.12,
+      "is_anomaly": true,
+      "event_type": "Assault"
+    },
+    {
+      "video_id": "Assault010_x264",
+      "window_index": 0,
+      "n_chunks": 1,
+      "elapsed_s": 3.736,
+      "is_anomaly": true,
+      "event_type": "Assault"
+    },
+    {
+      "video_id": "Assault010_x264",
+      "window_index": 1,
+      "n_chunks": 1,
+      "elapsed_s": 3.59,
+      "is_anomaly": true,
+      "event_type": "Assault"
+    }
+  ],
+  "totals": {
+    "windows": 10,
+    "chunk_calls": 28,
+    "sum_elapsed_s": 218.8,
+    "wall_s": 223.8,
+    "model_load_s": 18,
+    "model_load_note": "bar 'Loading weights' 0->100%, HF cache ấm; không phải cold download"
+  },
+  "vram": {
+    "peak_torch_alloc_gb": 2.52,
+    "peak_torch_reserved_gb": 2.63,
+    "peak_nvidia_smi_mb": 2983,
+    "baseline_nvidia_smi_mb": 173,
+    "device_total_gb": 6.0,
+    "mem_get_info_free_after_gb": 2.37,
+    "headroom_gb": 3.09,
+    "free_after_note": "2.37 GB là bộ nhớ còn trống lúc KẾT THÚC pilot, khi model vẫn nằm trong VRAM (torch reserved 2.63 GB + ~1.0 GB CUDA context/workspace không do torch cấp). Headroom lúc chạy = 6.0 − 2.91 (peak device, gồm 173 MB desktop) = 3.09 GB."
+  },
+  "measurement": {
+    "torch_calls": [
+      "torch.cuda.reset_peak_memory_stats() trước khi chạy",
+      "torch.cuda.max_memory_allocated() / 2**30 sau khi chạy",
+      "torch.cuda.max_memory_reserved() / 2**30 sau khi chạy",
+      "torch.cuda.mem_get_info() sau khi chạy"
+    ],
+    "smi_command": "nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits",
+    "smi_interval_s": 0.25,
+    "baseline_note": "baseline = max của 4 sample trước khi nạp model",
+    "out_dir_note": "output ghi ra thư mục tạm ngoài repo nên results/verify/ không bị đổi; 10/10 cửa sổ chạy xong, 0 lỗi."
+  },
+  "caveats": [
+    "Cửa sổ đầu tiên (Arrest024_x264 window_0000) gồm cả model load + warmup CUDA nên elapsed_s 120.75 s; s/window của pilot KHÔNG dùng để tính cost row.",
+    "10 cửa sổ chọn theo video (5 video × 2 cửa sổ), không phải mẫu ngẫu nhiên của 307.",
+    "Peak VRAM đo trong 1 lần chạy, không lặp lại; cùng config với A5b.",
+    "Tái lập verdict: 9/10 cửa sổ giống A5b; Arrest030_x264 window_0001 ra is_anomaly=true trong pilot nhưng false trong A5b (cùng event_type=Arrest, cùng 10 chunk)."
+  ]
+}
