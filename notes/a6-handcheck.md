@@ -1,8 +1,8 @@
 # A6b — hand check 20 cửa sổ tier 2 (Phước)
 
 **Ngày:** 2026-11-01 · **Task:** A6b · **Mẫu:** `notes/a6-handcheck-sample.csv` (PR #36)
-**Nhãn người:** `notes/a6-handcheck-labelled.csv`, commit `a6de7a1` — **commit trước khi unblind**
-**Key:** ngoài repo, SHA-256 `4f239f615f1814a45b27e383c42852505deac9f88773596607d43d3eb2f49805`. Lưu ý: key từng nằm trong lịch sử nhánh A6a (commit `96afcc0`, `d603897`) trên repo public khoảng 1 ngày trước khi bị gỡ (`486358b`); #36 squash-merge nên `main` không chứa key, nhưng PR này phải **squash-merge** (hoặc rebase bỏ các commit A6a) để không đưa key vào `main`. Xem §7.
+**Nhãn người:** `notes/a6-handcheck-labelled.csv`, commit `0fa28df` (trước rebase: `a6de7a1`, nội dung file giống hệt) — **commit trước khi unblind**
+**Key:** ngoài repo, SHA-256 `4f239f615f1814a45b27e383c42852505deac9f88773596607d43d3eb2f49805`. Lưu ý: key từng nằm trong lịch sử nhánh A6a (commit `96afcc0`, `d603897`) trên repo public khoảng 1 ngày trước khi bị gỡ (`486358b`); `main` (squash #36) và nhánh này (đã rebase lên `main`) không chứa key. Xem §7.
 **Model:** `Qwen/Qwen2.5-VL-3B-Instruct`, 4-bit · **Prompt hash:** `3d71fdba` · **Fake:** `false`
 
 ## 0. Cách chấm
@@ -10,7 +10,7 @@
 - 20 cửa sổ = 10 VLM `confirmed` + 10 VLM `rejected`; 12 cửa sổ thuộc video anomalous, 8 thuộc video normal.
 - Người chấm xem **12 frame/cửa sổ** (frame của VLM + frame đều trong khoảng), không xem verdict/caption/GT.
 - Trang label: `anomaly` / `normal` / `unsure`; ghi chú ngắn nếu có.
-- CSV nhãn được commit (`a6de7a1`) **trước** khi mở key; sau đó mới unblind để viết note này.
+- CSV nhãn được commit (`0fa28df`, trước rebase `a6de7a1`) **trước** khi mở key; sau đó mới unblind để viết note này.
 - Đây là **nhãn người**, không phải GT UCF: "anomaly" = người thấy có sự cố trong cửa sổ, kể cả khi ngoài đoạn GT.
 
 ## 1. Kết quả
