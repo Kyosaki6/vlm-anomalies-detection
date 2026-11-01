@@ -42,8 +42,6 @@ Phân bố theo GT:
 | Mean s/window | 10.10 s (3100.8 / 307) |
 | Min / max | 2.57 s / 457.01 s |
 | Tổng thời gian xử lý | **3100.8 s = 51.68 phút** |
-| Chunk-call | **480** |
-| Cửa sổ bị chia chunk | **65/307 = 21.2%** (max 17 chunk, cửa sổ 490 s) |
 | Timestamp first → last | 2026-10-31 07:52:33 → 11:05:33 UTC (span 3h13m, có 2 gap; không phải wall time xử lý) |
 
 ### 2.1 Hai phiên chạy + 1 lượt rerun
@@ -77,7 +75,7 @@ cùng `verifier_config` (đã đối chiếu cả 307 file: `4bit`, `max_attempt
 | Chỉ số | Giá trị |
 |---|---|
 | Chunk-call | **480** |
-| Cửa sổ bị chia chunk | **65/307 = 21.2%** (max 17 chunk) |
+| Cửa sổ bị chia chunk | **65/307 = 21.2%** (max 17 chunk, cửa sổ dài nhất 490 s) |
 
 Phân bố số chunk/cửa sổ: 242 cửa sổ 1 chunk, 31 cửa sổ 2 chunk, 17 cửa sổ 3 chunk, 6 cửa sổ 4 chunk, 11 cửa sổ còn lại 5–17 chunk.
 
