@@ -22,6 +22,9 @@ Nguyên tắc chống thiên vị (ghi trước, thực thi bằng code):
     không có cột `source_file` (nó trỏ tới file tier-2 chứa caption/verdict).
   - Giới hạn (ghi vào báo cáo): `video_id` vẫn lộ lớp video (`Normal_Videos_*`) vì
     người chấm phải mở đúng clip -> blind ở mức verdict/GT, KHÔNG blind tuyệt đối.
+  - GIỚI HẠN LỊCH SỬ: key từng nằm trong commit cũ của nhánh này (repo public);
+    trước khi chấm, không đưa người chấm lịch sử commit. Khi merge nên squash để
+    key không đi vào `main`.
   - Cột `gt_overlap` (file key) = cửa sổ có chồng lấn đoạn GT hay không — tính
     từ annotation, KHÔNG dùng để chọn mẫu (chỉ ghi lại).
   - BẮT BUỘC đủ 307 file kết quả, trừ khi `--allow-partial` (chỉ để chạy thử;
@@ -93,12 +96,23 @@ def load_windows(windows_dir: Path) -> dict[tuple[str, int], dict]:
                 raise ValueError(f"{w_file} thiếu metadata.fps/n_frames (cần để đổi giây -> frame)")
             meta_by_video[video_id] = meta  # đọc mỗi file đúng một lần, giữ nguyên thứ tự index
         meta = meta_by_video[video_id]
-        windows[(video_id, int(row["window_index"]))] = {
-            "start_s": float(row["start_s"]),
-            "end_s": float(row["end_s"]),
+        w_index = int(row["window_index"])
+        key = (video_id, w_index)
+        if key in windows:
+            raise ValueError(f"_index.json trùng cửa sổ {key} (video_id, window_index phải duy nhất)")
+        start_s, end_s = float(row["start_s"]), float(row["end_s"])
+        if start_s > end_s:
+            raise ValueError(f"_index.json: cửa sổ {key} có start_s > end_s")
+        fps = float(meta["fps"])
+        n_frames = int(meta["n_frames"])
+        if fps <= 0 or n_frames <= 0:
+            raise ValueError(f"{windows_dir / f'{video_id}.json'}: fps/n_frames phải > 0")
+        windows[key] = {
+            "start_s": start_s,
+            "end_s": end_s,
             "score": float(row.get("score", 0.0)),
-            "fps": float(meta["fps"]),
-            "n_frames": int(meta["n_frames"]),
+            "fps": fps,
+            "n_frames": n_frames,
         }
     if not windows:
         raise ValueError(f"Không có window nào trong {windows_dir}")
@@ -114,15 +128,32 @@ def load_verdicts(verify_dir: Path) -> dict[tuple[str, int], dict]:
         data = json.loads(path.read_text(encoding="utf-8-sig"))
         meta = data.get("metadata") or {}
         video_id = str(data.get("video_id") or meta.get("video_id") or path.parent.name)
+        # File phải nằm đúng thư mục video và đúng số hiệu trong tên: nếu chỉ tin metadata,
+        # một file stale (vd window_0099.json nhưng metadata.window_index=3) có thể ghi đè
+        # kết quả thật -> "thiếu" bị che mà set comparison không phát hiện.
+        if video_id != path.parent.name:
+            raise ValueError(f"{path}: video_id {video_id!r} khác thư mục "
+                             f"{path.parent.name!r} — file đặt sai chỗ/stale")
         if "window_index" not in meta:
             raise ValueError(f"{path} thiếu metadata.window_index")
+        try:
+            file_index = int(path.stem.split("_", 1)[1])
+        except (IndexError, ValueError) as e:
+            raise ValueError(f"{path}: tên file phải có dạng window_<số>.json") from e
+        w_index = int(meta["window_index"])
+        if file_index != w_index:
+            raise ValueError(f"{path}: tên file window_{file_index:04d} khác "
+                             f"metadata.window_index={w_index}")
         results = data.get("verify_results") or []
         if len(results) != 1:
             raise ValueError(f"{path}: cần đúng 1 verify_result, nhận {len(results)}")
         vr = results[0]
         if not isinstance(vr.get("is_anomaly"), bool):
             raise ValueError(f"{path}: is_anomaly phải là bool, nhận {vr.get('is_anomaly')!r}")
-        out[(video_id, int(meta["window_index"]))] = {
+        key = (video_id, w_index)
+        if key in out:
+            raise ValueError(f"{path}: trùng cửa sổ {key} với {out[key]['source_file']}")
+        out[key] = {
             "is_anomaly": bool(vr["is_anomaly"]),
             # as_posix(): file CSV được commit cho cả nhóm + Colab -> luôn dùng '/' (không phụ thuộc Windows)
             "source_file": path.relative_to(verify_dir.parent).as_posix(),
@@ -145,30 +176,55 @@ def gt_overlap(video_id: str, w: dict, annotations: dict) -> tuple[bool, bool]:
     return True, bool(overlap)
 
 
+def _add_largest_remainder(take: dict[str, int], capacity: dict[str, int], n: int) -> None:
+    """Cộng thêm n mẫu vào `take` theo largest-remainder, không vượt `capacity`."""
+    slots = {k: capacity[k] - take[k] for k in capacity if capacity[k] > take[k]}
+    total = sum(slots.values())
+    if n <= 0 or total <= 0:
+        return
+    if n >= total:
+        for k, v in slots.items():
+            take[k] += v
+        return
+    raw = {k: n * v / total for k, v in slots.items()}
+    added = {k: min(int(raw[k]), slots[k]) for k in slots}
+    for k, v in added.items():
+        take[k] += v
+    left = n - sum(added.values())
+    order = sorted(slots, key=lambda k: raw[k] - int(raw[k]), reverse=True)
+    i = 0
+    while left > 0 and order:
+        k = order[i % len(order)]
+        if take[k] < capacity[k]:
+            take[k] += 1
+            left -= 1
+        i += 1
+        if i > 10 * len(order) + n:  # pragma: no cover - phòng vệ, toán ở trên phải hết trước
+            raise RuntimeError("allocate: không phân bổ hết mẫu")
+
+
 def allocate(stratum_sizes: dict[str, int], n: int) -> dict[str, int]:
-    """Chia n mẫu theo tỉ lệ các tầng (largest-remainder), tầng không rỗng được >= 1 nếu n đủ."""
+    """Chia n mẫu theo tỉ lệ các tầng (largest-remainder).
+
+    Tầng không rỗng được >= 1 mẫu khi n >= số tầng không rỗng; nếu n nhỏ hơn thì
+    chia theo largest-remainder thuần (không thể cho mọi tầng 1 mẫu).
+    """
     total = sum(stratum_sizes.values())
     if total == 0 or n <= 0:
         return {k: 0 for k in stratum_sizes}
     if n >= total:
         return dict(stratum_sizes)
-    raw = {k: n * v / total for k, v in stratum_sizes.items()}
-    take = {k: int(x) for k, x in raw.items()}
-    # mỗi tầng không rỗng ít nhất 1 (nếu tổng <= n), phần dư phân bổ theo phần dư lớn nhất
-    for k, v in stratum_sizes.items():
-        if v > 0 and take[k] == 0 and sum(min(take[k2], v2) for k2, v2 in stratum_sizes.items() if v2 > 0) < n:
+    nonempty = [k for k, v in stratum_sizes.items() if v > 0]
+    take = {k: 0 for k in stratum_sizes}
+    if n >= len(nonempty):
+        # Chia 1 mẫu/tầng trước, phần còn lại theo tỉ lệ phần dung lượng còn trống.
+        # Cách cũ (gán 1 lần lượt + floor(raw)) có thể bỏ đói tầng sau: {1,1,4}, n=3
+        # từng ra {1,0,2} dù đủ chỗ cho mỗi tầng 1 mẫu.
+        for k in nonempty:
             take[k] = 1
-    remainder = n - sum(take.values())
-    order = sorted(stratum_sizes, key=lambda k: (raw[k] - int(raw[k])), reverse=True)
-    i = 0
-    while remainder > 0 and order:
-        k = order[i % len(order)]
-        if take[k] < stratum_sizes[k]:
-            take[k] += 1
-            remainder -= 1
-        i += 1
-        if i > 10 * len(order) + n:
-            break
+        _add_largest_remainder(take, stratum_sizes, n - len(nonempty))
+    else:
+        _add_largest_remainder(take, stratum_sizes, n)
     return take
 
 
@@ -181,6 +237,8 @@ def draw_sample(
 ) -> list[dict]:
     """Rút mẫu phân tầng: mỗi verdict (xác nhận/từ chối) -> per_verdict mẫu,
     phân bổ theo TỈ LỆ kích thước tầng (largest-remainder), không chia đều."""
+    if per_verdict < 1:
+        raise ValueError(f"per_verdict phải >= 1, nhận {per_verdict}")
     rows: list[dict] = []
     for key, w in windows.items():
         video_id, w_index = key
@@ -240,7 +298,32 @@ def _write_csv(path: Path, fields: list[str], rows: list[dict]) -> None:
     tmp.replace(path)
 
 
+def _positive_int(text: str) -> int:
+    """argparse type: chỉ nhận số nguyên >= 1."""
+    value = int(text)
+    if value < 1:
+        raise argparse.ArgumentTypeError(f"phải >= 1, nhận {text}")
+    return value
+
+
+def _safe_console() -> None:
+    """Tránh UnicodeEncodeError khi stdout/stderr bị redirect sang cp1252 (Windows).
+
+    Không đổi encoding (có thể làm hỏng đầu ra đang đúng), chỉ đổi errors='replace'
+    để script không chết SAU KHI đã ghi xong CSV/key.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        try:
+            reconfigure(errors="replace")
+        except (ValueError, OSError):  # stream đã đóng/detached
+            pass
+
+
 def main(argv: list[str] | None = None) -> int:
+    _safe_console()
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--windows-dir", default=str(DEFAULT_WINDOWS_DIR))
@@ -253,7 +336,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--hash-out", default=str(DEFAULT_HASH_OUT),
                    help="file SHA-256 của key (commit được; key thật thì không)")
     p.add_argument("--seed", type=int, default=20261031)
-    p.add_argument("--per-verdict", type=int, default=PER_VERDICT)
+    p.add_argument("--per-verdict", type=_positive_int, default=PER_VERDICT)
     p.add_argument("--allow-partial", action="store_true",
                    help="cho phép thiếu file tier-2 (CHỈ để chạy thử, không dùng cho báo cáo)")
     args = p.parse_args(argv)

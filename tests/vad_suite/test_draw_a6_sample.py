@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import io
 import json
 import sys
 from pathlib import Path
@@ -18,7 +19,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from scripts.draw_a6_sample import (  # noqa: E402
-    BLIND_FIELDS, allocate, gt_overlap, load_verdicts, main,
+    BLIND_FIELDS, allocate, draw_sample, gt_overlap, load_verdicts, load_windows, main,
 )
 
 FPS = 30.0
@@ -154,6 +155,92 @@ def test_allocate_is_proportional_and_keeps_min_one():
     assert allocate({"anomalous": 20, "normal": 1}, 4) == {"anomalous": 3, "normal": 1}
     assert allocate({"anomalous": 4, "normal": 4}, 4) == {"anomalous": 2, "normal": 2}
     assert allocate({"anomalous": 3}, 5) == {"anomalous": 3}
+
+
+def test_allocate_min_one_regression_does_not_starve_a_stratum():
+    # đủ chỗ cho mỗi tầng 1 mẫu -> KHÔNG được bỏ đói tầng đứng sau (bug cũ: {1,0,2})
+    assert allocate({"a": 1, "b": 1, "c": 4}, 3) == {"a": 1, "b": 1, "c": 1}
+    assert allocate({"a": 100, "b": 1, "c": 1}, 5) == {"a": 3, "b": 1, "c": 1}
+    # n nhỏ hơn số tầng: chỉ largest-remainder thuần, tổng vẫn đúng n
+    small = allocate({"a": 1, "b": 1, "c": 1}, 2)
+    assert sum(small.values()) == 2 and all(v in (0, 1) for v in small.values())
+    for n in range(1, 7):  # n >= tổng pool thì trả hết pool, không ép đúng n
+        take = allocate({"a": 1, "b": 1, "c": 4}, n)
+        assert sum(take.values()) == n
+        assert all(take[k] <= v for k, v in {"a": 1, "b": 1, "c": 4}.items())
+
+
+def test_per_verdict_zero_is_rejected(scene, tmp_path):
+    with pytest.raises(SystemExit):
+        _run(scene, tmp_path, "--per-verdict", "0")
+    with pytest.raises(ValueError):
+        draw_sample({}, {}, {}, seed=7, per_verdict=0)
+
+
+def test_stale_verdict_with_wrong_file_index_raises(scene):
+    """window_0099.json nhưng metadata.window_index=1: nếu tin metadata, file stale ghi đè
+    kết quả thật và set comparison không thấy thiếu -> phải từ chối."""
+    src = scene["verify"] / "Normal01_x264" / "window_0001.json"
+    src.rename(src.with_name("window_0099.json"))
+    with pytest.raises(ValueError, match="window_0099"):
+        load_verdicts(scene["verify"])
+
+
+def test_duplicate_verdict_window_raises(scene):
+    src = scene["verify"] / "Normal01_x264" / "window_0001.json"
+    # tên khác nhưng cùng số hiệu 1 -> cùng key (video_id, 1)
+    src.with_name("window_01.json").write_bytes(src.read_bytes())
+    with pytest.raises(ValueError, match="trùng"):
+        load_verdicts(scene["verify"])
+
+
+def test_verdict_video_id_must_match_directory(scene):
+    src = scene["verify"] / "Normal01_x264" / "window_0001.json"
+    data = json.loads(src.read_text(encoding="utf-8"))
+    data["video_id"] = "Other_video"
+    src.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(ValueError, match="khác thư mục"):
+        load_verdicts(scene["verify"])
+
+
+def test_load_windows_rejects_duplicate_or_invalid_rows(tmp_path):
+    windows_dir = tmp_path / "windows"
+    windows_dir.mkdir()
+    _write_windows(windows_dir, {"V": [(0.0, 1.0)]})
+    index_path = windows_dir / "_index.json"
+    index = json.loads(index_path.read_text(encoding="utf-8"))
+
+    index["windows"].append(dict(index["windows"][0]))
+    index_path.write_text(json.dumps(index), encoding="utf-8")
+    with pytest.raises(ValueError, match="trùng"):
+        load_windows(windows_dir)
+
+    index["windows"].pop()
+    index["windows"][0]["start_s"], index["windows"][0]["end_s"] = 2.0, 1.0
+    index_path.write_text(json.dumps(index), encoding="utf-8")
+    with pytest.raises(ValueError, match="start_s > end_s"):
+        load_windows(windows_dir)
+
+    _write_windows(windows_dir, {"V": [(0.0, 1.0)]})
+    video = windows_dir / "V.json"
+    data = json.loads(video.read_text(encoding="utf-8"))
+    data["metadata"]["fps"] = 0
+    video.write_text(json.dumps(data), encoding="utf-8")
+    with pytest.raises(ValueError, match="fps/n_frames"):
+        load_windows(windows_dir)
+
+
+def test_main_survives_non_utf8_console(scene, tmp_path, monkeypatch):
+    """Windows redirect sang cp1252: print tiếng Việt không được làm script chết sau khi ghi file."""
+    out_buf, err_buf = io.BytesIO(), io.BytesIO()
+    fake_out = io.TextIOWrapper(out_buf, encoding="cp1252", errors="strict")
+    fake_err = io.TextIOWrapper(err_buf, encoding="cp1252", errors="strict")
+    monkeypatch.setattr(sys, "stdout", fake_out)
+    monkeypatch.setattr(sys, "stderr", fake_err)
+    rc, out, key = _run(scene, tmp_path, "--seed", "7", "--per-verdict", "4")
+    fake_out.flush()
+    fake_err.flush()
+    assert rc == 0 and out.exists() and key.exists()
 
 
 def test_same_seed_same_sample_different_seed_may_differ(scene, tmp_path):
