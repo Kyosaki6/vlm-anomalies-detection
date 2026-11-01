@@ -34,7 +34,7 @@
       "is_confirmed": true,
       "vlm_type": "Abuse",
       "caption": "A group of people are gathered around a person on the floor, suggesting an assault scenario.",
-      "reason": "giao GT 230.4 giây — nhiều nhất trong các cửa sổ được xác nhận",
+      "reason": "giao GT 230.4 giây — nhiều nhất trong các cửa sổ được xác nhận; 1 trong 64 ứng viên",
       "missing": false,
       "window_duration_s": 232.0,
       "overlap_fraction": 0.9931034482758619
@@ -54,7 +54,7 @@
       "is_confirmed": false,
       "vlm_type": "Normal",
       "caption": "A person is working on a device on the floor.",
-      "reason": "điểm tier-1 1.453 — cao nhất trong các cửa sổ bị VLM loại trên video bình thường",
+      "reason": "điểm tier-1 1.453 — cao nhất trong các cửa sổ bị VLM loại trên video bình thường; 1 trong 123 ứng viên",
       "missing": false,
       "window_duration_s": 490.0,
       "overlap_fraction": null
@@ -74,7 +74,7 @@
       "is_confirmed": true,
       "vlm_type": "Fighting",
       "caption": "A person is sitting on the floor while another person approaches them with a bag.",
-      "reason": "điểm tier-1 1.432 — cao nhất trong các cửa sổ VLM xác nhận trên video bình thường",
+      "reason": "điểm tier-1 1.432 — cao nhất trong các cửa sổ VLM xác nhận trên video bình thường; ứng viên duy nhất (1/1)",
       "missing": false,
       "window_duration_s": 301.0,
       "overlap_fraction": null
@@ -114,7 +114,7 @@
       "is_confirmed": false,
       "vlm_type": "Normal",
       "caption": "A man is seen handling money at a counter.",
-      "reason": "giao GT 90.0 giây nhưng VLM loại (Normal) — mất một cửa sổ đúng",
+      "reason": "giao GT 90.0 giây nhưng VLM loại (Normal) — mất một cửa sổ đúng; 1 trong 21 ứng viên",
       "missing": false,
       "window_duration_s": 173.0,
       "overlap_fraction": 0.5204238921001928

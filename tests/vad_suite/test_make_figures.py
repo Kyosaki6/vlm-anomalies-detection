@@ -248,3 +248,29 @@ def test_plot_writes_a_png_and_selection_json(tmp_path):
     assert payload["selection"][0]["category"] == "confirmed_hit"
     assert "removed_false_alarm" in payload["empty_categories"]
     assert payload["figures"] == [pngs[0].name]
+
+
+def test_reason_states_the_real_pool_size_and_a_pool_of_one_is_said_so():
+    # hình 3 của dữ liệu thật chỉ có MỘT ứng viên: câu chọn không được nghe như "cao nhất trong nhiều"
+    vid = "Normal_Videos_003_x264"
+    only = _run(vid, [_window(vid, 0, 10, 3.2)], [_verify(True)])
+    pick = _by_category(select_cases({vid: only}, {vid: _ann(vid, "Normal", ())})[0])["surviving_false_alarm"]
+    assert "ứng viên duy nhất (1/1)" in pick.reason
+
+    # nhóm 2 ứng viên: ghi đúng 2 (không phải tổng số cửa sổ/ video nào khác)
+    vid2 = "Normal_Videos_004_x264"
+    run2 = _run(vid2, [_window(vid2, 0, 10, 3.2), _window(vid2, 20, 30, 2.0)], [_verify(True), _verify(True)])
+    pick2 = _by_category(select_cases({vid2: run2}, {vid2: _ann(vid2, "Normal", ())})[0])["surviving_false_alarm"]
+    assert "1 trong 2 ứng viên" in pick2.reason
+    assert pick2.window_index == 0
+
+
+def test_confirmed_hit_pool_counts_only_confirmed_windows_that_overlap_gt():
+    # 64 chứ không phải 62 ở dữ liệu thật: nhóm = cửa sổ xác nhận + video bất thường + giao GT > 0
+    vid = "Fighting002_x264"
+    run = _run(vid, [_window(vid, 0, 10, 2.0), _window(vid, 20, 60, 1.9),
+                     _window(vid, 100, 120, 5.0), _window(vid, 200, 210, 4.0)],
+               [_verify(True), _verify(True), _verify(True), _verify(False)])
+    # GT 0..60 s: 2 cửa sổ xác nhận giao, 1 xác nhận nhưng ngoài GT, 1 bị loại
+    pick = _by_category(select_cases({vid: run}, {vid: _ann(vid, "Fighting", [(0, 1800)])})[0])["confirmed_hit"]
+    assert "1 trong 2 ứng viên" in pick.reason

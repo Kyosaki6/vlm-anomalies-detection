@@ -139,6 +139,12 @@ def select_cases(runs: Mapping[str, RunResult],
     empty: list[str] = []
 
     def best(candidates: list[Pick], category: str) -> None:
+        # Nhóm ứng viên ghi thẳng vào câu chọn: "cao nhất trong N" nói rõ N là bao nhiêu, và N = 1
+        # thì không còn nghe như một cuộc thi (bản đầu cho hình 3 chỉ có đúng một ứng viên).
+        if candidates and category != "missed_incident":      # hình 4 đã có "trong N video" riêng
+            size = len(candidates)
+            pool = "ứng viên duy nhất (1/1)" if size == 1 else f"1 trong {size} ứng viên"
+            candidates = [replace(c, reason=f"{c.reason}; {pool}") for c in candidates]
         if not candidates:
             empty.append(category)
             picks.append(Pick(
