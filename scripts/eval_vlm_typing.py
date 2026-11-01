@@ -11,7 +11,9 @@ GIAO THỨC (viết trước khi thấy số; thấy số xấu cũng không s�
  1. Đơn vị chấm = MỘT CỬA SỔ tier-1 (`candidate_windows[i]`) thoả cả ba điều:
     - VLM trả `is_anomaly = true`;
     - video là video BẤT THƯỜNG theo annotation;
-    - cửa sổ giao với ít nhất một đoạn GT với overlap > 0 giây.
+    - cửa sổ có ÍT NHẤT MỘT MẪU CACHE nằm trong đoạn GT (>= 1/fps giây, mặc định 1 s), với đoạn GT
+      hiểu là `[start, end+1)` frame như `frame_labels`. Ngưỡng 1 mẫu để cửa sổ chỉ chạm mép đoạn GT
+      1 frame (33 ms) không được tính là "nằm trong sự cố"; xem `segments_seconds`.
  2. Nhãn đúng = lớp của VIDEO (nhãn gốc UCF), không dùng nhãn của đoạn.
  3. Hai dự đoán trên ĐÚNG cùng những cửa sổ đó (so sánh mới công bằng):
     (a) VLM  : `event_type` THÔ trong `results/verify/<video>/window_NNNN.json`. KHÔNG đọc
@@ -25,6 +27,8 @@ GIAO THỨC (viết trước khi thấy số; thấy số xấu cũng không s�
  6. Báo cáo thêm tỉ lệ VLM trả `Normal`/`Unknown`: nếu tỉ lệ này cao thì "gọi tên" của VLM phần lớn là
     KHÔNG gọi gì, và top-1 phải đọc cạnh tỉ lệ đó chứ không đứng một mình.
  7. Số `lenient` (gộp nhóm tên gần nghĩa) chỉ là thông tin phụ, dùng đúng `LENIENT_GROUPS` của C3.
+ 8. Mọi tỉ lệ in kèm KTC 95 % resample THEO VIDEO (`bootstrap_accuracy_ci`), vì 62 ca đến từ 56
+    video — resample từng cửa sổ sẽ coi 3 cửa sổ của cùng một video là độc lập và làm KTC hẹp giả.
 
 Script KHÔNG trả lời: "cửa sổ này có bất thường hay không" (đó là AUC của tier-1 và precision của tier-2)
 — ở đây mọi đơn vị đều đã được VLM xác nhận, nên con số này chỉ nói về việc GỌI TÊN.
@@ -36,6 +40,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import random
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -68,19 +73,27 @@ class TypingEvalError(ValueError):
 # --- hình học thời gian -------------------------------------------------------------
 
 def segments_seconds(ann: Annotation, source_fps: float = SOURCE_FPS) -> tuple[tuple[float, float], ...]:
-    """Đoạn GT từ frame nguồn (30 fps) -> giây, đóng hai đầu như `frame_labels`."""
+    """Đoạn GT từ frame nguồn (30 fps) -> khoảng NỬA MỞ [start, end+1) tính bằng giây.
+
+    `frame_labels` (vad/datasets/ucf_crime.py) đánh dấu frame `start..end` ĐÓNG hai đầu, nên quãng thời
+    gian của đoạn là `[start/fps, (end+1)/fps)` — frame cuối chiếm trọn 1/30 giây của nó. Bản đầu tiên
+    của hàm này lấy `end/fps`, làm mép phải hụt đúng 1 frame: một cửa sổ bắt đầu ngay sau frame cuối
+    bị coi là "không giao" trong khi theo cách đánh nhãn của `frame_labels` thì nó vẫn chạm 33 ms cuối.
+    Sai khác nhỏ nhưng đổi được MẪU CHẤM (62 hay 64 cửa sổ), nên phải chốt rõ; `build_cases` còn đòi
+    thêm ≥1 mẫu cache nằm trong đoạn GT để một cú chạm mép không thành "nằm trong sự cố".
+    """
     if source_fps <= 0:
         raise TypingEvalError(f"source_fps phải > 0, nhận {source_fps}")
     out: list[tuple[float, float]] = []
     for start, end in ann.segments:
         if start < 0 or end < start:
             raise TypingEvalError(f"{ann.video_id}: đoạn GT không hợp lệ {start}..{end}")
-        out.append((start / source_fps, end / source_fps))
+        out.append((start / source_fps, (end + 1) / source_fps))
     return tuple(out)
 
 
 def gt_overlap_s(start_s: float, end_s: float, segments: Sequence[tuple[float, float]]) -> float:
-    """Tổng thời lượng giao giữa cửa sổ và các đoạn GT (giây). Không giao -> 0.0.
+    """Tổng thời lượng giao giữa cửa sổ và các đoạn GT (giây, đoạn GT nửa mở). Không giao -> 0.0.
 
     Hợp các phần giao TRƯỚC khi cộng: hai đoạn GT chồng nhau (UCF có video có nhiều đoạn sát nhau)
     không được tính hai lần, nếu không overlap có thể lớn hơn cả độ dài cửa sổ.
@@ -153,7 +166,8 @@ def _check_window(video_id: str, index: int, window: Any) -> None:
 
 def build_cases(runs: Mapping[str, RunResult], annotations: Mapping[str, Annotation],
                 verdicts: Mapping[str, Sequence[VerifyResult]],
-                source_fps: float = SOURCE_FPS) -> tuple[list[CaseResult], dict[str, int]]:
+                source_fps: float = SOURCE_FPS,
+                min_overlap_s: float = 1.0) -> tuple[list[CaseResult], dict[str, int]]:
     """Chọn đơn vị chấm theo giao thức; trả (các ca, số bị loại theo từng lý do).
 
     `verdicts` PHẢI là nhãn VLM THÔ đọc từ `results/verify/<video>/window_NNNN.json`, không phải
@@ -161,16 +175,23 @@ def build_cases(runs: Mapping[str, RunResult], annotations: Mapping[str, Annotat
     `apply_event_typing` GHI ĐÈ `event_type` bằng nhãn của typer, đọc ở đó thì "VLM vs typer" thành
     "typer vs typer" và hai dòng số liệu luôn bằng nhau. Đây là cái bẫy đã sập một lần khi chạy thử.
 
+    `min_overlap_s` (mặc định 1.0 = một mẫu cache ở 1 fps): cửa sổ phải có ít nhất một mẫu NẰM TRONG
+    đoạn GT mới được chấm. Không có ngưỡng này thì hai cửa sổ chỉ chạm mép đoạn GT 33 ms (một frame
+    30 fps) cũng thành "nằm trong sự cố" — mẫu chấm đổi từ 62 lên 64 ca mà không ai thấy lý do.
+
     Cửa sổ chưa có nhãn VLM bị bỏ qua và đếm vào `windows_without_verdict` — đó là lỗi đường ống,
     không phải "VLM nói bình thường", nên phải nhìn thấy được.
     """
+    if not math.isfinite(min_overlap_s) or min_overlap_s < 0:
+        raise TypingEvalError(f"min_overlap_s phải hữu hạn và >= 0, nhận {min_overlap_s}")
     cases: list[CaseResult] = []
     excluded = {
-        "confirmed_without_gt_overlap": 0,   # xác nhận nhưng nằm ngoài đoạn có nhãn
-        "confirmed_on_normal_video": 0,      # video toàn bình thường, không có nhãn để so
-        "rejected_windows": 0,               # VLM loại -> không phải đơn vị chấm
-        "windows_without_verdict": 0,        # chưa có tier-2 (kết quả chỉ có tier-1)
-        "videos_without_results": 0,         # annotation có nhưng thiếu file kết quả
+        "confirmed_without_gt_overlap": 0,     # xác nhận nhưng nằm ngoài đoạn có nhãn
+        "confirmed_overlap_too_small": 0,      # chỉ chạm mép GT (< min_overlap_s)
+        "confirmed_on_normal_video": 0,        # video toàn bình thường, không có nhãn để so
+        "rejected_windows": 0,                 # VLM loại -> không phải đơn vị chấm
+        "windows_without_verdict": 0,          # chưa có tier-2 (kết quả chỉ có tier-1)
+        "videos_without_results": 0,           # annotation có nhưng thiếu file kết quả
     }
 
     for video_id, ann in annotations.items():
@@ -200,6 +221,9 @@ def build_cases(runs: Mapping[str, RunResult], annotations: Mapping[str, Annotat
             if overlap <= 0.0:
                 excluded["confirmed_without_gt_overlap"] += 1
                 continue
+            if overlap + 1e-9 < min_overlap_s:
+                excluded["confirmed_overlap_too_small"] += 1
+                continue
             cases.append(CaseResult(
                 video_id=video_id, window_index=index,
                 start_s=float(window.start_s), end_s=float(window.end_s), score=float(window.score),
@@ -226,6 +250,47 @@ def evaluate_cases(cases: Iterable[CaseResult],
 
 # --- tổng hợp số liệu ---------------------------------------------------------------
 
+def display_path(path: str | Path, root: Path = ROOT) -> str:
+    """Đường dẫn để GHI VÀO JSON CÔNG KHAI: tương đối với repo nếu nằm trong repo.
+
+    Bản đầu tiên ghi nguyên đường dẫn tuyệt đối, tức là `E:\\Personal\\Hoc\\...\\vlm-anomalies-detection\\
+    results\\run_A4c` lọt vào file theo dõi trong git — vừa lệ thuộc máy, vừa lộ cấu trúc thư mục nhà.
+    Không phải bí mật, nhưng một file kết quả phải đọc được ở máy khác.
+    """
+    p = Path(path)
+    try:
+        return p.resolve().relative_to(Path(root).resolve()).as_posix()
+    except ValueError:
+        return p.as_posix()
+
+
+def bootstrap_accuracy_ci(results: Sequence[CaseResult], key: str, n_boot: int = 2000,
+                          seed: int = 20261101, alpha: float = 0.05) -> dict[str, Any] | None:
+    """KTC `alpha` cho accuracy, resample theo VIDEO (không theo cửa sổ), trả None nếu < 2 video.
+
+    Vì sao theo video: 62 ca đến từ 56 video, có video góp 3 cửa sổ; resample từng cửa sổ coi chúng
+    độc lập nên KTC hẹp giả và có thể che mất chuyện typer chỉ ngang mức đoán lớp phổ biến nhất.
+    """
+    if not results:
+        return None
+    by_video: dict[str, list[CaseResult]] = {}
+    for r in results:
+        by_video.setdefault(r.video_id, []).append(r)
+    if len(by_video) < 2 or n_boot <= 0:
+        return None
+    point = sum(1 for r in results if getattr(r, f"{key}_correct")) / len(results)
+    videos = sorted(by_video)
+    rng = random.Random(seed)
+    stats: list[float] = []
+    for _ in range(n_boot):
+        pool = [r for _ in videos for r in by_video[rng.choice(videos)]]
+        stats.append(sum(1 for r in pool if getattr(r, f"{key}_correct")) / len(pool))
+    stats.sort()
+    lo = stats[max(0, int(round((alpha / 2) * (n_boot - 1))))]
+    hi = stats[min(n_boot - 1, int(round((1 - alpha / 2) * (n_boot - 1))))]
+    return {"point": point, "lo": lo, "hi": hi, "n_boot": n_boot, "n_videos": len(by_video)}
+
+
 def _bucket(results: Sequence[CaseResult], key: str) -> dict[str, Any]:
     """Một dòng số liệu cho `vlm` hoặc `typer`, để hai bên in cạnh nhau đúng cùng một cách."""
     total = len(results)
@@ -243,6 +308,7 @@ def _bucket(results: Sequence[CaseResult], key: str) -> dict[str, Any]:
     return {
         "correct": correct,
         "accuracy": (correct / total) if total else None,
+        "accuracy_ci95": bootstrap_accuracy_ci(results, key),
         "lenient_correct": lenient,
         "lenient_accuracy": (lenient / total) if total else None,
         "per_class": per_class,
@@ -356,12 +422,21 @@ def _print_summary(summary: Mapping[str, Any]) -> None:
     else:
         chance = (summary["chance_level"] or 0) * 100
         print(f"\nSố ca: {n} cửa sổ / {summary['n_videos']} video")
+
+        def _ci(bucket: Mapping[str, Any]) -> str:
+            ci = bucket.get("accuracy_ci95")
+            if not ci:
+                return ""
+            return f"  KTC95 (theo video) [{ci['lo'] * 100:.1f}, {ci['hi'] * 100:.1f}]"
+
         print(f"  VLM   đúng nguyên tên : {summary['vlm']['correct']}/{n}"
               f" = {(summary['vlm']['accuracy'] or 0) * 100:.1f}%"
-              f"   (lenient {(summary['vlm']['lenient_accuracy'] or 0) * 100:.1f}%)")
+              f"   (lenient {(summary['vlm']['lenient_accuracy'] or 0) * 100:.1f}%)"
+              f"{_ci(summary['vlm'])}")
         print(f"  typer đúng nguyên tên : {summary['typer']['correct']}/{n}"
               f" = {(summary['typer']['accuracy'] or 0) * 100:.1f}%"
-              f"   (lenient {(summary['typer']['lenient_accuracy'] or 0) * 100:.1f}%)")
+              f"   (lenient {(summary['typer']['lenient_accuracy'] or 0) * 100:.1f}%)"
+              f"{_ci(summary['typer'])}")
         print(f"  đoán mò (1/13)        : {chance:.1f}%")
         print(f"  VLM trả Normal/Unknown: {summary['vlm_normal_or_unknown']}/{n}"
               f" = {(summary['vlm_normal_or_unknown_share'] or 0) * 100:.1f}%")
@@ -394,6 +469,11 @@ def main(argv: list[str] | None = None) -> int:
     if args.fps <= 0:
         print(f"--fps phải > 0, nhận {args.fps}", file=sys.stderr)
         return 2
+    if args.limit and args.out is None and not args.dry_run:
+        # --limit ghi vào đúng file mặc định thì một lần "chạy nhanh" sẽ ĐÈ kết quả đầy đủ trong git.
+        print("--limit chỉ để thử: phải chỉ rõ --out (đừng ghi đè results/vlm_typing_eval.json).",
+              file=sys.stderr)
+        return 2
 
     annotations = load_annotations(args.annotation)
     wanted = list(annotations)
@@ -414,7 +494,8 @@ def main(argv: list[str] | None = None) -> int:
         verdicts[video_id] = load_raw_verdicts(args.verify_dir, video_id, run.candidate_windows,
                                                allow_fake=args.allow_fake)
 
-    cases, excluded = build_cases(runs, {k: annotations[k] for k in wanted}, verdicts)
+    cases, excluded = build_cases(runs, {k: annotations[k] for k in wanted}, verdicts,
+                                  min_overlap_s=1.0 / args.fps)
     if missing_verify:
         excluded["videos_without_verdict_dir"] = len(missing_verify)
     _, all_labels = load_typing_prompts(args.prompts)
@@ -466,9 +547,9 @@ def main(argv: list[str] | None = None) -> int:
     payload = {
         "task": "C7e-vlm-typing",
         "protocol_version": 1,
-        "annotation_file": str(args.annotation),
-        "results_dir": str(args.results_dir),
-        "verify_dir": str(args.verify_dir),
+        "annotation_file": display_path(args.annotation),
+        "results_dir": display_path(args.results_dir),
+        "verify_dir": display_path(args.verify_dir),
         "model": args.model,
         "sample_fps": args.fps,
         "aggregate": args.aggregate,

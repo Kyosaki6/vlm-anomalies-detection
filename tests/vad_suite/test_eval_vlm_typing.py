@@ -6,6 +6,7 @@ giây, loại cửa sổ không giao, và đếm riêng từng lý do loại. M�
 VLM phải đọc từ tier-2 THÔ, không phải `verify_results` trong `run_A4c` (đã bị typer ghi đè theo D-2).
 """
 import json
+from pathlib import Path
 
 import pytest
 
@@ -77,10 +78,32 @@ def test_invalid_window_raises():
 
 
 def test_segments_converted_from_30fps_frames():
-    ann = _ann("Arrest001_x264", "Arrest", [(30, 59)])         # giây thứ 2 -> [1.0, 1.967]
+    # frame 30..59 đóng hai đầu -> [1.0, 2.0): frame 59 chiếm trọn 1/30 giây cuối
+    ann = _ann("Arrest001_x264", "Arrest", [(30, 59)])
     seg = segments_seconds(ann)
     assert seg[0][0] == pytest.approx(1.0)
-    assert seg[0][1] == pytest.approx(59 / 30)
+    assert seg[0][1] == pytest.approx(60 / 30)
+
+
+def test_window_starting_on_the_last_gt_frame_only_grazes_the_incident():
+    # GT 105..180 frame = [3.5, 6.033); cửa sổ [6, 26] chỉ chạm 33 ms -> không phải đơn vị chấm
+    vid = "Explosion027_x264"
+    run = _run(vid, [_window(vid, 6, 26)], [_verify(True, EventType.EXPLOSION)])
+    cases, excluded = build_cases({vid: run}, {vid: _ann(vid, "Explosion", [(105, 180)])},
+                                  {vid: (_verify(True, EventType.EXPLOSION),)})
+    assert cases == []
+    assert excluded["confirmed_overlap_too_small"] == 1
+
+
+def test_window_with_one_full_sample_inside_gt_is_kept():
+    # GT 600..900 frame = [20.0, 30.033); cửa sổ [28, 29] nằm trọn 1 s trong GT -> được chấm
+    vid = "Arson035_x264"
+    run = _run(vid, [_window(vid, 28, 29)], [_verify(True, EventType.ARSON)])
+    cases, excluded = build_cases({vid: run}, {vid: _ann(vid, "Arson", [(600, 900)])},
+                                  {vid: (_verify(True, EventType.ARSON),)})
+    assert len(cases) == 1
+    assert cases[0].overlap_s == pytest.approx(1.0)
+    assert excluded["confirmed_overlap_too_small"] == 0
 
 
 # --- chọn ca ----------------------------------------------------------------------
@@ -238,6 +261,36 @@ def test_verdict_text_refuses_to_conclude_on_a_tiny_sample():
     assert "quá ít" in verdict_text(summary)
 
 
+def test_bootstrap_ci_brackets_point_estimate_and_is_deterministic():
+    # 4 video, mỗi video 1 ca: 3 ca VLM đúng -> point 0.75, KTC phải phủ 0.75 và tái lập được
+    cases = [_case(EventType.FIGHTING, EventType.FIGHTING, video_id=f"v{i}") for i in range(3)]
+    cases.append(_case(EventType.FIGHTING, EventType.ARSON, video_id="v3"))
+    results = evaluate_cases(cases, lambda c: TypingResult(EventType.FIGHTING, 0.5, {}, ()))
+    summary = summarise(results)
+    ci = summary["vlm"]["accuracy_ci95"]
+    assert ci is not None
+    assert ci["point"] == pytest.approx(0.75)
+    assert ci["lo"] <= 0.75 <= ci["hi"]
+    assert ci["n_videos"] == 4
+    assert summarise(results)["vlm"]["accuracy_ci95"] == ci        # seed cố định
+
+
+def test_bootstrap_ci_is_none_for_a_single_video():
+    # một video nhiều cửa sổ: không resample được theo video, phải trả None chứ không bịa KTC hẹp
+    cases = [_case(EventType.FIGHTING, EventType.FIGHTING, video_id="same") for _ in range(3)]
+    results = evaluate_cases(cases, lambda c: TypingResult(EventType.FIGHTING, 0.5, {}, ()))
+    assert summarise(results)["vlm"]["accuracy_ci95"] is None
+
+
+def test_display_path_is_repo_relative_not_an_absolute_machine_path():
+    from scripts.eval_vlm_typing import ROOT, display_path
+
+    assert display_path(ROOT / "results" / "run_A4c") == "results/run_A4c"
+    assert display_path(Path("datasets/ucf_crime/x.txt")) == "datasets/ucf_crime/x.txt"
+    outside = display_path(Path(r"C:\somewhere\else\file.txt"))
+    assert outside == "C:/somewhere/else/file.txt" or outside == r"C:\somewhere\else\file.txt"
+
+
 # --- CLI dry-run ------------------------------------------------------------------
 
 def test_dry_run_counts_without_writing(tmp_path):
@@ -255,3 +308,12 @@ def test_dry_run_counts_without_writing(tmp_path):
                  "--verify-dir", str(tmp_path / "no_tier2"), "--out", str(out), "--dry-run"])
     assert code == 0
     assert not out.exists()
+
+
+def test_limit_without_explicit_out_refuses_to_overwrite_the_tracked_result(tmp_path):
+    # --limit là để thử nhanh; nếu cho ghi vào results/vlm_typing_eval.json thì một lần thử sẽ đè
+    # kết quả đầy đủ đang được track trong git, và không ai thấy con số đổi.
+    ann_path = tmp_path / "ann.txt"
+    ann_path.write_text("Fighting001_x264 Fighting 0 30\n", encoding="utf-8")
+    code = main(["--annotation", str(ann_path), "--limit", "1"])
+    assert code == 2

@@ -7,12 +7,16 @@ python scripts/eval_vlm_typing.py --annotation datasets/ucf_crime/Temporal_Anoma
 ```
 
 Kết quả: `results/vlm_typing_eval.json`. Giao thức được viết trong docstring của
-`scripts/eval_vlm_typing.py` TRƯỚC khi chạy và không sửa sau khi thấy số.
+`scripts/eval_vlm_typing.py` TRƯỚC khi chạy; sau đó có **làm rõ quy ước mép đoạn GT** (mục "Soát lại"
+cuối file) — làm rõ này không đổi mẫu chấm (vẫn đúng 62 cửa sổ đó) và không đổi hai con số 52/62,
+15/62, nên không phải sửa giao thức sau khi thấy kết quả.
 
 ## Đơn vị chấm
 
 Một **cửa sổ tier-1** thoả cả ba: VLM trả `is_anomaly = true`; video là video bất thường theo
-annotation; cửa sổ giao với đoạn GT ít nhất 0 giây. Nhãn đúng là **lớp của video** (13 lớp UCF).
+annotation; cửa sổ có **ít nhất 1 mẫu cache (1 giây)** nằm trong đoạn GT — đoạn GT hiểu là
+`[start, end+1)` frame như `frame_labels` (xem mục "Soát lại" bên dưới về mép 1 frame). Nhãn đúng là
+**lớp của video** (13 lớp UCF).
 Hai dự đoán trên ĐÚNG cùng cửa sổ đó: nhãn `event_type` THÔ của VLM (`results/verify/...`) và
 `ZeroShotEventTyper.classify` trên trung bình embedding của cửa sổ (cùng `window_sample_slice` mà
 C7d dùng để gán nhãn cảnh báo).
@@ -29,9 +33,9 @@ C7d dùng để gán nhãn cảnh báo).
 
 Lenient (gộp nhóm tên gần nghĩa như C3): VLM 87,1 %, typer 38,7 %.
 
-62 cửa sổ / 56 video. Bị loại và **đếm riêng**: 66 cửa sổ VLM xác nhận nhưng không giao GT,
-1 cửa sổ xác nhận trên video toàn bình thường, 178 cửa sổ bị VLM loại,
-0 cửa sổ thiếu nhãn VLM, 0 video thiếu file kết quả (62 + 66 + 1 + 178 = 307).
+62 cửa sổ / 56 video. Bị loại và **đếm riêng**: 64 cửa sổ VLM xác nhận nhưng không giao GT, 2 cửa sổ
+chỉ chạm mép GT 33 ms (dưới 1 mẫu), 1 cửa sổ xác nhận trên video toàn bình thường, 178 cửa sổ bị VLM
+loại, 0 cửa sổ thiếu nhãn VLM, 0 video thiếu file kết quả (62 + 64 + 2 + 1 + 178 = 307).
 
 ## Bốn điều phải đọc kèm, nếu không con số 83,9 % sẽ bị hiểu sai
 
@@ -69,3 +73,36 @@ có test `test_vlm_label_comes_from_raw_verdicts_not_from_the_typer_relabelled_r
 
 Con số `0/8` trong biên bản sanity cũ (A5a) là 8 cửa sổ, không cùng đơn vị và không cùng mẫu — đừng
 đặt cạnh 52/62 như hai phép đo của cùng một thứ.
+
+## Soát lại ngày 01/11 (sau khi mở PR): hai lỗi biên, một rò rỉ đường dẫn
+
+1. **Mép phải của đoạn GT hụt đúng 1 frame.** `frame_labels` đánh dấu frame `start..end` ĐÓNG hai
+   đầu, nên quãng thời gian là `[start/30, (end+1)/30)`; bản đầu lấy `end/30`, hụt 33 ms. Hệ quả đo
+   được: hai cửa sổ chỉ chạm mép đoạn GT đúng 33 ms (`Explosion027_x264` cửa sổ 6–26 s với GT
+   3,5–6,0 s; `Robbery048_x264` cửa sổ 31–46 s với GT 15,0–31,0 s) bị tính là "không giao" trong khi
+   cách đánh nhãn của `frame_labels` nói chúng có chạm. Nếu ai đó sửa hàm theo hướng ngược lại, mẫu
+   chấm thành **64 ca** thay vì 62 mà không có gì báo.
+   Cách chốt: GT là khoảng nửa mở `[start, end+1)` **và** cửa sổ phải có ≥ 1 mẫu cache (1 s ở 1 fps)
+   nằm trong đoạn GT. Hai cửa sổ chạm mép 33 ms rơi vào nhóm mới `confirmed_overlap_too_small`; 62 ca
+   còn lại **giữ nguyên từng cửa sổ**, nên 52/62 và 15/62 không đổi. Lý do phải đổi chứ không chỉ ghi
+   chú: một quy tắc mà người viết lại có thể ra 64 ca thì không tái lập được.
+2. **Số trong file kết quả từng là đường dẫn tuyệt đối của máy Nam** (`E:\Personal\Hoc\...`) — file
+   này nằm trong git công khai. Giờ ghi đường dẫn tương đối với repo (`results/run_A4c`,
+   `results/verify`), có test `test_display_path_is_repo_relative_not_an_absolute_machine_path`.
+3. **`--limit` từng ghi đè kết quả đầy đủ**: chạy `--limit 20` mà không truyền `--out` là ghi vào
+   đúng `results/vlm_typing_eval.json`. Giờ trả mã 2 và bắt buộc `--out`.
+
+Đã soát độc lập (script riêng, tự parse annotation và đọc `.npy`/`.npz` bằng numpy, không dùng
+`vad`/`build_results`): ra đúng 62 ca, 52/62, 15/62, và **0** trường lệch (`gt`/`vlm`/`typer`/
+`overlap_s`) so với file đã commit. Nhãn typer tính lại từ ma trận embedding cũng khớp 62/62 ca.
+
+## Khoảng tin cậy 95 % (resample theo VIDEO, 56 video, 2 000 lần)
+
+| | Tỉ lệ | KTC 95 % |
+|---|---|---|
+| VLM | 83,9 % | [74,6 ; 92,8] |
+| typer | 24,2 % | [14,1 ; 35,6] |
+
+Đọc kèm: KTC của typer **phủ mức 25,8 %** của "luôn đoán Shooting", tức trên mẫu này không chứng minh
+được typer hơn đoán theo lớp phổ biến nhất; KTC của VLM thì tách hẳn khỏi mức đó. Resample theo cửa
+sổ (sai) sẽ cho KTC hẹp hơn và che mất điều này — xem `bootstrap_accuracy_ci`.
