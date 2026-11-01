@@ -137,6 +137,39 @@ def test_lost_true_positive_ignores_confirmed_windows():
     assert "lost_true_positive" in empty
 
 
+def test_missed_incident_reason_names_the_real_candidate_pool(tmp_path, capsys):
+    # 3 video trong `runs` nhưng chỉ 1 video lọt luật (bất thường, không cửa sổ, có điểm trong GT);
+    # câu chữ phải nói "trong 1 video", không phải "trong 3 video" (bản đầu in tổng số file đã đọc)
+    solo = _run("Shooting002_x264", [], [], scores=(0.2, 1.0, 1.2, 0.2))
+    caught = _run("Shooting001_x264", [_window("Shooting001_x264", 0, 10, 2.0)], [_verify(True)],
+                  scores=(2.0, 2.0))
+    normal = _run("Normal_Videos_001_x264", [], [], scores=(0.1, 0.1),
+                  metadata={"threshold": 1.0})
+    anns = {"Shooting002_x264": _ann("Shooting002_x264", "Shooting"),
+            "Shooting001_x264": _ann("Shooting001_x264", "Shooting"),
+            "Normal_Videos_001_x264": _ann("Normal_Videos_001_x264", "Normal", ())}
+    pick = _by_category(select_cases({"Shooting002_x264": solo, "Shooting001_x264": caught,
+                                      "Normal_Videos_001_x264": normal}, anns)[0])["missed_incident"]
+    assert pick.video_id == "Shooting002_x264"
+    assert "trong 1 video" in pick.reason
+    assert "trong 3 video" not in pick.reason
+
+
+def test_misaligned_windows_and_verdicts_cannot_even_be_constructed():
+    # RunResult tự từ chối cặp lệch độ dài, nên make_figures không cần kiểm lại — test này ghi lý do
+    vid = "Fighting001_x264"
+    with pytest.raises(ValueError):
+        _run(vid, [_window(vid, 0, 10, 2.0), _window(vid, 20, 30, 2.0)], [_verify(True)])
+
+
+def test_surviving_false_alarm_on_a_normal_video_has_no_overlap_fraction():
+    vid = "Normal_Videos_002_x264"
+    run = _run(vid, [_window(vid, 0, 10, 3.2)], [_verify(True, EventType.BURGLARY, "người mở cửa")])
+    pick = _by_category(select_cases({vid: run}, {vid: _ann(vid, "Normal", ())})[0])["surviving_false_alarm"]
+    assert pick.overlap_s is None
+    assert pick.overlap_fraction is None
+
+
 # --- ngưỡng & đọc file ----------------------------------------------------------
 
 def test_threshold_comes_from_metadata_and_rejects_mixed_values():
@@ -155,6 +188,16 @@ def test_missing_threshold_must_not_be_guessed():
     assert _threshold_from({"v1": run}, 1.1686) == pytest.approx(1.1686)
     with pytest.raises(FigureError):
         _threshold_from({"v1": run}, float("nan"))
+
+
+def test_one_file_without_threshold_is_an_error_not_a_quiet_majority_vote():
+    # bản đầu chỉ xét các file CÓ threshold, nên 1 file ghép từ lần chạy khác lọt qua và hình vẽ
+    # bằng τ của số đông — tức là kể một câu chuyện không có thật
+    has = _run("v1", [], [], metadata={"threshold": 1.1686})
+    missing = _run("v2", [], [], metadata={})
+    with pytest.raises(FigureError) as err:
+        _threshold_from({"v1": has, "v2": missing}, None)
+    assert "v2" in str(err.value)
 
 
 def test_load_runs_skips_index_file_and_names_the_broken_one(tmp_path):

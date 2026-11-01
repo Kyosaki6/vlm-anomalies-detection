@@ -35,7 +35,7 @@ import json
 import math
 import sys
 import textwrap
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Mapping, Sequence
 
@@ -43,7 +43,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from eval_vlm_typing import gt_overlap_s, segments_seconds  # noqa: E402  (một định nghĩa duy nhất)
+from eval_vlm_typing import display_path, gt_overlap_s, segments_seconds  # noqa: E402
 from vad.datasets.ucf_crime import Annotation, load_annotations  # noqa: E402
 from vad.results import RunResult  # noqa: E402
 from vad.types import VerifyResult, Window  # noqa: E402
@@ -184,7 +184,7 @@ def select_cases(runs: Mapping[str, RunResult],
                 category="removed_false_alarm", video_id=video_id, label=ann.label,
                 rule=RULES["removed_false_alarm"], window_index=index,
                 start_s=float(window.start_s), end_s=float(window.end_s), score=float(window.score),
-                overlap_s=0.0, evidence=float(window.score), n_windows=len(run.candidate_windows),
+                overlap_s=None, evidence=float(window.score), n_windows=len(run.candidate_windows),
                 is_confirmed=False, vlm_type=verdict.event_type.value, caption=verdict.caption,
                 reason=f"điểm tier-1 {window.score:.3f} — cao nhất trong các cửa sổ bị VLM loại "
                        "trên video bình thường"))
@@ -203,7 +203,7 @@ def select_cases(runs: Mapping[str, RunResult],
                 category="surviving_false_alarm", video_id=video_id, label=ann.label,
                 rule=RULES["surviving_false_alarm"], window_index=index,
                 start_s=float(window.start_s), end_s=float(window.end_s), score=float(window.score),
-                overlap_s=0.0, evidence=float(window.score), n_windows=len(run.candidate_windows),
+                overlap_s=None, evidence=float(window.score), n_windows=len(run.candidate_windows),
                 is_confirmed=True, vlm_type=verdict.event_type.value, caption=verdict.caption,
                 reason=f"điểm tier-1 {window.score:.3f} — cao nhất trong các cửa sổ VLM xác nhận "
                        "trên video bình thường"))
@@ -231,8 +231,11 @@ def select_cases(runs: Mapping[str, RunResult],
             score=None, overlap_s=None, evidence=mean_score, n_windows=0,
             is_confirmed=None, vlm_type=None, caption=None,
             reason=f"không có cửa sổ nào vượt ngưỡng; điểm trung bình trong đoạn GT {mean_score:.3f} "
-                   f"— cao nhất trong {len(runs)} video"))
+                   f"— cao nhất trong POOL video bất thường không có cửa sổ"))
     best(missed, "missed_incident")
+    if missed:
+        pool = len(missed)
+        picks[-1] = replace(picks[-1], reason=picks[-1].reason.replace("POOL", f"{pool}"))
 
     # 5) mất cửa sổ đúng: video bất thường, cửa sổ bị loại nhưng giao GT
     lost: list[Pick] = []
@@ -244,7 +247,8 @@ def select_cases(runs: Mapping[str, RunResult],
             if verdict.is_anomaly:
                 continue
             overlap = _overlap(window, segments)
-            if overlap <= 0:
+            # cùng ngưỡng với C7e: phải có ≥ 1 mẫu cache nằm trong GT, không tính cú chạm mép 33 ms
+            if overlap + 1e-9 < 1.0 / (run.sample_fps or 1.0):
                 continue
             lost.append(Pick(
                 category="lost_true_positive", video_id=video_id, label=ann.label,
@@ -361,8 +365,11 @@ def _threshold_from(runs: Mapping[str, RunResult], override: float | None) -> fl
             raise FigureError(f"--threshold phải hữu hạn và > 0, nhận {override}")
         return float(override)
     values = {float(r.metadata["threshold"]) for r in runs.values() if "threshold" in r.metadata}
-    if not values:
-        raise FigureError("Không có metadata.threshold trong kết quả — truyền --threshold (đừng đoán).")
+    missing = [r.video_id for r in runs.values() if "threshold" not in r.metadata]
+    if missing:
+        # một phần file không có ngưỡng = kết quả ghép từ hai lần chạy; vẽ chung một τ là kể sai chuyện
+        raise FigureError(f"{len(missing)} file kết quả không có metadata.threshold "
+                          f"(ví dụ {missing[0]}) — truyền --threshold rõ ràng.")
     if len(values) > 1:
         raise FigureError(f"Kết quả trộn nhiều ngưỡng {sorted(values)} — truyền --threshold rõ ràng.")
     return values.pop()
@@ -377,7 +384,11 @@ def _print_selection(picks: Sequence[Pick], empty: Sequence[str]) -> None:
         where = (f"[{pick.start_s:g}-{pick.end_s:g}]" if pick.start_s is not None else "không có cửa sổ")
         extra = ""
         if pick.window_duration_s is not None:
-            extra = f" dài {pick.window_duration_s:g}s ({pick.overlap_fraction:.0%} nằm trong GT)"
+            if pick.overlap_fraction is None:
+                extra = f" dài {pick.window_duration_s:g}s (video bình thường — không có đoạn GT)"
+            else:
+                extra = (f" dài {pick.window_duration_s:g}s "
+                         f"({pick.overlap_fraction:.0%} nằm trong GT)")
         print(f"  {pick.category:<22} {pick.video_id:<24} {where:<16}{extra}")
         print(f"       {pick.reason}")
     if empty:
@@ -418,8 +429,8 @@ def main(argv: list[str] | None = None) -> int:
 
     selection = {
         "task": "C7f-figures",
-        "results_dir": str(args.results_dir),
-        "annotation_file": str(args.annotation),
+        "results_dir": display_path(args.results_dir),
+        "annotation_file": display_path(args.annotation),
         "threshold": threshold,
         "rules": RULES,
         "empty_categories": empty,
@@ -439,3 +450,4 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
