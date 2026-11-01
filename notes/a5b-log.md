@@ -5,7 +5,8 @@
 **Code:** `run_verify.py` @ `7b3a174` (305 file) + clamp PR #35 (2 file rerun)
 
 > Bằng chứng dùng trong note: 307 file `results/verify/**/window_*.json` (đọc lại 2026-11-01),
-> log phiên B `notes/a5b-run-resume.log` (đã commit, 18 KB), và pilot VRAM 10 cửa sổ chạy lại cùng ngày (§3.1).
+> log phiên B `notes/a5b-run-resume.log` (đã chuyển từ UTF-16 sang UTF-8; bỏ progress bar, giữ mọi dòng kết quả),
+> và `notes/a5b-vram-pilot.json` (pilot VRAM 10 cửa sổ chạy lại cùng ngày, §3.1).
 > Mọi số ở §1, §2, §4 tính lại được từ 307 file; riêng VRAM là số đo mới, có ghi rõ cách đo.
 
 ## 1. Tổng quan
@@ -53,20 +54,20 @@ cùng `verifier_config` (đã đối chiếu cả 307 file: `4bit`, `max_attempt
 | Phiên | Cửa sổ | Thời gian (UTC) | Sum `elapsed_s` | Median s/cửa sổ | Bằng chứng |
 |---|---:|---|---:|---:|---|
 | A | 107 | 07:52:33 – 08:25:36 | 2028.3 s | 9.73 | file trong `results/verify/`; không có log trong repo |
-| B (resume) | 198 | 10:05:21 – 10:21:49 | 997.8 s | 3.24 | `notes/a5b-run-resume.log`: `307 window xét, 198 verify, 107 bỏ qua, 2 lỗi` |
+| B (resume) | 198 | 10:05:21 – 10:21:49 | 997.8 s | 3.23 | `notes/a5b-run-resume.log`: `307 window xét, 198 verify, 107 bỏ qua, 2 lỗi` |
 | Rerun clamp | 2 | 11:05:29 – 11:05:33 | 74.7 s | – | `RoadAccidents002[0]` 70.8 s, `Vandalism017[1]` 3.9 s |
 | **Tổng** | **307** | | **3100.8 s** | **3.71** | 2028.3 + 997.8 + 74.7 = 3100.8 |
 
-- Cả hai phiên chạy trên **RTX 3050 6GB (máy Phước)**: phiên B để lại log Windows/torch CUDA `notes/a5b-run-resume.log` (đã commit).
-- **Gap 1 = 99.75 phút** (08:25:36 → 10:05:21): phiên A dừng giữa chừng (chủ động dừng, không crash, không OOM), sau đó resume và 107 file đã xong được **bỏ qua theo fingerprint** — log phiên B xác nhận đúng 107 skip.
+- Phiên B để lại log Windows/torch CUDA `notes/a5b-run-resume.log` (đã commit, UTF-8). Phiên A không có log trong repo: **máy của phiên A (RTX 3050 6GB) và việc dừng chủ động là theo ghi chú của Phước**, không kiểm chứng được từ file.
+- **Gap 1 = 99.75 phút** (08:25:36 → 10:05:21): phiên A dừng giữa chừng rồi resume; **theo ghi chú của Phước** là dừng chủ động (không crash, không OOM). Cái kiểm chứng được: 107 file đã xong được **bỏ qua theo fingerprint**, log phiên B xác nhận đúng 107 skip.
 - **Gap 2 = 43.7 phút** (10:21:49 → 11:05:29): chờ lượt rerun clamp 2 cửa sổ, không phải thời gian xử lý.
-- Khác biệt tốc độ giữa 2 phiên (~3×: 9.27 vs 3.14 s/chunk-call) **không** do config hay workload — caption dài như nhau (51.0 vs 50.5 ký tự/chunk) và config giống hệt. Nguyên nhân khả dĩ là tải GPU/nhiệt độ lúc chạy; chưa đo lại nên ghi nhận là hạn chế, cost row vì vậy ghi số gộp 307 cửa sổ kèm median từng phiên.
+- Khác biệt tốc độ giữa 2 phiên (~3×: 9.27 vs 3.14 s/chunk-call) **không** do config hay workload — caption dài như nhau (trung bình 64.9 vs 65.2 ký tự/chunk, median 61 vs 62) và config giống hệt. Nguyên nhân khả dĩ là tải GPU/nhiệt độ lúc chạy; chưa đo lại nên ghi nhận là hạn chế, cost row vì vậy ghi số gộp 307 cửa sổ kèm median từng phiên.
 
 ### 2.2 Outlier 457 s
 
 `Explosion017_x264/window_0000` là cửa sổ 18 s, **1 chunk**, nhưng `elapsed_s` = **457.01 s** — chiếm **14.7%** tổng thời gian (22.5% của riêng phiên A) và một mình nó đẩy mean từ 8.64 lên 10.10 s.
 
-- Nguyên nhân: **stall đọc video** (nguồn video/ổ mạng), không phải model.
+- Nguyên nhân **nhiều khả năng** là stall đọc video (nguồn video/ổ mạng), không phải model. Đây là suy luận: phiên A không có log trong repo nên chỉ loại trừ được reload và OOM (xem dưới), không chứng minh được nguyên nhân.
 - Đã loại trừ: reload model (cửa sổ liền trước 9.8 s, liền sau 14.1 s), OOM/offload retry (không có lỗi, không có dòng retry, các cửa sổ sau chạy bình thường).
 - **Tổng trừ outlier: 3100.8 − 457.0 = 2643.8 s = 44.06 phút**, mean 8.64 s/cửa sổ. Budget ~52 phút của A6c trong D4-2 là cận trên an toàn (dư ~8 phút).
 
@@ -91,18 +92,20 @@ A5b **không** ghi peak VRAM (metadata không có field, log phiên A không có
 |---|---|
 | GPU | NVIDIA GeForce RTX 3050 **6GB Laptop** GPU, driver 581.86 |
 | Môi trường | Python 3.11.9 · torch 2.14.1+cu126 · transformers 5.17.0 · bitsandbytes 0.50.2 · accelerate 1.15.0 |
-| Pilot | 10 cửa sổ / 5 video, **28 chunk-call** (1–10 chunk/cửa sổ), **0 lỗi** |
+| Pilot | 10 cửa sổ / 5 video (2 cửa sổ mỗi video: `Arrest024`, `Arrest030`, `Arson016`, `Assault006`, `Assault010`), **28 chunk-call** (1–10 chunk/cửa sổ), **0 lỗi** |
 | Config | 4-bit nf4, `k=4`, `max_chunk_s=30`, `max_new_tokens=128`, `prompt_hash=3d71fdba` — trùng A5b |
-| Code | `run_verify.py` @ `48739a3`; khác `7b3a174` **chỉ ở clamp PR #35**, không đổi model/generation |
+| Code | `run_verify.py` @ `48739a3`: khác `7b3a174` ở clamp PR #35; `vad/verify/vlm.py` và `configs/prompts.yaml` **không đổi**; các file khác trong khoảng 2 commit (build_results, eval_tier2, typing, cache slug) không nằm trên đường verify → không ảnh hưởng VRAM/sinh |
 | Peak VRAM (torch allocated) | **2.52 GB** |
 | Peak VRAM (torch reserved) | **2.63 GB** |
 | Peak VRAM (nvidia-smi, device) | **2.91 GB** (2983 MB, baseline desktop 173 MB) |
-| Headroom | 6.0 − 2.91 = **3.1 GB**; sau pilot còn 2.37 GB trống |
+| Headroom lúc chạy | 6.0 − 2.91 = **3.09 GB** |
 | Model load | **18 s** (bar `Loading weights`, HF cache ấm) |
 
-- Code đo: `torch.cuda.max_memory_allocated()` / `max_memory_reserved()` + sample `nvidia-smi memory.used` mỗi 0.25 s; output ghi vào thư mục tạm, **không ghi vào `results/verify/`**.
+- Bằng chứng: **`notes/a5b-vram-pilot.json`** — 10 cửa sổ kèm `elapsed_s`/`n_chunks`, tổng 28 chunk-call, các con số VRAM, môi trường, lệnh chạy và cách đo.
+- Code đo: `torch.cuda.max_memory_allocated()` / `max_memory_reserved()` + sample `nvidia-smi memory.used` mỗi 0.25 s (baseline = max của 4 sample trước khi nạp model); output ghi vào thư mục tạm, **không ghi vào `results/verify/`**.
+- **2.37 GB là gì**: `torch.cuda.mem_get_info()` gọi lúc kết thúc pilot báo còn 2.37 GB trống, nhưng lúc đó **model vẫn nằm trong VRAM**: torch reserved 2.63 GB cộng ~1.0 GB CUDA context/workspace không do torch cấp → 6.0 − 3.63 = 2.37 GB. Đây là bộ nhớ còn trống sau khi chạy, **không phải headroom lúc chạy** (headroom là 3.09 GB ở bảng trên).
 - **Tái lập A1**: A1 trên T4 ghi 2.52 GB torch / 2.93 GB device → pilot trên 3050 cho 2.52 / 2.91. Hai GPU khác nhau, cùng model/config, cùng mức VRAM. Từ giờ câu "fits on 6 GB" có số first-party của đúng máy sản xuất, không phải suy từ benchmark.
-- Lưu ý: pilot chỉ dùng để đo VRAM. `s/window` của pilot **không** dùng cho cost row (10 cửa sổ, chọn theo video, không phải mẫu của 307).
+- Lưu ý: pilot chỉ dùng để đo VRAM. `s/window` của pilot **không** dùng cho cost row (10 cửa sổ, chọn theo video, không phải mẫu của 307; cửa sổ đầu tiên còn gồm cả model load + warmup CUDA nên 120.75 s).
 
 ### 3.2 Cái không đo được (ghi rõ để không ai trích nhầm)
 
