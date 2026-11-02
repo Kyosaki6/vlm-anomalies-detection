@@ -1,4 +1,4 @@
-﻿# PROJECT KNOWLEDGE BASE
+# PROJECT KNOWLEDGE BASE
 
 **Updated:** 2026-11-02 · **Branch:** main · Plan: `notes/2026-10-28-plan-zero-shot-video-vad.md`
 
@@ -34,7 +34,7 @@ scripts/        precompute_embeddings.py (--shard i/N ; repeat --model ; --dry-r
                 eval_tier2.py, eval_vlm_typing.py, make_figures.py
 app/            data.py (loads RunResult, no streamlit import) + streamlit_app.py (real results, Replay + Overview)
 configs/        policy.yaml, prompts.yaml
-tests/          legacy tests + tests/vad_suite/ (859 tests total, 1 skipped)
+tests/          legacy tests + tests/vad_suite/ (867 tests total, 1 skipped)
 notes/          experiment logs + the plan
 ```
 
@@ -97,7 +97,7 @@ Committed results (all `fake=false`, reproducible from `results/`):
 ```bash
 pip install -r requirements-dev.txt        # tests / CI
 pip install -r requirements-app.txt        # + streamlit
-python -m pytest -q                        # 859 passed, 1 skipped, no GPU, no model download
+python -m pytest -q                        # 867 passed, 1 skipped, no GPU, no model download
 streamlit run app/streamlit_app.py         # dashboard on real results/run_A4c/ (290 videos)
 python scripts/precompute_embeddings.py --manifest manifests/<f>.csv --shard 2/4 --dry-run
 

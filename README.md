@@ -63,7 +63,7 @@ Ba nguyên tắc thiết kế được giữ bằng test, không chỉ bằng l�
 pip install -r requirements-dev.txt        # test, CPU, không tải model
 pip install -r requirements-app.txt        # thêm streamlit để mở dashboard
 
-python -m pytest -q                       # 859 passed, 1 skipped (~110 s), không cần GPU
+python -m pytest -q                       # 867 passed, 1 skipped (~110 s), không cần GPU
 python -m streamlit run app/streamlit_app.py   # dashboard đọc results/run_A4c/ (dữ liệu thật)
 ```
 
