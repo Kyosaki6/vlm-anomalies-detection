@@ -1,4 +1,4 @@
-# conftest.py — thêm root project vào sys.path để test import được graph.py
+# conftest.py — thêm root project vào sys.path để test import được `vad` và `scripts`
 import sys
 from pathlib import Path
 

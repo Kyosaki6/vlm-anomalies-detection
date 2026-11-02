@@ -33,7 +33,6 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import decision  # noqa: E402
 import export_windows as ew  # noqa: E402
 import run_benchmark as rb  # noqa: E402
 from vad.datasets.ucf_crime import Annotation, load_annotations, load_gt  # noqa: E402
@@ -263,7 +262,7 @@ def paired_auc_delta_ci(scores_after: Sequence[np.ndarray], scores_before: Seque
         return float("nan"), float("nan")
     deltas.sort()
     tail = (1.0 - ci) / 2.0
-    return decision._percentile(deltas, tail), decision._percentile(deltas, 1.0 - tail)
+    return mt._percentile(deltas, tail), mt._percentile(deltas, 1.0 - tail)
 
 # --- đánh giá ---------------------------------------------------------------------------------------
 

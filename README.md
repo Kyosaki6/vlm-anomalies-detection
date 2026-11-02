@@ -63,22 +63,16 @@ Ba nguyên tắc thiết kế được giữ bằng test, không chỉ bằng l�
 pip install -r requirements-dev.txt        # test, CPU, không tải model
 pip install -r requirements-app.txt        # thêm streamlit để mở dashboard
 
-python -m pytest -q                       # 868 passed (~25 s trên CPU), không cần GPU
+python -m pytest -q                       # 725 passed (~25 s trên CPU), không cần GPU
 python -m streamlit run app/streamlit_app.py   # dashboard đọc results/run_A4c/ (dữ liệu thật)
 ```
 
 Dashboard mở tab **Replay** (chọn video, xem timeline điểm theo thời gian, cửa sổ tô màu theo verdict,
 danh sách cảnh báo kèm lực lượng ứng cứu) và tab **Overview** (bảng ablation, điểm vận hành A6, chi phí).
 
-Kiểm tra nhanh máy có chạy được mô hình không (tải ~1.5 GB lần đầu):
-
-```bash
-python scripts/sanity_embedder.py
-```
-
 > ⚠️ Đừng chạy `streamlit run app/streamlit_app.py -- --demo`. Cờ đó hiển thị **dữ liệu tổng hợp**
 > (điểm ngẫu nhiên, verifier giả) để thử giao diện, và app tự in cảnh báo "DEMO DATA". Khi trình diễn,
-> chạy lệnh trơn như trên. (7 clip demo có `results/run_demo/` riêng, nhưng thư mục đó chỉ có sau khi merge nhánh E4b.)
+> chạy lệnh trơn như trên.
 
 ## Cấu trúc thư mục
 
@@ -88,11 +82,11 @@ python scripts/sanity_embedder.py
 | `scripts/` | `precompute_embeddings.py` (cache, chia shard), `run_benchmark.py`, `calibrate_threshold.py`, `run_verify.py` (tầng 2), `build_results.py` (RunResult + cảnh báo), `eval_tier2.py`, `eval_vlm_typing.py`, `make_figures.py` |
 | `app/` | `data.py` (đọc RunResult, không import streamlit), `streamlit_app.py` |
 | `configs/` | `prompts.yaml` (prompt phát hiện/gọi tên), `policy.yaml` (zone, khung giờ, leo thang) |
-| `manifests/` | `ucf_test.csv` (290 video), `ucf_calib_normal.csv` (60), `own_demo*.csv` (7 clip demo) |
+| `manifests/` | `ucf_test.csv` (290 video), `ucf_calib_normal.csv` (60), `own_demo*.csv` (7 clip demo, chưa chạy) |
 | `results/` | Kết quả đã tính sẵn: `ablation_A*.json`, `run_A4c/` (290 + windows), `verify/` (307), `figures/`, `vlm_typing_eval.json` |
 | `report/` | Báo cáo tiếng Việt 6 chương + phụ lục + tài liệu tham khảo |
 | `notes/` | Nhật ký thí nghiệm, giao thức đăng ký trước, phân tích lỗi |
-| `tests/` | `tests/vad_suite/` — test của hệ thống mới; `tests/` gốc là test của pipeline cũ |
+| `tests/` | `tests/vad_suite/` — toàn bộ test, không cần GPU hay tải model |
 
 Trạng thái từng module và ai phụ trách: `vad/README.md`. Kế hoạch và quyết định: `notes/2026-10-28-plan-zero-shot-video-vad.md`.
 
@@ -129,9 +123,9 @@ chính xác hơn.
 
 ## Clip demo
 
-7 clip ngắn tải từ iStock (bản preview có watermark, **chưa mua licence**) để minh họa giao diện. Kết quả
-chạy thật nằm ở `results/run_demo/` khi đã merge nhánh E4b. Các clip này **không tham gia bất kỳ số liệu
-benchmark nào** và `metadata.note` của chúng ghi rõ "demo, not benchmark".
+7 clip ngắn tải từ iStock (bản preview có watermark, **chưa mua licence**). Hiện chỉ có manifest và nhãn tay
+(`manifests/own_demo*.csv`); **chưa** chạy qua pipeline và **không** có kết quả trong `results/`. Các clip này
+**không tham gia bất kỳ số liệu benchmark nào**.
 
 ## Tái lập
 
@@ -171,14 +165,7 @@ không chép tay.
 - `notes/a6-protocol.md` — giao thức đánh giá tầng 2, commit **trước** khi có verdict.
 - `notes/a6-handcheck.md` — kiểm tay 20 cửa sổ (precision 6/10, mẫu nhỏ, không kiểm được bỏ sót).
 - `notes/a7-fp-analysis.md` — phân tích 5 lost true positive và 1 báo động giả sống sót.
-- `notes/own-clips.md` — bằng chứng chạy 7 clip demo.
-
-## Pipeline cũ (15 ảnh) — không phải bằng chứng cho hệ thống này
-
-`main.py`, `search.py`, `graph.py`, `decision.py`, `data/`, `events.json` là pipeline ảnh tĩnh của giai
-đoạn trước (15 ảnh, truy hồi sự kiện + Knowledge Graph). Nó còn trong repo làm fixture chạy thử và để
-`decision.py` tái sử dụng phần toán đánh giá, nhưng **không** dùng để chứng minh bất kỳ kết quả video nào.
-Kết quả video nằm ở `results/` và `report/04-thuc-nghiem.md`.
+- `notes/own-clips.md` — nguồn và nhãn của 7 clip demo (chưa chạy pipeline).
 
 ## License
 
