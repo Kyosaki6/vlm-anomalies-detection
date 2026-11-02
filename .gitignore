@@ -43,3 +43,7 @@ results/**/*.mp4
 
 # --- A6a: đáp án chấm tay (không commit trước khi chấm xong; repo giữ SHA-256) ---
 /notes/private/
+
+# --- Gói cache tải về từ Release cache-v1 (scripts/fetch_cache.py) ---
+/vad-cache-*.tar.gz
+/vad-cache-*.tar.gz.sha256

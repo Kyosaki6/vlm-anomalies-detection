@@ -3,15 +3,13 @@
 **Updated:** 2026-11-02 · **Branch:** main · Plan: `notes/2026-10-28-plan-zero-shot-video-vad.md`
 
 ## OVERVIEW
-Two codebases live in one repo:
+One codebase, `vad/`:
 
-1. **`vad/` (NEW, active)** — Zero-Shot Video Anomaly & Surveillance Alerting. Video -> SigLIP 2 frame embeddings
+- **`vad/`** — Zero-Shot Video Anomaly & Surveillance Alerting. Video -> SigLIP 2 frame embeddings
    (cached) -> generic-prompt + normal-memory scoring -> temporal smoothing -> candidate windows -> generative VLM
    verification (tier 2, mandatory: the topic was registered as VLM) -> alert policy graph -> Streamlit dashboard.
    Benchmark: UCF-Crime test 290 videos, frame-level AUC with bootstrap CI over **videos**. ShanghaiTech is out of
    scope (time cut, D4-1 NO-GO) — do not claim results for it.
-2. **Legacy 15-image pipeline** (`main.py`, `search.py`, `graph.py`, `decision.py`, `eval.py`, `events.json`, `data/`)
-   — kept as a smoke fixture and for `decision.py` metrics. It is NOT evidence for the new system.
 
 Deadline: submit before **2026-11-04** (hard cutoff: end of 2026-11-03 23:59; feature freeze 2026-11-02 evening, 11-03 = report + packaging).
 Team = 4 (Phước, Huy, Nam, Thịnh). Dashboard owner: Thịnh (whole Streamlit dashboard). Scope cuts: `notes/2026-10-29-task-assignment.md` §6.
@@ -34,7 +32,7 @@ scripts/        precompute_embeddings.py (--shard i/N ; repeat --model ; --dry-r
                 eval_tier2.py, eval_vlm_typing.py, make_figures.py
 app/            data.py (loads RunResult, no streamlit import) + streamlit_app.py (real results, Replay + Overview)
 configs/        policy.yaml, prompts.yaml
-tests/          legacy tests + tests/vad_suite/ (868 tests total)
+tests/vad_suite/ (725 tests total)
 notes/          experiment logs + the plan
 ```
 
@@ -46,7 +44,7 @@ notes/          experiment logs + the plan
 | Detection / typing / verifier prompts | `configs/prompts.yaml` |
 | Alert rules (zones, time bands, escalation) | `configs/policy.yaml` |
 | UCF-Crime annotation parsing | `vad/datasets/ucf_crime.py` |
-| ROC-AUC with ties, bootstrap, threshold math | `decision.py` (reused by `vad/eval/metrics.py`) |
+| ROC-AUC with ties, video bootstrap, FA/hour | `vad/eval/metrics.py` |
 
 ## NO STUBS LEFT — what is already measured (as of 2026-11-02, main `04cf958`)
 
@@ -97,13 +95,9 @@ Committed results (all `fake=false`, reproducible from `results/`):
 ```bash
 pip install -r requirements-dev.txt        # tests / CI
 pip install -r requirements-app.txt        # + streamlit
-python -m pytest -q                        # 868 passed, no GPU, no model download
+python -m pytest -q                        # 725 passed, no GPU, no model download
 streamlit run app/streamlit_app.py         # dashboard on real results/run_A4c/ (290 videos)
 python scripts/precompute_embeddings.py --manifest manifests/<f>.csv --shard 2/4 --dry-run
-
-# legacy pipeline
-python main.py data/danh_nhau_1.jpg
-python eval.py --gallery data --device cpu
 ```
 
 ## HARDWARE (shard planning)
