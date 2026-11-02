@@ -3,7 +3,7 @@
 Phát hiện bất thường trong video giám sát **không cần huấn luyện** (training-free) và biến phát hiện đó
 thành **cảnh báo có quy trình xử lý**: SigLIP 2 nhúng từng khung hình → chấm điểm bằng prompt tổng quát →
 lọc theo thời gian → **Generative VLM kiểm chứng** từng cửa sổ nghi vấn → Alert Policy Graph → dashboard
-Streamlit. Đồ án cơ sở KHTN, 4 thành viên, nộp 04/11/2026.
+Streamlit. Đồ án cơ sở KHMT, 4 thành viên, nộp 04/11/2026.
 
 > **Đọc đúng thuật ngữ:** SigLIP 2 là **dual-encoder**, không phải VLM sinh ngôn ngữ. Nó chỉ cho một
 > vector cho mỗi khung hình. Câu mô tả sự việc ("người đang đánh nhau") do **Qwen2.5-VL-3B** sinh ra ở
@@ -63,7 +63,7 @@ Ba nguyên tắc thiết kế được giữ bằng test, không chỉ bằng l�
 pip install -r requirements-dev.txt        # test, CPU, không tải model
 pip install -r requirements-app.txt        # thêm streamlit để mở dashboard
 
-python -m pytest -q                       # 867 passed, 1 skipped (~110 s), không cần GPU
+python -m pytest -q                       # 868 passed (~25 s trên CPU), không cần GPU
 python -m streamlit run app/streamlit_app.py   # dashboard đọc results/run_A4c/ (dữ liệu thật)
 ```
 
@@ -78,7 +78,7 @@ python scripts/sanity_embedder.py
 
 > ⚠️ Đừng chạy `streamlit run app/streamlit_app.py -- --demo`. Cờ đó hiển thị **dữ liệu tổng hợp**
 > (điểm ngẫu nhiên, verifier giả) để thử giao diện, và app tự in cảnh báo "DEMO DATA". Khi trình diễn,
-> chạy lệnh trơn như trên, hoặc trỏ `VAD_RESULTS_DIR=results/run_demo` cho 7 clip demo.
+> chạy lệnh trơn như trên. (7 clip demo có `results/run_demo/` riêng, nhưng thư mục đó chỉ có sau khi merge nhánh E4b.)
 
 ## Cấu trúc thư mục
 

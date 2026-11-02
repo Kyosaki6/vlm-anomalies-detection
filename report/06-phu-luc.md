@@ -35,7 +35,7 @@ pip install -r requirements-app.txt
 ```
 
 ### 6.3.2. Chạy bộ kiểm thử tự động (Unit Tests)
-Hệ thống tích hợp sẵn bộ kiểm tra tự động gồm **859 bài test (867 passed, 1 skipped, khoảng 110 giây trên CPU)** bao phủ toàn bộ logic toán học, chuẩn hóa chuỗi thời gian, đồ thị chính sách và hợp đồng dữ liệu. Các bài kiểm tra sử dụng mô hình giả lập (`FakeEmbedder`, `FakeVerifier`) nên có thể chạy hoàn chỉnh trên CPU mà không cần tải trọng số nặng:
+Hệ thống tích hợp sẵn bộ kiểm tra tự động gồm **868 bài test (868 passed, khoảng 25 giây trên CPU)** bao phủ toàn bộ logic toán học, chuẩn hóa chuỗi thời gian, đồ thị chính sách và hợp đồng dữ liệu. Các bài kiểm tra sử dụng mô hình giả lập (`FakeEmbedder`, `FakeVerifier`) nên có thể chạy hoàn chỉnh trên CPU mà không cần tải trọng số nặng:
 ```bash
 python -m pytest -q
 ```

@@ -37,7 +37,7 @@ và so với giá trị đang in trong báo cáo. Không cần GPU, không cần
 | VLM typing 83.9% (52/62) · typer 24.2% (15/62) | `scripts/eval_vlm_typing.py` | **chạy lại script** trên `results/verify` | khớp từng số |
 | Hand-check 6/4/0 và 0/9/1, precision mẫu 6/10 | `notes/a6-handcheck-labelled.csv` + `results/verify` | dựng lại bảng chéo từ nhãn người | khớp |
 | Median 3.71 s · p90 14.41 s mỗi cửa sổ VLM | `ablation_A6.json` → `cost` | đọc lại | PASS |
-| 859 test pass, 1 skip | `pytest -q` | chạy lại toàn bộ | khớp (29 s) |
+| 868 test pass | `pytest -q` | chạy lại toàn bộ (cục bộ 25 s; CI 4/4 job: ubuntu/windows × py3.10/3.11) | khớp |
 | RTFM 84.30% frame-level AUC (UCF-Crime, I3D RGB) | bài báo RTFM, arXiv:2101.10030 | đọc **Bảng 2** của bài báo | khớp |
 
 ## 2. Hai điều dễ nói sai khi bảo vệ
