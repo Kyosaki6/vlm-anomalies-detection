@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "video_id": "own_fight_03",
+  "sample_fps": 1.0,
+  "n_frames": 16,
+  "anomaly_scores": [
+    0.295154,
+    0.37133,
+    0.520545,
+    0.680474,
+    0.840346,
+    0.983497,
+    1.08407,
+    1.174616,
+    1.257871,
+    1.325668,
+    1.378368,
+    1.415258,
+    1.441847,
+    1.458257,
+    1.469579,
+    1.472205
+  ],
+  "candidate_windows": [
+    {
+      "video_id": "own_fight_03",
+      "start_s": 7.0,
+      "end_s": 16.0,
+      "score": 1.4722053579079541
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": true,
+      "event_type": "Vandalism",
+      "caption": "Three individuals in hooded sweatshirts engage in a physical altercation near a brick wall at night.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [
+    {
+      "video_id": "own_fight_03",
+      "start_s": 7.0,
+      "end_s": 16.0,
+      "event_type": "Vandalism",
+      "severity": "low",
+      "responders": [
+        "security"
+      ],
+      "protocol": "P-LOG",
+      "path": [
+        "camera:own_fight_03",
+        "event:Vandalism",
+        "severity:low",
+        "protocol:P-LOG"
+      ],
+      "caption": "Three individuals in hooded sweatshirts engage in a physical altercation near a brick wall at night.",
+      "confidence": 0.95,
+      "camera": "own_fight_03"
+    }
+  ],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "04cf958",
+    "timestamp": "2026-11-02T01:39:33+00:00",
+    "schema_version": 1,
+    "tier": "1+2",
+    "ablation": "A4c",
+    "sample_fps": 1.0,
+    "threshold": 1.1685914439041403,
+    "threshold_source": "calib_normal",
+    "calib_manifest": "manifests/ucf_calib_normal.csv",
+    "camera": "own_fight_03",
+    "zone": "default",
+    "hour": null,
+    "tier2": "json",
+    "config": {
+      "model_id": "google/siglip2-base-patch16-384",
+      "sample_fps": 1.0,
+      "prompt_set": "ensemble",
+      "logit_scale": 100.0,
+      "per_video_norm": true,
+      "norm_ref": "calib",
+      "pool_window_s": 5.0,
+      "pool_k": 3,
+      "smoothing": "ema",
+      "ema_alpha": 0.3,
+      "median_kernel": 5,
+      "use_memory": false,
+      "memory_weight": 0.5,
+      "threshold": 1.1685914439041403,
+      "min_len_s": 1.0,
+      "merge_gap_s": 2.0
+    },
+    "note": "demo clips, provenance unverified (iStock preview); demo, not benchmark; not used for AUC or any benchmark number",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 1,
+      "windows": [
+        {
+          "window_index": 0,
+          "start_s": 7.0,
+          "end_s": 16.0,
+          "vlm_event_type": "Assault",
+          "typer_event_type": "Vandalism",
+          "typer_confidence": 0.294271,
+          "typer_margin": 0.093073
+        }
+      ],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
+  }
+}

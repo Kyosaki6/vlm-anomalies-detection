@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "video_id": "own_fight_02",
+  "sample_fps": 1.0,
+  "n_frames": 13,
+  "anomaly_scores": [
+    0.622989,
+    0.78285,
+    0.942574,
+    1.076851,
+    1.190675,
+    1.27215,
+    1.332302,
+    1.374408,
+    1.400973,
+    1.415424,
+    1.428257,
+    1.43339,
+    1.436984
+  ],
+  "candidate_windows": [
+    {
+      "video_id": "own_fight_02",
+      "start_s": 4.0,
+      "end_s": 13.0,
+      "score": 1.436983581330959
+    }
+  ],
+  "verify_results": [
+    {
+      "is_anomaly": false,
+      "event_type": "Fighting",
+      "caption": "A group of men engage in a physical altercation outside an abandoned building.",
+      "confidence": 0.95
+    }
+  ],
+  "alerts": [],
+  "metadata": {
+    "model": "google/siglip2-base-patch16-384",
+    "commit": "04cf958",
+    "timestamp": "2026-11-02T01:39:33+00:00",
+    "schema_version": 1,
+    "tier": "1+2",
+    "ablation": "A4c",
+    "sample_fps": 1.0,
+    "threshold": 1.1685914439041403,
+    "threshold_source": "calib_normal",
+    "calib_manifest": "manifests/ucf_calib_normal.csv",
+    "camera": "own_fight_02",
+    "zone": "default",
+    "hour": null,
+    "tier2": "json",
+    "config": {
+      "model_id": "google/siglip2-base-patch16-384",
+      "sample_fps": 1.0,
+      "prompt_set": "ensemble",
+      "logit_scale": 100.0,
+      "per_video_norm": true,
+      "norm_ref": "calib",
+      "pool_window_s": 5.0,
+      "pool_k": 3,
+      "smoothing": "ema",
+      "ema_alpha": 0.3,
+      "median_kernel": 5,
+      "use_memory": false,
+      "memory_weight": 0.5,
+      "threshold": 1.1685914439041403,
+      "min_len_s": 1.0,
+      "merge_gap_s": 2.0
+    },
+    "note": "demo clips, provenance unverified (iStock preview); demo, not benchmark; not used for AUC or any benchmark number",
+    "event_typing": {
+      "source": "zeroshot_typer",
+      "n_confirmed": 0,
+      "windows": [],
+      "typer_model": "google/siglip2-base-patch16-384"
+    }
+  }
+}
