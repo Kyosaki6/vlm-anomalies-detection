@@ -15,6 +15,7 @@ Sự xuất hiện của các mô hình nền tảng thị giác ngôn ngữ (Vi
 1. Xây dựng quy trình phát hiện hai tầng (Two-Tier Architecture):
    - Tầng 1 (Tier-1): Sử dụng mô hình nhúng SigLIP 2 kết hợp tập prompt chung (generic prompts), bộ nhớ khung hình bình thường (normal memory) và các phép xử lý chuỗi thời gian để lọc nhanh các cửa sổ nghi vấn với chi phí tính toán thấp.
    - Tầng 2 (Tier-2): Đưa các cửa sổ vượt ngưỡng vào mô hình VLM sinh ngôn ngữ (Generative VLM) để xác nhận lại, tạo câu mô tả sự việc và phân loại sự kiện.
+
 2. Xây dựng đồ thị chính sách cảnh báo (Alert Policy Graph): Chuyển đổi loại sự kiện đã được kiểm chứng cùng ngữ cảnh (khu vực camera, khung giờ) thành cảnh báo cụ thể với mức độ nghiêm trọng, lực lượng xử lý tương ứng và quy trình xử lý tiêu chuẩn.
 3. Trực quan hóa kết quả: Xây dựng giao diện bảng điều khiển (Dashboard) cho phép xem lại video kèm dòng thời gian điểm số bất thường, danh sách cảnh báo, câu mô tả VLM và đường dẫn giải thích quyết định.
 4. Đánh giá nghiêm ngặt: Kiểm nghiệm hệ thống trên tập dữ liệu chuẩn UCF-Crime, so sánh với các nghiên cứu công bố (LAVAD, ZS-CLIP) bằng phương pháp thống kê tin cậy (bootstrap theo video).
@@ -35,11 +36,15 @@ Do hạn chế về thời gian thực hiện (kế hoạch thực hiện rút n
 1. Tập dữ liệu chuẩn:
    - Tập kiểm thử chính và bắt buộc là UCF-Crime test split gồm 290 video (140 video bất thường và 150 video bình thường).
    - Tập ShanghaiTech Campus được xếp vào diện mục tiêu mở rộng (stretch goal). Nếu không kịp thời gian tính toán nhúng và đánh giá, nhóm sẽ báo cáo trung thực giới hạn này mà không giả lập kết quả.
+
 2. Quy mô kiểm chứng Tầng 2 (Tier-2 VLM):
    - Mô hình VLM sinh ngôn ngữ được chạy trên các cửa sổ ứng viên nghi vấn. Trong trường hợp giới hạn thời gian tính toán của GPU 6GB, Tier-2 được phép chạy trên một tập con đại diện có ghi nhận chi phí thời gian và bộ nhớ thực tế, tuyệt đối không cắt bỏ hoàn toàn vì đây là ràng buộc cốt lõi của đề tài đăng ký.
+
 3. Dữ liệu thử nghiệm thực tế:
    - Thu thập 7 clip demo từ iStock (bản preview có watermark, chưa mua licence) để trình diễn giao diện; không phải clip tự quay hay cảnh dàn dựng có consent, và không dùng để báo cáo điểm chuẩn benchmark.
+
 4. Bảng điều khiển:
    - Hoạt động ở chế độ xem lại (replay mode) từ các tệp kết quả JSON đã tính trước (precomputed results), bảo đảm khả năng trình chiếu mượt mà trên máy tính không có GPU.
+
 5. Biến thể mô hình (Ablations):
    - Tập trung vào các biến thể A0 đến A5 và biến thể sau VLM (A6). Hủy bỏ biến thể A7 (backbone SigLIP nhỏ 256) để dành tài nguyên cho chuỗi thực nghiệm chính.

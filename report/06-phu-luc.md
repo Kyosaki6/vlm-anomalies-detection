@@ -14,9 +14,11 @@ Bảng dưới đây thống kê chi tiết cấu hình các nút tính toán c�
 ## 6.2. Kiểm tra tính nhất quán giữa các thiết bị (Cross-Card Consistency)
 
 Do sử dụng nhiều dòng GPU khác nhau (Ampere fp16 và Pascal fp32), hệ thống áp dụng quy trình kiểm tra chéo độ tương đồng véc-tơ trước khi ghép dữ liệu cache:
+
 - Một video ngẫu nhiên được chạy trích xuất đặc trưng độc lập trên cả hai máy của Phước (RTX 3050 fp16) và Nam (GTX 1060 fp32).
 - Độ tương đồng cosine trung bình giữa hai mảng véc-tơ nhúng trích xuất ra phải thỏa mãn điều kiện:
   $$\cos(v_{\text{Ampere}}, v_{\text{Pascal}}) > 0.999$$
+
 - Thử nghiệm này xác nhận việc khác biệt về vi kiến trúc và kiểu dữ liệu không gây sai lệch không gian biểu diễn chung của mô hình.
 
 ## 6.3. Hướng dẫn cài đặt và lệnh tái lập thực nghiệm

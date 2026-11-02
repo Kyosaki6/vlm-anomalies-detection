@@ -16,33 +16,41 @@ Báo cáo được chia thành các chương tương ứng với từng file Mar
 
 ## 2. Hướng dẫn biên dịch và xuất báo cáo
 
-Báo cáo có thể ghép và xuất thành file PDF hoặc Microsoft Word bằng Pandoc:
+Báo cáo được ghép từ các file Markdown bằng **Pandoc** (đã kiểm chứng ngày 02/11/2026: 32 trang, mục lục có
+số trang, 5 hình in cỡ rộng, bảng không tràn lề).
 
 ### Xuất file Word (.docx)
+
 ```bash
-pandoc -s -o report.docx \
-  report/01-gioi-thieu.md \
-  report/02-nghien-cuu-lien-quan.md \
-  report/03-phuong-phap.md \
-  report/04-thuc-nghiem.md \
-  report/05-ket-luan.md \
-  report/06-phu-luc.md \
-  report/refs.md \
-  --toc
+pandoc -s --toc --metadata toc-title="Mục lục" --resource-path=report \
+  --metadata title="Báo cáo đồ án cơ sở KHMT - Phát hiện bất thường video và điều phối cảnh báo" \
+  --metadata lang=vi-VN -o report.docx \
+  report/01-gioi-thieu.md report/02-nghien-cuu-lien-quan.md report/03-phuong-phap.md \
+  report/04-thuc-nghiem.md report/05-ket-luan.md report/06-phu-luc.md report/refs.md
 ```
 
-### Xuất file PDF qua XeLaTeX
+### Xuất file PDF
+
+Đường đã chạy được trên máy Windows có Microsoft Word (không cần cài LaTeX):
+
+1. Mở `report.docx` bằng Word.
+2. Bấm chuột phải vào mục lục → **Update Field** → *Update entire table* (Pandoc tạo mục lục dạng field nên
+   số trang chỉ đúng sau bước này).
+3. Chèn số trang: **Insert → Page Number → Bottom of Page → Plain Number 2**, rồi căn giữa.
+4. **File → Save As → PDF** (hoặc *Export → Create PDF/XPS*).
+
+Đường thay thế không cần Word (cần cài MiKTeX/TeX Live, hiện **chưa có** trên máy nào của nhóm):
+
 ```bash
-pandoc -s -o report.pdf \
-  report/01-gioi-thieu.md \
-  report/02-nghien-cuu-lien-quan.md \
-  report/03-phuong-phap.md \
-  report/04-thuc-nghiem.md \
-  report/05-ket-luan.md \
-  report/06-phu-luc.md \
-  report/refs.md \
-  --toc --pdf-engine=xelatex -V geometry:margin=2.5cm -V mainfont="DejaVu Serif"
+pandoc -s --toc -o report.pdf --pdf-engine=xelatex -V geometry:margin=2.5cm -V mainfont="DejaVu Serif" \
+  report/01-gioi-thieu.md report/02-nghien-cuu-lien-quan.md report/03-phuong-phap.md \
+  report/04-thuc-nghiem.md report/05-ket-luan.md report/06-phu-luc.md report/refs.md
 ```
+
+> **Lưu ý định dạng:** hình trong chương 4 phải nằm **ngoài bảng** và có `{width=95%}`. Nếu đặt hình trong ô
+> bảng, Pandoc/Word ép hình vào cột hẹp và hình chỉ còn ~1.3 inch, không đọc được (lỗi đã gặp ở bản nháp
+> 02/11/2026). Bảng có từ 5 cột trở lên cần chỉnh độ rộng cột trong Word sau khi xuất.
+
 
 ## 3. Trạng thái từng chương và nguồn dữ liệu
 
