@@ -10,6 +10,10 @@ số liệu benchmark nào. Video không được commit (`/datasets/` bị igno
 - Nguồn (theo xác nhận của nhóm): https://www.istockphoto.com/vi/search/2/film?family=creative&phrase=fight%20street
 - Licence: chưa mua; bản preview/comp có watermark. Chưa có asset ID hoặc hoá đơn cho từng clip.
 - Ngoại lệ cần kiểm tra: `own_normal_03` là 1920x1080 (6 clip còn lại 768x432).
+- `own_fight_01` trên máy Huy là **bản local 607 frame (24.28 s)**, SHA-256 `d3be684e...`; bản canonical trên Drive là
+  303 frame (12.14 s), SHA-256 `0f9f74e8...`. E4b dùng bản local theo quyết định của Huy; `python scripts/fetch_demo.py --check`
+  sẽ báo lệch cho clip này. Muốn tái lập từ Drive phải upload lại bản 607 frame và cập nhật `EXPECTED_SHA256`, hoặc quay lại
+  bản canonical rồi re-embed.
 
 ## 1. Lấy video
 
@@ -29,7 +33,7 @@ trên Drive thì phải cập nhật bảng đó và chạy lại `build_manifes
 | `own_normal_01.mp4` | 18.28 s | `Normal` | iStock preview, giao thông TP.HCM, watermark, metadata tác giả `Witthaya` |
 | `own_normal_02.mp4` | 21.02 s | `Normal` | iStock preview, vòng xoay nhìn từ trên cao, watermark iStock, tác giả `kwhi02` |
 | `own_normal_03.mp4` | 6.16 s | `Normal` | iStock preview (theo xác nhận), 1920x1080, ngắn hơn yêu cầu E3 (10–30 s) |
-| `own_fight_01.mp4` | 12.14 s | `Fighting` 0.0–12.0 | iStock preview; nhãn 0–12.0 s đã xem lại |
+| `own_fight_01.mp4` | 24.28 s | `Fighting` 0.0–12.0 | iStock preview; bản local 607 frame, SHA khác bản canonical 303 frame trên Drive; nhãn 0–12.0 s đã xem lại |
 | `own_fight_02.mp4` | 12.68 s | `Fighting` 0.0–12.68 | iStock preview; yêu cầu ghi 0–13 s nhưng clip chỉ dài 12.68 s: kẹp `end_s` về thời lượng |
 | `own_fight_03.mp4` | 15.42 s | `Fighting` 5.0–15.0 | iStock preview, watermark |
 | `own_steal_01.mp4` | 13.85 s | `Stealing` 1.0–10.0 | iStock preview, giật túi, người thật mặt rõ, watermark, không consent |
@@ -137,6 +141,38 @@ Checklist:
 ## 5. Liên hệ E4
 
 E4a (2026-10-31) đã chạy SigLIP 2 trên RTX 3050, fps 1, fp16: 7 file `.npy` trong `cache/embeddings/`.
+Cross-card check (Colab T4 vs RTX 3050) trên `own_fight_02`: 13 frame, `min_cos=0.99998450`,
+`mean_cos=0.99999279`, PASS `> 0.999`. Cache `own_fight_01` có 25 mẫu, khớp bản local 607 frame / 25 fps.
+
+E4b dùng tier-1 A4c với tau đóng băng `1.1685914439041403` và calib stats từ `manifests/ucf_calib_normal.csv`;
+tier-2 chạy `scripts/run_verify.py` với `Qwen/Qwen2.5-VL-3B-Instruct` (4-bit), rồi build vào `results/run_demo/`.
+Mọi file demo mang note "demo, not benchmark", không dùng cho AUC hay bất kỳ số liệu benchmark nào.
+
+### 5.1 Kết quả E4b (2026-11-01, local RTX 3050)
+
+`results/run_demo/` có đủ 7 file; 4 clip có candidate window, 3 clip Normal không có window:
+`own_fight_01` (11–12 s, score 1.1796), `own_fight_02` (4–13 s, 1.4370), `own_fight_03` (7–16 s, 1.4722),
+`own_steal_01` (4–9 s, 1.3767). Tier-2 thật (không fake): 3/4 window được VLM xác nhận, tạo 3 alert.
+
+| Clip | Nhãn tay | Window | VLM `is_anomaly` / type | Typer type | Alert |
+|---|---|---|---|---|---|
+| `own_fight_01` | Fighting | 11–12 s | true / Fighting | Abuse | high |
+| `own_fight_02` | Fighting | 4–13 s | **false** / Fighting | Fighting (không áp vì bị reject) | none |
+| `own_fight_03` | Fighting | 7–16 s | true / Assault | Vandalism | low |
+| `own_steal_01` | Stealing | 4–9 s | true / Assault | Assault | high |
+
+`own_fight_02` là ví dụ thất bại có ích cho defense: tier-1 score cao nhất (1.437) và caption mô tả đánh nhau,
+nhưng VLM trả `is_anomaly=false`; theo protocol A6, window bị loại và không sinh alert.
+
+Chi phí tier-2 trên 4 window: window đầu 594.63 s (cold start + tải/nạp model), 3 window sau median 4.03 s,
+p90 16.74 s; không window nào bị chia chunk. Đây là số demo, không phải benchmark.
+
+### 5.2 E4c — typer trên 4 candidate window
+
+Chạy typer zero-shot trên cả 4 candidate window: chỉ `own_fight_02` đúng nhãn tay (`Fighting`); các window còn lại
+typer trả `Abuse` (`own_fight_01`), `Vandalism` (`own_fight_03`), `Assault` (`own_steal_01`) — **1/4 top-1**, và
+**0/3** nếu chỉ tính các window VLM đã xác nhận. Đây là quan sát định tính trên n=4 clip demo, không phải benchmark;
+khớp với kết luận C7e rằng typer zero-shot còn yếu trên các lớp hành vi.
 
 Sau khi có manifest chính thức, E4 chạy:
 
