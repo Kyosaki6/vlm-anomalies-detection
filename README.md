@@ -110,17 +110,6 @@ typer zero-shot **24.2%** (15/62) và mức đoán mò 7.7%; typer không chứn
 84% mọi sự cố". Nhãn cảnh báo vẫn do typer quyết định vì tính tất định (quyết định D-2), không phải vì nó
 chính xác hơn.
 
-## Hạn chế phải nói khi bảo vệ
-
-- **Tầng 2 không miễn phí:** đổi 99% báo động giả lấy 22 sự cố thật bị loại (recall 51.9% → 39.7%).
-- **Không có véc-tơ chuyển động:** đặc trưng từng khung hình 2D, nên hành vi "trông tĩnh" (đi bộ vs bỏ chạy)
-  khó phân biệt.
-- **Chỉ UCF-Crime:** ShanghaiTech không hoàn tất (thiếu thời gian); báo cáo ghi rõ đây là phạm vi mở rộng.
-- **VLM không tái lập 100%:** chạy lại 10 cửa sổ cho 9/10 verdict giống nhau; nguyên nhân chưa xác định.
-- **37/307 cửa sổ VLM tự mâu thuẫn** (`is_anomaly=false` nhưng `event_type` khác Normal); theo giao thức
-  đăng ký trước, verdict chỉ lấy `is_anomaly` nên chúng tính là bị loại.
-- **Replay mode:** dashboard đọc kết quả JSON tính sẵn, không nối luồng camera RTSP thời gian thực.
-
 ## Clip demo
 
 7 clip ngắn tải từ iStock (bản preview có watermark, **chưa mua licence**). Hiện chỉ có manifest và nhãn tay
