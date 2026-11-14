@@ -13,13 +13,16 @@ import pytest
 from scripts.eval_vlm_typing import (
     CaseResult,
     TypingEvalError,
+    _level2,
     build_cases,
     evaluate_cases,
     gt_overlap_s,
+    iou_summary,
     main,
     pair_verdicts,
     segments_seconds,
     summarise,
+    temporal_iou,
     verdict_text,
 )
 from vad.datasets.ucf_crime import Annotation
@@ -50,10 +53,27 @@ def _window(video_id: str, start: float, end: float, score: float = 1.5) -> Wind
 def _case(gt: EventType, vlm: EventType, typer: EventType = EventType.UNKNOWN,
           video_id: str = "Fighting001_x264") -> CaseResult:
     return CaseResult(video_id=video_id, window_index=0, start_s=0.0, end_s=10.0, score=1.5,
-                      overlap_s=10.0, gt=gt, vlm=vlm, typer=typer, typer_confidence=0.5)
+                      overlap_s=10.0, iou=1.0, gt=gt, vlm=vlm, typer=typer, typer_confidence=0.5)
 
 
 # --- hình học thời gian -----------------------------------------------------------
+
+def test_temporal_iou_exact_partial_and_disjoint():
+    # cửa sổ trùng khít đoạn GT -> 1; lệch một nửa -> 1/3; không giao -> 0
+    assert temporal_iou(10.0, 20.0, [(10.0, 20.0)]) == pytest.approx(1.0)
+    assert temporal_iou(0.0, 10.0, [(5.0, 15.0)]) == pytest.approx(1.0 / 3.0)
+    assert temporal_iou(0.0, 5.0, [(10.0, 20.0)]) == pytest.approx(0.0)
+
+
+def test_temporal_iou_merges_overlapping_gt_segments():
+    # hai đoạn GT [0,10) và [5,15): hợp dài 15, không phải 20. Cửa sổ [0,15) phủ kín -> IoU 1.
+    assert temporal_iou(0.0, 15.0, [(0.0, 10.0), (5.0, 15.0)]) == pytest.approx(1.0)
+
+
+def test_temporal_iou_rejects_empty_window():
+    with pytest.raises(TypingEvalError):
+        temporal_iou(5.0, 5.0, [(0.0, 10.0)])
+
 
 def test_overlap_exact_and_partial():
     assert gt_overlap_s(10.0, 20.0, [(10.0, 20.0)]) == pytest.approx(10.0)
@@ -245,6 +265,53 @@ def test_chance_level_is_one_over_thirteen_and_normal_share_counted():
     assert summary["chance_level"] == pytest.approx(1 / 13)
     assert summary["vlm_normal_or_unknown"] == 2
     assert summary["vlm_normal_or_unknown_share"] == pytest.approx(2 / 3)
+
+
+def test_two_level_counts_group_first_then_exact_name():
+    # Assault -> Fighting: qua cấp 1 (cùng nhóm), trượt cấp 2. Assault -> Assault: qua cả hai.
+    # Assault -> Arson: trượt cấp 1 nên không được tính vào mẫu số cấp 2.
+    cases = [
+        _case(EventType.ASSAULT, EventType.FIGHTING, video_id="a"),
+        _case(EventType.ASSAULT, EventType.ASSAULT, video_id="b"),
+        _case(EventType.ASSAULT, EventType.ARSON, video_id="c"),
+    ]
+    results = evaluate_cases(cases, lambda c: TypingResult(EventType.ARSON, 0.5, {}, ()))
+    got = _level2(results, "vlm")
+    assert got["level1_correct"] == 2
+    assert got["level1_accuracy"] == pytest.approx(2 / 3)
+    assert got["level2_correct"] == 1
+    assert got["level2_accuracy_given_level1"] == pytest.approx(0.5)
+
+
+def test_two_level_is_none_when_nobody_passes_level1():
+    results = evaluate_cases([_case(EventType.ASSAULT, EventType.ARSON)],
+                             lambda c: TypingResult(EventType.ARSON, 0.5, {}, ()))
+    got = summarise(results)["two_level"]["vlm"]
+    assert got["level1_accuracy"] == 0.0
+    assert got["level2_accuracy_given_level1"] is None
+
+
+def test_iou_summary_mean_median_and_threshold():
+    # IoU 1.0, 0.5, 0.0: trung bình 0.5, trung vị 0.5, đúng 2/3 cửa sổ đạt >= 0.5
+    cases = [_case(EventType.FIGHTING, EventType.FIGHTING, video_id=f"v{i}") for i in range(3)]
+    results = evaluate_cases(cases, lambda c: TypingResult(EventType.FIGHTING, 0.5, {}, ()))
+    results = [CaseResult(**{**r.__dict__, "iou": v}) for r, v in zip(results, (1.0, 0.5, 0.0))]
+    got = iou_summary(results)
+    assert got["mean"] == pytest.approx(0.5)
+    assert got["median"] == pytest.approx(0.5)
+    assert got["at_threshold"] == pytest.approx(2 / 3)
+
+
+def test_iou_summary_empty_is_none_not_zero():
+    assert iou_summary([])["mean"] is None
+
+
+def test_iou_summary_rejects_value_outside_unit_interval():
+    results = evaluate_cases([_case(EventType.FIGHTING, EventType.FIGHTING)],
+                             lambda c: TypingResult(EventType.FIGHTING, 0.5, {}, ()))
+    bad = CaseResult(**{**results[0].__dict__, "iou": 1.5})
+    with pytest.raises(TypingEvalError):
+        iou_summary([bad])
 
 
 def test_lenient_group_does_not_affect_strict_accuracy():

@@ -92,6 +92,25 @@ def segments_seconds(ann: Annotation, source_fps: float = SOURCE_FPS) -> tuple[t
     return tuple(out)
 
 
+def temporal_iou(start_s: float, end_s: float, segments: Sequence[tuple[float, float]]) -> float:
+    """IoU thời gian giữa cửa sổ [start, end] và HỢP các đoạn GT (nửa mở). Không giao -> 0.0.
+
+    Mẫu số là độ dài hợp của cửa sổ và các đoạn GT, không phải tổng độ dài từng đoạn: hai đoạn GT
+    chồng nhau không được tính hai lần, nếu không IoU có thể âm hoặc vượt 1. Cửa sổ rỗng -> lỗi,
+    vì chia cho 0 sẽ ra NaN và lọt vào trung bình mà không ai thấy.
+    """
+    overlap = gt_overlap_s(start_s, end_s, segments)
+    window = end_s - start_s
+    if window <= 0.0:
+        raise TypingEvalError(f"cửa sổ rỗng, không tính IoU: [{start_s}, {end_s}]")
+    gt_len = gt_overlap_s(min((s for s, _ in segments), default=0.0),
+                          max((e for _, e in segments), default=0.0), segments)
+    union = window + gt_len - overlap
+    if union <= 0.0:
+        return 0.0
+    return overlap / union
+
+
 def gt_overlap_s(start_s: float, end_s: float, segments: Sequence[tuple[float, float]]) -> float:
     """Tổng thời lượng giao giữa cửa sổ và các đoạn GT (giây, đoạn GT nửa mở). Không giao -> 0.0.
 
@@ -130,6 +149,7 @@ class CaseResult:
     end_s: float
     score: float
     overlap_s: float
+    iou: float
     gt: EventType
     vlm: EventType
     typer: EventType
@@ -227,7 +247,8 @@ def build_cases(runs: Mapping[str, RunResult], annotations: Mapping[str, Annotat
             cases.append(CaseResult(
                 video_id=video_id, window_index=index,
                 start_s=float(window.start_s), end_s=float(window.end_s), score=float(window.score),
-                overlap_s=overlap, gt=ann.event_type, vlm=verdict.event_type,
+                overlap_s=overlap, iou=temporal_iou(float(window.start_s), float(window.end_s), segments),
+                gt=ann.event_type, vlm=verdict.event_type,
                 typer=EventType.UNKNOWN, typer_confidence=0.0,   # điền ở `evaluate_cases`
             ))
     return cases, excluded
@@ -242,7 +263,7 @@ def evaluate_cases(cases: Iterable[CaseResult],
         out.append(CaseResult(
             video_id=case.video_id, window_index=case.window_index,
             start_s=case.start_s, end_s=case.end_s, score=case.score, overlap_s=case.overlap_s,
-            gt=case.gt, vlm=case.vlm, typer=result.event_type,
+            iou=case.iou, gt=case.gt, vlm=case.vlm, typer=result.event_type,
             typer_confidence=float(result.confidence),
         ))
     return out
@@ -316,6 +337,49 @@ def _bucket(results: Sequence[CaseResult], key: str) -> dict[str, Any]:
     }
 
 
+def _level2(results: Sequence[CaseResult], key: str) -> dict[str, Any]:
+    """Độ chính xác 2 cấp của `key` (`vlm` hoặc `typer`).
+
+    Cấp 1 = đúng NHÓM gần nghĩa (`LENIENT_GROUPS`): Fighting gọi thành Assault vẫn qua cấp 1.
+    Cấp 2 = đúng NGUYÊN TÊN lớp, và chỉ tính trong những ca đã qua cấp 1. Không có ca nào, hoặc
+    không ca nào qua cấp 1 -> None, không bịa 0.0 (0.0 nghĩa là có ca nhưng sai hết).
+    """
+    total = len(results)
+    level1 = [r for r in results if getattr(r, f"{key}_lenient")]
+    level2 = [r for r in level1 if getattr(r, f"{key}_correct")]
+    return {
+        "level1_correct": len(level1),
+        "level1_accuracy": (len(level1) / total) if total else None,
+        "level2_correct": len(level2),
+        "level2_accuracy_given_level1": (len(level2) / len(level1)) if level1 else None,
+    }
+
+
+def iou_summary(results: Sequence[CaseResult], threshold: float = 0.5) -> dict[str, Any]:
+    """IoU thời gian cửa sổ vs hợp đoạn GT, trên đúng các ca đã chấm nhãn.
+
+    `mean` là trung bình không trọng số theo cửa sổ (một cửa sổ dài không được át cửa sổ ngắn).
+    `at_threshold` đếm cửa sổ có IoU >= ngưỡng — ngưỡng mặc định 0.5 là mốc thường dùng để nói
+    "cửa sổ khớp đoạn", phải ghi rõ chứ không để người đọc đoán.
+    """
+    if not (math.isfinite(threshold) and 0.0 <= threshold <= 1.0):
+        raise TypingEvalError(f"ngưỡng IoU phải trong [0, 1], nhận {threshold}")
+    if not results:
+        return {"n": 0, "mean": None, "median": None, "at_threshold": None, "threshold": threshold}
+    values = sorted(r.iou for r in results)
+    if any(not math.isfinite(v) or v < 0.0 or v > 1.0 for v in values):
+        raise TypingEvalError(f"IoU ngoài [0, 1]: {values[:3]}")
+    n = len(values)
+    mid = values[n // 2] if n % 2 else (values[n // 2 - 1] + values[n // 2]) / 2.0
+    return {
+        "n": n,
+        "mean": sum(values) / n,
+        "median": mid,
+        "at_threshold": sum(v >= threshold for v in values) / n,
+        "threshold": threshold,
+    }
+
+
 def summarise(results: Sequence[CaseResult], excluded: Mapping[str, int] | None = None,
               n_classes: int = 13) -> dict[str, Any]:
     """Toàn bộ số liệu. Không có ca nào -> accuracy None (không bịa 0.0), `n_cases = 0`."""
@@ -327,6 +391,8 @@ def summarise(results: Sequence[CaseResult], excluded: Mapping[str, int] | None 
         "chance_level": (1.0 / n_classes) if n_classes else None,
         "vlm": _bucket(results, "vlm"),
         "typer": _bucket(results, "typer"),
+        "two_level": {"vlm": _level2(results, "vlm"), "typer": _level2(results, "typer")},
+        "iou": iou_summary(results),
         "vlm_normal_or_unknown": says_nothing,
         "vlm_normal_or_unknown_share": (says_nothing / total) if total else None,
         "excluded": dict(excluded or {}),
@@ -437,6 +503,20 @@ def _print_summary(summary: Mapping[str, Any]) -> None:
               f" = {(summary['typer']['accuracy'] or 0) * 100:.1f}%"
               f"   (lenient {(summary['typer']['lenient_accuracy'] or 0) * 100:.1f}%)"
               f"{_ci(summary['typer'])}")
+        def _two(name: str) -> str:
+            b = summary["two_level"][name]
+            a1 = (b["level1_accuracy"] or 0) * 100
+            a2 = b["level2_accuracy_given_level1"]
+            tail = "không có ca qua cấp 1" if a2 is None else f"{a2 * 100:.1f}% đúng nguyên tên"
+            return (f"  {name:<5} cấp 1 (đúng nhóm): {b['level1_correct']}/{n} = {a1:.1f}%"
+                    f"   cấp 2 | cấp 1: {tail}")
+
+        print(_two("vlm"))
+        print(_two("typer"))
+        iou = summary["iou"]
+        if iou["mean"] is not None:
+            print(f"  IoU cửa sổ vs GT      : trung bình {iou['mean']:.3f}, trung vị {iou['median']:.3f},"
+                  f" IoU>={iou['threshold']:g} = {iou['at_threshold'] * 100:.1f}%")
         print(f"  đoán mò (1/13)        : {chance:.1f}%")
         print(f"  VLM trả Normal/Unknown: {summary['vlm_normal_or_unknown']}/{n}"
               f" = {(summary['vlm_normal_or_unknown_share'] or 0) * 100:.1f}%")
@@ -564,8 +644,9 @@ def main(argv: list[str] | None = None) -> int:
         "n_classes": n_classes,
         "summary": summary,
         "cases": [
-            {"video_id": r.video_id, "window_index": r.window_index,
+             {"video_id": r.video_id, "window_index": r.window_index,
              "start_s": r.start_s, "end_s": r.end_s, "score": r.score, "overlap_s": r.overlap_s,
+             "iou": round(r.iou, 6),
              "gt": r.gt.value, "vlm": r.vlm.value, "typer": r.typer.value,
              "typer_confidence": round(r.typer_confidence, 6),
              "vlm_correct": r.vlm_correct, "typer_correct": r.typer_correct,
